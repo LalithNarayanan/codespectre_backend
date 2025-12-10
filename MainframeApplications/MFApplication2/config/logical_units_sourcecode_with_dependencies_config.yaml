@@ -1,0 +1,16 @@
+- id: L1
+  programs: [Program1.cbl]
+  programs_type: [batch]
+  action: process
+  context_1: 
+  context_2:
+  context_3:
+  remarks: 
+- id: L2
+  programs: [Program2.cbl]
+  programs_type: [batch]
+  action: completed
+  context_1:
+  context_2:
+  context_3: 
+  remarks: 

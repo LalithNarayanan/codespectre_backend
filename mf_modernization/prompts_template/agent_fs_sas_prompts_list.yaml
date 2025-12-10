@@ -1,0 +1,43 @@
+# SAS Business Rules Generation - Prompt Categories
+
+# Step 1: Program Overview
+# Step 2: DATA Step and Dataset Analysis
+# Step 3: DATA Step Business Logic
+# Step 4: PROC Step and Statistical Processing
+# Step 5: Database Connectivity and File I/O
+# Step 6: Step Execution Flow and Dependencies
+# Step 7: Error Handling and Logging
+
+sas_programs:
+  - title: "Program Overview"
+    topic: "extract_program_overview"
+  - title: "DATA Step and Dataset Analysis"
+    topic: "extract_datastep_dataset_analysis"
+  - title: "DATA Step Business Logic"
+    topic: "extract_datastep_businesslogic"
+  - title: "PROC Step and Statistical Processing"
+    topic: "extract_procstep_statistical_processing"
+  - title: "Database Connectivity and File I/O"
+    topic: "extract_database_fileio"
+  - title: "Step Execution Flow and Dependencies"
+    topic: "extract_step_execution_flow"
+  - title: "Error Handling and Logging"
+    topic: "extract_errorhandling_logging"
+
+# batch_programs_sas:
+#   - title: "Program Overview"
+#     topic: "extract_program_overview"
+#   - title: "DATA Step and Dataset Analysis"
+#     topic: "extract_datastep_dataset_analysis"
+#   - title: "DATA Step Business Logic"
+#     topic: "extract_datastep_businesslogic"
+#   - title: "PROC Step and Statistical Processing"
+#     topic: "extract_procstep_statistical_processing"
+#   - title: "Database Connectivity and File I/O"
+#     topic: "extract_database_fileio"
+#   - title: "Step Execution Flow and Dependencies"
+#     topic: "extract_step_execution_flow"
+#   - title: "Error Handling and Logging"
+#     topic: "extract_errorhandling_logging"
+#   - title: "Mermaid Flow Diagram"
+#     topic: "extract_mermaid_flow_diagram"

@@ -1,0 +1,29 @@
+# 1 generating object oriented design from functional spec
+mermaid_diagrams:
+  versions:
+    - version: "class_diagram" 
+      system_message: You are an expert AI Engineer skilled at Object Oriented Design.
+      user_message: |
+        Generate a Mermaid class diagram script based on the following content. 
+        Identify the key entities (classes), their attributes (properties), 
+        and the relationships between them (inheritance, association, aggregation, composition).
+        Represent these using Mermaid class diagram syntax. Focus on capturing the core structure and connections described in the text
+        {data_for_diagram}
+
+    - version: "flow_diagram" 
+      system_message: You are an expert AI Engineer skilled at Object Oriented Design.
+      user_message: |
+        Generate a Mermaid class diagram script based on the following content. 
+        Identify the key entities (classes), their attributes (properties), 
+        and the relationships between them (inheritance, association, aggregation, composition).
+        Represent these using Mermaid class diagram syntax. Focus on capturing the core structure and connections described in the text
+        {data_for_diagram}
+
+    - version: "mind_map_diagram" 
+      system_message: You are an expert AI Engineer skilled at Object Oriented Design.
+      user_message: |
+        Generate a Mermaid class diagram script based on the following content. 
+        Identify the key entities (classes), their attributes (properties), 
+        and the relationships between them (inheritance, association, aggregation, composition).
+        Represent these using Mermaid class diagram syntax. Focus on capturing the core structure and connections described in the text
+        {data_for_diagram}

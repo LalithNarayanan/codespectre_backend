@@ -1,0 +1,263 @@
+# SAS Business Rules Extraction Prompts
+
+code2functionalspec:
+
+  # Step 1: Program Overview
+  extract_program_overview:
+    versions:
+      - version: code
+        system_message: You are an expert SAS developer and analyst.
+        user_message: |
+          Analyze all the given SAS programs and provide the following detail for each of the Programs:
+          Overview of the Program
+          List of all the business functions addressed by the Program
+          List of all the datasets it creates and consumes, along with the data flow.
+
+          Instruction:
+          Don't exclude any programs.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+      - version: code,context_1,context_2
+        system_message: You are an expert SAS developer and analyst.
+        user_message: |
+          Analyze all the given SAS programs and provide the following detail for each of the Programs:
+          Overview of the Program
+          List of all the business functions addressed by the Program
+          List of all the datasets it creates and consumes, along with the data flow.
+
+          Instruction:
+          Don't exclude any programs.
+
+          Context_1: ```{context_1}```
+          Context_2: ```{context_2}```
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+      - version: code,context_1,context_2,context_3
+        system_message: You are an expert SAS developer and analyst.
+        user_message: |
+          Analyze all the given SAS programs and provide the following detail for each of the Programs:
+          Overview of the Program
+          List of all the business functions addressed by the Program
+          List of all the datasets it creates and consumes, along with the data flow.
+
+          Instruction:
+          Don't exclude any programs.
+
+          Context_1: ```{context_1}```
+          Context_2: ```{context_2}```
+          Context_3: ```{context_3}```
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+  # Step 2: DATA Step and Dataset Analysis
+  extract_datastep_dataset_analysis:
+    versions:
+      - version: code
+        system_message: You are an expert SAS developer.
+        user_message: |
+          Analyze all the given SAS programs and provide the following detail for each of the Programs:
+          All the datasets created and consumed, along with the description
+          All input sources (INFILE, SET, MERGE, JOIN) with details
+          All output datasets (temporary vs permanent)
+          Key variable usage and transformations
+          RETAIN statements and variable initialization
+          LIBNAME and FILENAME assignments
+
+          Instruction:
+          Don't exclude any programs.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+   # Step 3: DATA Step Business Logic
+  extract_datastep_businesslogic:
+    versions:
+      - version: code
+        system_message: You are a SAS transformation expert.
+        user_message: |
+          Analyze all the given SAS programs and provide the following detail for each of the Programs:
+          List of DATA macros and steps in the order of how they are executed (per each file as usual, within each file, every macro/step), along with the description explaining its purpose (IMPORTANT)
+          Business Rules implemented in DATA steps (IMPORTANT)
+          IF/ELSE conditional logic breakdown
+          DO loop processing logic
+          Key calculations and transformations
+          Data validation logic
+
+          Instruction:
+          Don't exclude any programs. For each rule/logic/step, include relevant information.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+  # Step 4: PROC Step and Statistical Processing
+  extract_procstep_statistical_processing:
+    versions:
+      - version: code
+        system_message: You are a SAS analytics specialist.
+        user_message: |
+          Analyze all the given SAS programs and provide the following detail for each of the Programs:
+          List of all PROC steps (PRINT, MEANS, FREQ, SQL, LOGISTIC, etc.) with descriptions
+          Statistical analysis methods used
+          Predictive modeling logic (if any)
+          Macro variable definitions and usage
+          Report generation and formatting logic
+          Business application of each PROC
+
+          Instruction:
+          Don't exclude any programs. Include all PROC statements shown in the SAS code.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+ 
+  # Step 5: Database Connectivity and File I/O
+  extract_database_fileio:
+    versions:
+      - version: code
+        system_message: You are an expert SAS ETL and connectivity specialist.
+        user_message: |
+          Analyze all the given SAS programs and provide the following detail for each of the Programs:
+          Identify all external database connections, file imports/exports, and I/O operations.
+          List of PROC SQL queries and database operations
+          LIBNAME assignments for database connections
+          PROC IMPORT/EXPORT statements with file details
+          FILENAME statements and file operations
+          Database engine usage (ODBC, OLEDB, etc.)
+
+          Instruction:
+          Don't exclude any programs. Include code blocks for every SQL/IMPORT/EXPORT operation.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+# Step 6: Step Execution Flow and Dependencies
+  extract_step_execution_flow:
+    versions:
+      - version: code
+        system_message: You are a SAS program flow expert.
+        user_message: |
+          Analyze all the SAS programs given and provide the following details:
+          List of SAS programs analyzed
+          Sequence in which DATA and PROC steps are executed, along with the description
+          Dataset dependencies (which steps depend on outputs from prior steps)
+          Macro execution order (if applicable)
+          RUN/QUIT statement trigger points
+          List of use cases addressed by all the programs together.
+
+          Instruction:
+          Don't exclude any programs. Summarize the execution sequence.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+  
+  # Step 7: Error Handling and Logging
+  extract_errorhandling_logging:
+    versions:
+      - version: code
+        system_message: You are an expert in SAS error handling and logging.
+        user_message: |
+          Analyze all the given SAS programs and provide the following detail for each of the Programs:
+          Error checking mechanisms (_ERROR_, FILERC, SQLRC, SYSERR)
+          PUT statements for logging
+          ABORT and STOP conditions
+          Error handling in DATA steps
+          Exception handling in PROC SQL (SQLRC, SQLXRC)
+          Error output datasets or files
+
+          Instruction:
+          Don't exclude any programs. Include all error handling logic shown in the SAS code.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+  # Merge functional specifications
+  merge_functional_specs:
+    versions:
+      - version: functional_specs,section
+        system_message: You are a top tier business analyst.
+        user_message: |
+          The {section} section was extracted from multiple functional specifications file.
+          The consolidated content is as follows:
+          {functional_specs}
+
+          Please merge all the contents logically.
+          Ensure that no original information is omitted in the enhanced version.
+          Ensure all the merged contents are grouped under the section {section}
+
+          Instruction:
+          Don't exclude any details or program.
+
+      - version: functional_specs,section,context_1
+        system_message: You are a top tier business analyst.
+        user_message: |
+          You are given the following business logic
+          ``` {functional_specs} ```
+          extracted from the SAS Programs
+
+          Combine the section {context_1} across functional specs logically.
+
+          Instruction:
+          Don't exclude any details or program, don't abstract the information.
+
+      - version: functional_specs,context_1,context_2
+        system_message: You are a top tier business analyst.
+        user_message: |
+          You are given the following business logic
+          ``` {functional_specs} ```
+          extracted from the SAS Programs
+
+          {context_1}. But logic extracted is at high level and
+          it needs to be enhanced with more details.
+          Use the given "mapping spec" document to enhance the business logic:
+          ```{context_2} ```
+
+          Instruction: Don't exclude any details or program
+
+  # # Mermaid Flow Diagram (for batch programs)
+  # extract_mermaid_flow_diagram:
+  #   versions:
+  #     - version: code
+  #       system_message: You are a SAS expert and a software documentation specialist.
+  #       user_message: |
+  #         Your task is to analyze the given SAS program and generate a mermaid FlowChart diagram
+
+  #         SAS Program:
+  #         -------------------------------------------
+  #         ```{code}```
+
+  #         *Instructions*:
+  #         Represent each DATA step and PROC step as a node in the Mermaid Flowchart.
+  #         Show the flow of control between steps using arrows.
+  #         Represent conditional logic (IF, ELSE) as decision nodes.
+  #         Represent loops (DO UNTIL, DO WHILE) as loop structures.
+  #         Represent file I/O operations (INFILE, SET, MERGE, OUTPUT) as input/output nodes.
+  #         Show dataset dependencies clearly.
+  #         Focus on the execution flow and data dependencies.
+  #         Generate the Mermaid Flowchart code as the output.
+  #         Do not include any additional explanation or commentary.
+
+  #         Expected Output:
+  #         - Mermaid Flowchart diagram output
+
+
+
+
+
+
+
+

@@ -1,0 +1,161 @@
+
+=========== Current Method: createComment =============
+CommentsApi - createComment:
+```java
+@PostMapping
+  public ResponseEntity<?> createComment(
+      @PathVariable("slug") String slug,
+      @AuthenticationPrincipal User user,
+      @Valid @RequestBody NewCommentParam newCommentParam) {
+    Article article =
+        articleRepository.findBySlug(slug).orElseThrow(ResourceNotFoundException::new);
+    Comment comment = new Comment(newCommentParam.getBody(), user.getId(), article.getId());
+    commentRepository.save(comment);
+    return ResponseEntity.status(201)
+        .body(commentResponse(commentQueryService.findById(comment.getId(), user).get()));
+  }
+```
+=========== Dependent Methods of createComment: ===============
+                
+ArticleRepository - findBySlug:
+```java
+Optional<Article> findBySlug(String slug);
+```
+
+                    
+CommentReadService - findById:
+```java
+CommentData findById(@Param("id") String id);
+```
+
+                    
+UserRelationshipQueryService - isUserFollowing:
+```java
+boolean isUserFollowing(
+      @Param("userId") String userId, @Param("anotherUserId") String anotherUserId);
+```
+
+                    
+CommentsApi - commentResponse:
+```java
+private Map<String, Object> commentResponse(CommentData commentData) {
+    return new HashMap<String, Object>() {
+      {
+        put("comment", commentData);
+      }
+    };
+  }
+```
+
+                    
+CommentRepository - save:
+```java
+void save(Comment comment);
+```
+
+                    
+=========== Current Method: getComments =============
+CommentsApi - getComments:
+```java
+@GetMapping
+  public ResponseEntity getComments(
+      @PathVariable("slug") String slug, @AuthenticationPrincipal User user) {
+    Article article =
+        articleRepository.findBySlug(slug).orElseThrow(ResourceNotFoundException::new);
+    List<CommentData> comments = commentQueryService.findByArticleId(article.getId(), user);
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("comments", comments);
+          }
+        });
+  }
+```
+=========== Dependent Methods of getComments: ===============
+                
+UserRelationshipQueryService - followingAuthors:
+```java
+Set<String> followingAuthors(@Param("userId") String userId, @Param("ids") List<String> ids);
+```
+
+                    
+ArticleRepository - findBySlug:
+```java
+Optional<Article> findBySlug(String slug);
+```
+
+                    
+CommentReadService - findByArticleId:
+```java
+List<CommentData> findByArticleId(@Param("articleId") String articleId);
+```
+
+                    
+=========== Current Method: deleteComment =============
+CommentsApi - deleteComment:
+```java
+@RequestMapping(path = "{id}", method = RequestMethod.DELETE)
+  public ResponseEntity deleteComment(
+      @PathVariable("slug") String slug,
+      @PathVariable("id") String commentId,
+      @AuthenticationPrincipal User user) {
+    Article article =
+        articleRepository.findBySlug(slug).orElseThrow(ResourceNotFoundException::new);
+    return commentRepository
+        .findById(article.getId(), commentId)
+        .map(
+            comment -> {
+              if (!AuthorizationService.canWriteComment(user, article, comment)) {
+                throw new NoAuthorizationException();
+              }
+              commentRepository.remove(comment);
+              return ResponseEntity.noContent().build();
+            })
+        .orElseThrow(ResourceNotFoundException::new);
+  }
+```
+=========== Dependent Methods of deleteComment: ===============
+                
+CommentRepository - remove:
+```java
+void remove(Comment comment);
+```
+
+                    
+ArticleRepository - findBySlug:
+```java
+Optional<Article> findBySlug(String slug);
+```
+
+                    
+CommentRepository - findById:
+```java
+Optional<Comment> findById(String articleId, String id);
+```
+
+                    
+=========== Current Method: commentResponse =============
+CommentsApi - commentResponse:
+```java
+private Map<String, Object> commentResponse(CommentData commentData) {
+    return new HashMap<String, Object>() {
+      {
+        put("comment", commentData);
+      }
+    };
+  }
+```
+=========== Dependent Methods of commentResponse: ===============
+                
+CommentsApi - commentResponse:
+```java
+private Map<String, Object> commentResponse(CommentData commentData) {
+    return new HashMap<String, Object>() {
+      {
+        put("comment", commentData);
+      }
+    };
+  }
+```
+
+                    

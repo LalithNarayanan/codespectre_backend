@@ -1,0 +1,82 @@
+/*******************************************************************************
+* Program: 01_transaction_data_import.sas
+* Purpose: Import transaction data from CSV file and perform initial validation
+* Author: Generated Example
+* Date: 2025-12-01
+*******************************************************************************/
+
+/* Macro Variables */
+%let input_path = /data/raw;
+%let output_lib = WORK;
+%let transaction_file = transactions.csv;
+
+/* MACRO 1: Import transaction data */
+%macro IMPORT_TRANSACTIONS(filepath=, outds=);
+
+    /* Import CSV file */
+    PROC IMPORT 
+        DATAFILE="&filepath"
+        OUT=&outds
+        DBMS=CSV
+        REPLACE;
+        GETNAMES=YES;
+    RUN;
+
+    /* Log import results */
+    %PUT NOTE: Imported &filepath to &outds;
+
+    /* Check for errors */
+    %if &SYSERR > 0 %then %do;
+        %PUT ERROR: Import failed with SYSERR=&SYSERR;
+        %ABORT;
+    %end;
+
+%mend IMPORT_TRANSACTIONS;
+
+/* MACRO 2: Validate imported data */
+%macro VALIDATE_DATA(inds=, outds=);
+
+    DATA &outds;
+        SET &inds;
+
+        /* Create validation flags */
+        length validation_status $20;
+
+        /* Check for missing values */
+        if missing(transaction_id) then validation_status = 'MISSING_ID';
+        else if missing(customer_id) then validation_status = 'MISSING_CUSTOMER';
+        else if missing(amount) then validation_status = 'MISSING_AMOUNT';
+        else if missing(transaction_date) then validation_status = 'MISSING_DATE';
+        else if amount <= 0 then validation_status = 'INVALID_AMOUNT';
+        else validation_status = 'VALID';
+
+        /* Keep only valid records */
+        if validation_status = 'VALID';
+
+    RUN;
+
+    /* Log validation results */
+    PROC SQL NOPRINT;
+        SELECT COUNT(*) INTO :valid_count FROM &outds;
+        SELECT COUNT(*) INTO :total_count FROM &inds;
+    QUIT;
+
+    %PUT NOTE: Validated &valid_count of &total_count records;
+
+%mend VALIDATE_DATA;
+
+/* Execute macros */
+%IMPORT_TRANSACTIONS(
+    filepath=&input_path/&transaction_file,
+    outds=&output_lib..raw_transactions
+);
+
+%VALIDATE_DATA(
+    inds=&output_lib..raw_transactions,
+    outds=&output_lib..transactions_validated
+);
+
+/* Display results */
+PROC PRINT DATA=&output_lib..transactions_validated(OBS=10);
+    TITLE 'First 10 Validated Transactions';
+RUN;

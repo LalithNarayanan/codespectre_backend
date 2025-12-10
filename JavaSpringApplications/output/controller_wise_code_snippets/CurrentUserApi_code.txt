@@ -1,0 +1,124 @@
+
+=========== Current Method: currentUser =============
+CurrentUserApi - currentUser:
+```java
+@GetMapping
+  public ResponseEntity currentUser(
+      @AuthenticationPrincipal User currentUser,
+      @RequestHeader(value = "Authorization") String authorization) {
+    UserData userData = userQueryService.findById(currentUser.getId()).get();
+    return ResponseEntity.ok(
+        userResponse(new UserWithToken(userData, authorization.split(" ")[1])));
+  }
+```
+=========== Dependent Methods of currentUser: ===============
+                
+UserReadService - findById:
+```java
+UserData findById(@Param("id") String id);
+```
+
+                    
+CurrentUserApi - userResponse:
+```java
+private Map<String, Object> userResponse(UserWithToken userWithToken) {
+    return new HashMap<String, Object>() {
+      {
+        put("user", userWithToken);
+      }
+    };
+  }
+```
+
+                    
+=========== Current Method: updateProfile =============
+CurrentUserApi - updateProfile:
+```java
+@PutMapping
+  public ResponseEntity updateProfile(
+      @AuthenticationPrincipal User currentUser,
+      @RequestHeader("Authorization") String token,
+      @Valid @RequestBody UpdateUserParam updateUserParam) {
+
+    userService.updateUser(new UpdateUserCommand(currentUser, updateUserParam));
+    UserData userData = userQueryService.findById(currentUser.getId()).get();
+    return ResponseEntity.ok(userResponse(new UserWithToken(userData, token.split(" ")[1])));
+  }
+```
+=========== Dependent Methods of updateProfile: ===============
+                
+UserReadService - findById:
+```java
+UserData findById(@Param("id") String id);
+```
+
+                    
+CurrentUserApi - userResponse:
+```java
+private Map<String, Object> userResponse(UserWithToken userWithToken) {
+    return new HashMap<String, Object>() {
+      {
+        put("user", userWithToken);
+      }
+    };
+  }
+```
+
+                    
+UserRepository - save:
+```java
+void save(User user);
+```
+
+                    
+User - update:
+```java
+public void update(String email, String username, String password, String bio, String image) {
+    if (!Util.isEmpty(email)) {
+      this.email = email;
+    }
+
+    if (!Util.isEmpty(username)) {
+      this.username = username;
+    }
+
+    if (!Util.isEmpty(password)) {
+      this.password = password;
+    }
+
+    if (!Util.isEmpty(bio)) {
+      this.bio = bio;
+    }
+
+    if (!Util.isEmpty(image)) {
+      this.image = image;
+    }
+  }
+```
+
+                    
+=========== Current Method: userResponse =============
+CurrentUserApi - userResponse:
+```java
+private Map<String, Object> userResponse(UserWithToken userWithToken) {
+    return new HashMap<String, Object>() {
+      {
+        put("user", userWithToken);
+      }
+    };
+  }
+```
+=========== Dependent Methods of userResponse: ===============
+                
+CurrentUserApi - userResponse:
+```java
+private Map<String, Object> userResponse(UserWithToken userWithToken) {
+    return new HashMap<String, Object>() {
+      {
+        put("user", userWithToken);
+      }
+    };
+  }
+```
+
+                    

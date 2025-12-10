@@ -1,0 +1,245 @@
+# SAS Business Rules Extraction Prompts - IMPROVED VERSION
+
+code2functionalspec:
+
+  # Step 1: Program Overview
+  extract_program_overview:
+    versions:
+      - version: code
+        system_message: You are an expert SAS developer and analyst.
+        user_message: |
+          Analyze the SAS programs and provide a clear overview for each program.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+          For each program, provide:
+
+          ## Program Name
+
+          **Purpose**: Brief description of what this program does (1-2 sentences)
+
+          **Business Functions**:
+          - Function 1
+          - Function 2
+
+          **Key Datasets**:
+          - Input: dataset_name (source: where it comes from)
+          - Output: dataset_name (purpose: what it's used for)
+
+          **Dependencies**: List other programs or data sources this program depends on
+
+          ---
+
+          DO NOT use tables. Use simple bullet points and clear headings.
+
+  # Step 2: DATA Step and Dataset Analysis
+  extract_datastep_dataset_analysis:
+    versions:
+      - version: code
+        system_message: You are an expert SAS developer.
+        user_message: |
+          Analyze all DATA steps in the SAS programs.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+          For each DATA step, provide:
+
+          ## DATA Step: step_name
+
+          **Purpose**: What this step does
+
+          **Input Sources**:
+          - Dataset/File name (type: SET/MERGE/INFILE)
+
+          **Output Dataset**: dataset_name (temporary/permanent)
+
+          **Key Variables Created**:
+          - variable_name: description
+
+          **RETAIN Statements**: List any variables retained and why
+
+          **LIBNAME/FILENAME**: List any library or file assignments
+
+          ---
+
+          DO NOT use tables. Keep descriptions concise.
+
+  # Step 3: DATA Step Business Logic  
+  extract_datastep_businesslogic:
+    versions:
+      - version: code
+        system_message: You are a SAS transformation expert.
+        user_message: |
+          Extract the business logic from DATA steps in the SAS programs.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+          For each significant business rule or logic block:
+
+          ## Business Rule: rule_name
+
+          **Description**: What this rule does in business terms
+
+          **Condition**: When this rule applies
+          - IF condition 1
+          - THEN action
+
+          **Variables Affected**: Which variables are changed
+
+          **Example**: Brief example if helpful
+
+          ---
+
+          Focus on BUSINESS LOGIC, not technical implementation details.
+          Use plain language, avoid overly technical SAS syntax explanations.
+
+  # Step 4: PROC Step and Statistical Processing
+  extract_procstep_statistical_processing:
+    versions:
+      - version: code
+        system_message: You are a SAS analytics specialist.
+        user_message: |
+          Document all PROC steps in the SAS programs.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+          For each PROC step:
+
+          ## PROC procedure_name
+
+          **Purpose**: What this procedure does
+
+          **Input Dataset**: dataset_name
+
+          **Output**: What is produced (report/dataset/statistics)
+
+          **Business Application**: Why this analysis is performed
+
+          **Key Options**: Important parameters used
+
+          ---
+
+          Keep descriptions business-focused, not syntax-focused.
+
+  # Step 5: Database Connectivity and File I/O
+  extract_database_fileio:
+    versions:
+      - version: code
+        system_message: You are an expert SAS ETL and connectivity specialist.
+        user_message: |
+          Identify external connections and file operations in the SAS programs.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+          ## External Connections
+
+          **Database Connections** (if any):
+          - LIBNAME: library_name (engine: database_type, purpose: what it accesses)
+
+          **File Imports**:
+          - PROC IMPORT: filename (format: CSV/Excel, purpose: what data)
+
+          **File Exports**:
+          - PROC EXPORT: filename (format: CSV/Excel, purpose: output type)
+
+          **PROC SQL Queries** (if accessing databases):
+          - Brief description of what each query does
+
+          ---
+
+          Only include if actually present in the code. Skip sections that don't apply.
+
+  # Step 6: Step Execution Flow
+  extract_step_execution_flow:
+    versions:
+      - version: code
+        system_message: You are a SAS program flow expert.
+        user_message: |
+          Describe the execution flow of the SAS programs.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+          ## Execution Sequence
+
+          **Step 1**: Brief description of first major step
+          - Input: dataset/file
+          - Output: dataset/file
+
+          **Step 2**: Brief description of second major step
+          - Input: output from Step 1
+          - Output: dataset/file
+
+          Continue for all major steps...
+
+          ## Data Dependencies
+
+          - Program B depends on output from Program A
+          - Dataset X must exist before running Step 3
+
+          ---
+
+          Show the FLOW, not detailed code. Keep it high-level.
+
+  # Step 7: Error Handling and Logging
+  extract_errorhandling_logging:
+    versions:
+      - version: code
+        system_message: You are an expert in SAS error handling and logging.
+        user_message: |
+          Identify error handling in the SAS programs.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+          ## Error Checks
+
+          **Validation Checks**:
+          - What is being validated
+          - How errors are flagged
+
+          **Error Handling**:
+          - What happens when errors occur
+          - Are bad records written to error datasets?
+
+          **Logging**:
+          - What information is logged (PUT statements)
+          - Where logs are written
+
+          ---
+
+          Only document error handling that is actually present in the code.
+          If no error handling exists, state: "No explicit error handling found."
+
+  # Mermaid Flow Diagram
+  extract_mermaid_flow_diagram:
+    versions:
+      - version: code
+        system_message: You are a SAS expert and documentation specialist.
+        user_message: |
+          Generate a Mermaid flowchart showing the program flow.
+
+          SAS Program:
+          -------------------------------------------
+          ```{code}```
+
+          Create a simple flowchart showing:
+          - Major DATA and PROC steps
+          - Dataset inputs and outputs
+          - Decision points (IF conditions)
+          - Flow arrows between steps
+
+          Keep it HIGH-LEVEL - do not include every single statement.
+          Focus on the main data flow and major processing steps.

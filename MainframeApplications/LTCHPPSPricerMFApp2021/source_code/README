@@ -1,0 +1,121 @@
+======================                                                  00010064
+MU00.@BFN2699.LTNDM212                                                  00020079
+======================                                                  00030064
+                                                                        00040064
+TO: Shared System Coordinators, MEDICARE Coordinators                   00050064
+                                                                        00060064
+SUBJECT: Long-term Care Hospital (LTCH) Prospective Payment System (PPS)00070064
+         Pricer Release, Version 20212                                  00080079
+                                                                        00081080
+(December 01, 2020) - Refer to the following two Change Requests (CR):  00090080
+                                                                        00090180
+ - CR11879, FISCAL YEAR (FY) 2021 INPATIENT PROSPECTIVE PAYMENT SYSTEM  00091080
+ (IPPS) AND LONG TERM CARE HOSPITAL (LTCH) PPS CHANGES, and             00100080
+                                                                        00102080
+ - CR12072, January 2021 Quarterly Update to the Inpatient Prospective  00103080
+ Payment System (IPPS) and Long Term Care Hospital (LTCH) Fiscal Year   00104080
+ (FY) 2021 PPS Pricers.                                                 00105080
+                                                                        00110075
+                                                                        00111080
+This LTCH Pricer release is the Production version.                     00120076
+                                                                        00130064
+It includes the following changes/additions:                            00140064
+                                                                        00150072
+- LTCAL212 - Replaces LTCAL211                                          00160079
+   - Updated IPPS rates                                                 00170077
+                                                                        00180064
+- LTDRV212 - Replaces LTDRV211                                          00190079
+   - CALL to LTCAL212 module                                            00200079
+                                                                        00210076
+                                                                        00280076
+**********************************************************************  00290074
+                                                                        00300064
+A partitioned data set (PDS) of the Version 20212 code                  00310079
+(MU00.@BFN2699.LTNDM212) is at the CMS Data Center for users            00320079
+to obtain by Connect:Direct (Network DataMover).                        00330064
+                                                                        00340064
+The 77 members listed below comprise the Pricer, but only the modules   00350077
+that changed or are new since the previous release are included in the  00360064
+PDS.  The changed and new members should be used in conjunction with    00370064
+the current production Pricer files.                                    00380064
+                                                                        00390064
+      NAME                                                              00400064
+      --------                                                          00410064
+      BLEND152                                                          00420064
+      IPDRG063                                                          00430064
+      IPDRG071                                                          00440064
+      IPDRG080                                                          00450064
+      IPDRG090                                                          00460064
+      IPDRG104                                                          00470064
+      IPDRG110                                                          00480064
+      IPDRG123                                                          00490064
+      IPDRG130                                                          00500064
+      IPDRG141                                                          00510064
+      IPDRG152                                                          00520064
+      IPDRG160                                                          00530064
+      IPDRG170                                                          00540064
+      IPDRG181                                                          00550064
+      IPDRG190                                                          00560064
+      IPDRG200                                                          00570068
+      IPDRG211                                                          00580077
+      IPWIX211                                                          00590077
+      IRFBN091                                                          00600064
+      IRFBN102                                                          00610064
+      IRFBN105                                                          00620064
+      LTCAL032                                                          00630064
+      LTCAL042                                                          00640064
+      LTCAL043                                                          00650064
+      LTCAL058                                                          00660064
+      LTCAL059                                                          00670064
+      LTCAL063                                                          00680064
+      LTCAL064                                                          00690064
+      LTCAL072                                                          00700064
+      LTCAL075                                                          00710064
+      LTCAL080                                                          00720064
+      LTCAL087                                                          00730064
+      LTCAL091                                                          00740064
+      LTCAL094                                                          00750064
+      LTCAL095                                                          00760064
+      LTCAL103                                                          00770064
+      LTCAL105                                                          00780064
+      LTCAL111                                                          00790064
+      LTCAL123                                                          00800064
+      LTCAL130                                                          00810064
+      LTCAL141                                                          00820064
+      LTCAL152                                                          00830064
+      LTCAL154                                                          00840064
+      LTCAL162                                                          00850064
+      LTCAL170                                                          00860064
+      LTCAL183                                                          00870064
+      LTCAL190                                                          00880064
+      LTCAL202                                                          00890068
+      LTCAL212                                                          00900079
+      LTDRG031                                                          00910064
+      LTDRG041                                                          00920064
+      LTDRG057                                                          00930064
+      LTDRG062                                                          00940064
+      LTDRG075                                                          00950064
+      LTDRG080                                                          00960064
+      LTDRG086                                                          00970064
+      LTDRG093                                                          00980064
+      LTDRG095                                                          00990064
+      LTDRG100                                                          01000064
+      LTDRG110                                                          01010064
+      LTDRG123                                                          01020064
+      LTDRG130                                                          01030064
+      LTDRG141                                                          01040064
+      LTDRG152                                                          01050064
+      LTDRG160                                                          01060064
+      LTDRG170                                                          01070064
+      LTDRG180                                                          01080064
+      LTDRG181                                                          01090064
+      LTDRG190                                                          01100064
+      LTDRG200                                                          01110068
+      LTDRG210                                                          01120077
+      LTDRV212                                                          01130079
+      LTMSA152                                                          01140064
+      LTWIX210                                                          01150077
+      MANIFEST                                                          01160064
+      README                                                            01170064
+      RUFL200                                                           01180068
+                                                                        01190064

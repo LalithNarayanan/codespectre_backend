@@ -1,0 +1,1 @@
+Okay, I understand. I will analyze each provided PySpark program, identifying external data sources, file I/O, database operations, and providing the requested details in a clear and organized Markdown format. I will include code blocks only when a specific read/write/database operation is identified.

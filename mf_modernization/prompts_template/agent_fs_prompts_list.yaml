@@ -1,0 +1,67 @@
+# Step 1: Program Overview
+# Step 2: Data Definition and File Handling
+# Step 3: Business Logic Extraction
+# Step 4: External System Interactions 
+# Step 5: Control Flow and Module Execution Order
+
+non_batch_programs_cbl:
+  - title: "Program Overview"
+    topic: "extract_program_overview"
+  - title: "Data Definition and File Handling"
+    topic: "extract_data_definition_filehandling"
+  - title: "Business Logic"
+    topic: "extract_businesslogic"
+  - title: "External System Interactions"
+    topic: "extract_externalsysteminteractions"
+  - title: "Control Flow and Module Execution Order"
+    topic: "extract_controlflow_moduleexecutionorder"
+
+
+non_batch_programs:
+  - title: "Program Overview"
+    topic: "extract_program_overview"
+  - title: "Data Definition and File Handling"
+    topic: "extract_data_definition_filehandling"
+  - title: "Business Logic"
+    topic: "extract_businesslogic"
+  - title: "Data Flow Analysis"
+    topic: "extract_dataflowanalysis"
+  - title: "Error Handling and Exception Processing"
+    topic: "extract_errorhandling_exceptionprocessing"
+  - title: "Control Flow and Module Execution Order"
+    topic: "extract_controlflow_moduleexecutionorder"
+  # - title: "Pseudocode"
+  #   topic: "extract_pseudocodegeneration"
+  # - title: "External System Interactions"
+  #   topic: "extract_externalsysteminteractions"
+  # - title: "Functional Mapping to Functional Specification"
+  #   topic: "extract_functionalitymapping_to_functionalspecification"  
+
+batch_programs:
+  # - title: "Program Overview"
+  #   topic: "extract_program_overview"
+  # - title: "Data Definition and File Handling"
+  #   topic: "extract_data_definition_filehandling"
+  # - title: "Business Logic"
+  #   topic: "extract_businesslogic"
+  # - title: "Data Flow Analysis"
+  #   topic: "extract_dataflowanalysis"
+  # - title: "Error Handling and Exception Processing"
+  #   topic: "extract_errorhandling_exceptionprocessing"
+  # - title: "Control Flow and Module Execution Order"
+  #   topic: "extract_controlflow_moduleexecutionorder"
+  # - title: "Pseudocode"
+  #   topic: "extract_pseudocodegeneration" 
+  # - title: "Mermaid Sequence Diagram"
+  #   topic: "extract_mermaid_sequence_diagram"
+
+  - title: "Mermaid Flow Diagram"
+    topic: "extract_mermaid_flow_diagram"
+  # - title: "Batch Program Details"
+  #   topic: "extract_batchprogram_details"
+
+    
+
+
+
+

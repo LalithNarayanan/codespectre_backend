@@ -1,0 +1,42 @@
+code2functionalspec:
+# 1 Extracts highlevel functional spec from code
+  extract_program_overview:
+    versions:
+      - version: code
+        system_message: You are a top tier software developer skilled at JAVA
+        user_message1: |
+            Analyze all the given Java programs and provide the following detail for each of the Programs: 
+            Overview of the Program
+            List of all the buinsess functions addressed by the Program 
+            List of all the other programs it calls along with the data structures passed to them.
+
+            Instruction:
+              Don't exclude any programs.
+
+            Java Code:
+            -------------------------------------------
+            ```{code}```
+        user_message: |   
+            Please analyze the following Java program and provide a comprehensive report.
+          
+            For each functionality , ensure you include:
+
+            * **Overview of the Program**: A concise summary of its purpose and functionality.
+            * **Business Functions Addressed**: A detailed list of all the business functionalities or use cases handled by the program.
+            * **External Program Calls and Data Structures**: A list of all other programs or methods it calls (both internal and external dependencies), along with the specific data structures (e.g., objects, lists, maps, primitives) passed as arguments to those calls.
+            * **Business Rules** : Detailed list of business rules and technical rules only if present in the code.
+
+            **Important Instruction**: 
+              Do not exclude any programs or their details from your analysis. Ensure every piece of code provided is thoroughly covered.
+              Each functionality starts with =========== Current Method: and contains code for that method.
+              Each functionality dependencies starts with =========== Dependent Methods. 
+              Don't give Dependent method as section, instead include the analysis in the respective functionality section.
+              Generate the response in markdown format.
+              
+            Java Code:
+            -------------------------------------------
+            ```{code}``
+            
+            `
+
+  

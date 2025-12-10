@@ -1,0 +1,130 @@
+/*******************************************************************************
+* Program: 02_data_quality_cleaning.sas
+* Purpose: Clean and standardize transaction data
+* Author: Generated Example
+* Date: 2025-12-01
+*******************************************************************************/
+
+%let input_lib = WORK;
+%let output_lib = WORK;
+
+/* MACRO 1: Clean transaction data */
+%macro CLEAN_TRANSACTIONS(inds=, outds=);
+
+    DATA &outds;
+        SET &inds;
+
+        /* Standardize transaction type */
+        length transaction_type_clean $20;
+        transaction_type_clean = UPCASE(STRIP(transaction_type));
+
+        /* Clean merchant name */
+        length merchant_name_clean $100;
+        merchant_name_clean = PROPCASE(STRIP(merchant_name));
+
+        /* Standardize country code */
+        length country_code_clean $2;
+        country_code_clean = UPCASE(SUBSTR(country_code, 1, 2));
+
+        /* Handle missing amounts - replace with 0 */
+        if missing(amount) then amount = 0;
+
+        /* Convert transaction date to SAS date */
+        if NOT missing(transaction_date) then do;
+            transaction_date_sas = INPUT(transaction_date, YYMMDD10.);
+            FORMAT transaction_date_sas DATE9.;
+        end;
+
+        /* Create transaction timestamp */
+        transaction_datetime = DHMS(transaction_date_sas, 
+                                   HOUR(transaction_time), 
+                                   MINUTE(transaction_time), 
+                                   SECOND(transaction_time));
+        FORMAT transaction_datetime DATETIME20.;
+
+    RUN;
+
+    %PUT NOTE: Cleaned &inds to &outds;
+
+%mend CLEAN_TRANSACTIONS;
+
+/* MACRO 2: Remove duplicates */
+%macro REMOVE_DUPLICATES(inds=, outds=, key=);
+
+    /* Sort by key */
+    PROC SORT DATA=&inds OUT=&outds NODUPKEY;
+        BY &key;
+    RUN;
+
+    /* Log duplicate removal */
+    PROC SQL NOPRINT;
+        SELECT COUNT(*) INTO :before_count FROM &inds;
+        SELECT COUNT(*) INTO :after_count FROM &outds;
+    QUIT;
+
+    %let dup_count = %EVAL(&before_count - &after_count);
+    %PUT NOTE: Removed &dup_count duplicate records;
+
+%mend REMOVE_DUPLICATES;
+
+/* MACRO 3: Handle outliers */
+%macro HANDLE_OUTLIERS(inds=, outds=, var=, method=WINSORIZE);
+
+    /* Calculate percentiles */
+    PROC MEANS DATA=&inds NOPRINT;
+        VAR &var;
+        OUTPUT OUT=percentiles
+            P1=p1 P99=p99;
+    RUN;
+
+    /* Get percentile values */
+    DATA _NULL_;
+        SET percentiles;
+        CALL SYMPUTX('p1_value', p1);
+        CALL SYMPUTX('p99_value', p99);
+    RUN;
+
+    /* Apply outlier handling */
+    DATA &outds;
+        SET &inds;
+
+        %if &method = WINSORIZE %then %do;
+            /* Winsorize: Cap at 1st and 99th percentiles */
+            if &var < &p1_value then &var = &p1_value;
+            else if &var > &p99_value then &var = &p99_value;
+        %end;
+        %else %if &method = REMOVE %then %do;
+            /* Remove outliers */
+            if &var >= &p1_value AND &var <= &p99_value;
+        %end;
+
+    RUN;
+
+    %PUT NOTE: Handled outliers in &var using &method method;
+
+%mend HANDLE_OUTLIERS;
+
+/* Execute cleaning pipeline */
+%CLEAN_TRANSACTIONS(
+    inds=&input_lib..transactions_validated,
+    outds=&output_lib..transactions_cleaned
+);
+
+%REMOVE_DUPLICATES(
+    inds=&output_lib..transactions_cleaned,
+    outds=&output_lib..transactions_deduped,
+    key=transaction_id
+);
+
+%HANDLE_OUTLIERS(
+    inds=&output_lib..transactions_deduped,
+    outds=&output_lib..transactions_final,
+    var=amount,
+    method=WINSORIZE
+);
+
+/* Display results */
+PROC MEANS DATA=&output_lib..transactions_final N MEAN STD MIN MAX;
+    VAR amount;
+    TITLE 'Transaction Amount Statistics After Cleaning';
+RUN;

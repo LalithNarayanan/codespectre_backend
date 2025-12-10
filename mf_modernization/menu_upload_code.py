@@ -1,0 +1,185 @@
+import streamlit as st
+import yaml
+from pathlib import Path
+import os
+from config import load_config
+from utils.logger import logger
+
+# Assuming load_config and logger are available globally or imported elsewhere
+config = load_config()
+logger = logger # Use your actual logger instance
+
+# Default values (adjust paths as necessary for your environment)
+app_name ="LTCHPPSPricerMFApp2022"
+BASE_DIR_DEFAULT=config['source_path']['base_dir_default']
+PROJECT_NAME_DEFAULT=config['source_path']['proj_name_default']
+BASE_DIR_PARENT=config['source_path']['base_dir_parent']
+
+@st.cache_data
+def read_source_code(file_path):
+    """Reads content from a source code file."""
+    try:
+        # Check if the path exists before attempting to open
+        if not Path(file_path).exists():
+            st.error(f"Source code file not found: {file_path}")
+            # logger.error(f"Source code file not found: {file_path}") # Use your logger
+            return None
+        with open(file_path, "r") as f: # encoding is not required!?
+            return f.read()
+
+    except FileNotFoundError:
+        st.error(f"Source code file not found: {file_path}")
+        # logger.error(f"Source code file not found: {file_path}") # Use your logger
+        return None
+    except Exception as e:
+        st.error(f"Error reading source code: {e}")
+        # logger.error(f"Error reading source code: {e}") # Use your logger
+        return None
+
+#load the configuration files.
+def load_config_from_yaml(uploaded_file):
+    """Loads configuration from an uploaded YAML file."""
+    try:
+        return yaml.safe_load(uploaded_file)
+    except yaml.YAMLError as e:
+        st.error(f"Error parsing YAML file: {e}")
+        # logger.error(f"Error parsing YAML file: {e}") # Use your logger
+        return None
+    except Exception as e:
+        st.error(f"An unexpected error occurred while loading YAML: {e}")
+        # logger.error(f"An unexpected error occurred while loading YAML: {e}") # Use your logger
+        return None
+
+# --- Streamlit App Layout ---
+def app():
+    css_path = os.path.join(os.path.dirname(__file__), 'design.css')
+    # with open(css_path) as file:
+    #     st.markdown(f"<style>{file.read()}</style>", unsafe_allow_html=True) 
+
+    # --- Header Section ---
+    st.subheader("⬆️ Upload Source Code") # Added upload icon
+    st.markdown("""
+    Use this section to upload your source code configuration and specify the base directory for your project files.
+    """)
+
+    # --- Input Fields ---
+    st.subheader("⚙️ Project Settings") # Added gear icon
+
+    # Using columns for better layout of input fields
+    col1, col2 = st.columns(2)
+
+    
+    with col1:
+        base_dir_parent = st.text_input("Source Code Base Directory:", value=st.session_state.get('base_dir_parent', str(BASE_DIR_PARENT)), help="Specify the root directory for your project files (e.g., where 'source_code' and 'context' folders are located).") # Added help text and icon idea
+
+
+    with col2:
+        existing_folders = []
+        if os.path.isdir(base_dir_parent):
+            try:
+                items = os.listdir(base_dir_parent)
+                for item in items:
+                    item_path = os.path.join(base_dir_parent, item)
+                    if os.path.isdir(item_path):
+                        existing_folders.append(item)
+            except FileNotFoundError:
+                st.error(f"Base directory '{base_dir_parent}' not found.")
+            except PermissionError:
+                st.error(f"Permission denied to access base directory '{base_dir_parent}'.")
+
+        default_app_name = st.session_state.get('app_name', None)
+        if default_app_name and default_app_name not in existing_folders:
+            default_app_name = None  # Reset default if it's not an existing folder
+        app_name = st.selectbox(
+            "Select Application Folder:",
+            [""] + existing_folders,  # Add an empty option for no selection
+        index=existing_folders.index(default_app_name) + 1 if default_app_name in existing_folders else 0,
+        )  
+        st.session_state.app_name = app_name  # Store for other menus
+        if st.session_state.app_name:
+            st.session_state.base_dir = base_dir_parent + "/" + st.session_state.app_name# Store for other menus
+            logger.info(f"BASE DIRCTORY: {st.session_state.base_dir}")
+       
+   
+    base_dir = st.session_state.get("base_dir")
+    if base_dir:
+        if os.path.isdir(base_dir):
+            st.markdown(f"<span style='color: green;'>Project '{base_dir}' exists.</span>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<span style='color: red;'>Project '{base_dir}' doesn't exist.</span>", unsafe_allow_html=True)
+    st.markdown("---") # Separator
+    
+    # --- File Upload Section ---
+    st.subheader("📂 Upload Logical Units Configuration") # Added folder icon
+    uploaded_file = st.file_uploader("Upload logical units that are independent and generated by Tool as part of preprocessing.", type=["yaml", "yml"], help="Upload the YAML file that defines your logical units and programs.") # Added help text and icon idea
+    if uploaded_file is not None:
+        try:
+            # logger.info(f"uploaded_file:{uploaded_file.name}") # Use your logger
+            config_data = load_config_from_yaml(uploaded_file)
+            st.session_state.source_code_config_path=uploaded_file.name
+            if config_data:
+                with st.expander(f"Show Uploaded {uploaded_file.name} Content"):
+                    st.write(config_data)
+            if config_data is None:
+                return
+
+            # Basic validation of YAML structure
+            if not isinstance(config_data, list):
+                st.error("Source code config YAML must be a list of dictionaries.")
+                return
+
+            for item in config_data:
+                if not isinstance(item, dict):
+                    st.error("Each item in the YAML must be a dictionary.")
+                    return
+                if 'id' not in item or 'programs' not in item:
+                    st.error("Each item in the YAML must contain 'id' and 'programs' keys.")
+                    return
+                if not isinstance(item['programs'], list):
+                    st.error("The value for 'programs' must be a list.")
+                    return
+
+            st.session_state.source_code_config = config_data # Store for other menus
+            st.success("✅ Source Code Config YAML uploaded and parsed successfully!") # Added checkmark icon
+
+            # --- Source Code Viewing Section ---
+            st.subheader("👀 View Source Code") # Added eyes icon
+
+            source_code_options = {}
+            # Ensure base_dir is a Path object for joining
+            base_dir = Path(st.session_state.get('base_dir', str(BASE_DIR_DEFAULT)))
+
+            for item in config_data:
+                file_id = item['id']
+                programs_list = item['programs']
+                for program in programs_list:
+                    program = program.strip()
+                    # Construct the full path to the source code file
+                    source_code_options[f"{file_id} - {program}"] = str(base_dir / "source_code" / program)
+
+            selected_source_code_key = st.selectbox("Select a source code file to view:", [""] + list(source_code_options.keys()), help="Choose a program from your uploaded configuration to view its source code.") # Added help text
+
+            if selected_source_code_key:
+                selected_source_code_path = source_code_options[selected_source_code_key]
+                st.subheader(f"📜 Content of: {selected_source_code_key.split(' - ')[1]}") # Added scroll icon
+                source_code = read_source_code(selected_source_code_path)
+                if source_code:
+                    # Use 'cobol' for syntax highlighting if file extension is typical
+                    language = "cobol" if selected_source_code_path.lower().endswith(('.cbl', '.cob', '.cpy')) else "text"
+                    st.code(source_code, language=language)
+                else:
+                    st.warning("Could not read the selected source code file.") # Changed to warning
+        except Exception as e:
+            st.error(f"Error reading or processing YAML: {e}")
+            # logger.error(f"Error reading or processing YAML: {e}") # Use your logger
+
+# --- Run the App ---
+if __name__ == "__main__":
+    # Ensure base_dir is initialized in session state if not already present
+    if 'base_dir' not in st.session_state:
+         st.session_state['base_dir'] = str(BASE_DIR_DEFAULT)
+    # Ensure app_name is initialized in session state if not already present
+    if 'app_name' not in st.session_state:
+         st.session_state['app_name'] = str(PROJECT_NAME_DEFAULT)
+
+    app()

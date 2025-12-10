@@ -1,0 +1,393 @@
+## Analysis of COBOL Programs
+
+Here's an analysis of the provided COBOL programs, `LTCAL032` and `LTCAL042`, detailing database interactions, web service calls, CICS calls, and SQL queries.
+
+### Program: LTCAL032
+
+*   **Database Calls:** None
+*   **Web Service Calls:** None
+*   **CICS Calls:** None
+*   **SQL Queries:** None
+
+**Program Logic Summary:**
+
+This program, `LTCAL032`, appears to be a COBOL subroutine designed for calculating Long-Term Care (LTC) payments based on the Prospective Payment System (PPS) for the year 2003 (as indicated by the version 'C03.2' and the effective date in the comments).  It takes billing data as input, performs edits and calculations, and returns payment information. Key features include:
+
+*   **Data Structures:** Defines data structures for input billing data (`BILL-NEW-DATA`), calculated payment information (`PPS-DATA-ALL`), provider information (`PROV-NEW-HOLD`), and wage index data (`WAGE-NEW-INDEX-RECORD`).
+*   **Edits and Validation:** Includes extensive edits to validate the input billing data.  If errors are found, a return code (`PPS-RTC`) is set to indicate the reason for non-payment.
+*   **DRG Code Lookup:**  Uses a `SEARCH ALL` to find the DRG code in a table (copybook `LTDRG031`), which is not shown in the provided code.
+*   **Payment Calculation:**  Calculates the payment amount based on various factors, including the DRG weight, wage index, labor and non-labor portions, and outlier thresholds.
+*   **Short Stay Calculation:** Implements a short-stay payment calculation if the length of stay is below a certain threshold.
+*   **Outlier Calculation:** Calculates outlier payments if the facility costs exceed a threshold.
+*   **Blending:**  Applies blending rules based on the provider's blend year, which impacts the proportion of facility-specific rates and DRG payments.
+
+```cobol
+000100 IDENTIFICATION DIVISION.
+000200 PROGRAM-ID.        LTCAL032.
+000400*REMARKS.           CMS.
+000500*       EFFECTIVE JAN 1 2003
+000600 DATE-COMPILED.
+000700 ENVIRONMENT DIVISION.
+000800 CONFIGURATION SECTION.
+000900 SOURCE-COMPUTER.            IBM-370.
+001000 OBJECT-COMPUTER.            IBM-370.
+001100 INPUT-OUTPUT  SECTION.
+001200 FILE-CONTROL.
+001300
+001400 DATA DIVISION.
+001500 FILE SECTION.
+001600
+001700 WORKING-STORAGE SECTION.
+001800 01  W-STORAGE-REF                  PIC X(46)  VALUE
+001900     'LTCAL032      - W O R K I N G   S T O R A G E'.
+002000 01  CAL-VERSION                    PIC X(05)  VALUE 'C03.2'.
+002100
+002200***************************************************************
+002300*    LAYUP TABLE AREA FOR FY2003 LTC-DRG                      *
+002400*    EFFECTIVE DATE OF JANUARY 1, 2003                        *
+002500***************************************************************
+002600 COPY LTDRG031.
+024400
+024500 01  HOLD-PPS-COMPONENTS.
+024900     05  H-LOS                        PIC 9(03).
+024900     05  H-REG-DAYS                   PIC 9(03).
+024900     05  H-TOTAL-DAYS                 PIC 9(05).
+024900     05  H-SSOT                       PIC 9(02).
+024900     05  H-BLEND-RTC                  PIC 9(02).
+024900     05  H-BLEND-FAC                  PIC 9(01)V9(01).
+024900     05  H-BLEND-PPS                  PIC 9(01)V9(01).
+026200     05  H-SS-PAY-AMT                 PIC 9(07)V9(02).
+026200     05  H-SS-COST                    PIC 9(07)V9(02).
+026300     05  H-LABOR-PORTION              PIC 9(07)V9(06).
+026300     05  H-NONLABOR-PORTION           PIC 9(07)V9(06).
+026200     05  H-FIXED-LOSS-AMT             PIC 9(07)V9(02).
+050600     05  H-NEW-FAC-SPEC-RATE          PIC 9(05)V9(02).
+028000
+028100 LINKAGE SECTION.
+028200**************************************************************
+028300*      THIS IS THE BILL-RECORD THAT WILL BE PASSED FROM      *
+028400*      THE LTCAL032 PROGRAM                                  *
+028500**************************************************************
+028600 01  BILL-NEW-DATA.
+028700     10  B-NPI10.
+028800         15  B-NPI8             PIC X(08).
+028900         15  B-NPI-FILLER       PIC X(02).
+029000     10  B-PROVIDER-NO          PIC X(06).
+029000     10  B-PATIENT-STATUS       PIC X(02).
+029000     10  B-DRG-CODE             PIC X(03).
+029200     10  B-LOS                  PIC 9(03).
+029300     10  B-COV-DAYS             PIC 9(03).
+029700     10  B-LTR-DAYS             PIC 9(02).
+029900     10  B-DISCHARGE-DATE.
+030000         15  B-DISCHG-CC              PIC 9(02).
+030100         15  B-DISCHG-YY              PIC 9(02).
+030000         15  B-DISCHG-MM              PIC 9(02).
+030100         15  B-DISCHG-DD              PIC 9(02).
+030200     10  B-COV-CHARGES                PIC 9(07)V9(02).
+030200     10  B-SPEC-PAY-IND               PIC X(01).
+030300     10  FILLER                       PIC X(13).
+030400
+030500***************************************************************
+030600*    THIS DATA IS CALCULATED BY THIS LTCAL SUBROUTINE         *
+030700*    AND PASSED BACK TO THE CALLING PROGRAM                   *
+030800*            RETURN CODE VALUES (PPS-RTC)                     *
+030900*                                                             *
+031000*     ****   PPS-RTC 00-49 = HOW THE BILL WAS PAID            *
+031100*             00 = NORMAL DRG PAYMENT WITHOUT OUTLIER         *
+031200*                                                             *
+031300*             01 = NORMAL DRG PAYMENT WITH OUTLIER            *
+031400*                                                             *
+031500*             02 = SHORT STAY PAYMENT WITHOUT OUTLIER         *
+031600*                                                             *
+031700*             03 = SHORT STAY PAYMENT WITH OUTLIER            *
+033100*                                                             *
+031100*             04 = BLEND YEAR 1 - 80% FACILITY RATE PLUS      *
+031100*                  20% NORMAL DRG PAYMENT WITHOUT OUTLIER     *
+031200*                                                             *
+031100*             05 = BLEND YEAR 1 - 80% FACILITY RATE PLUS      *
+031300*                  20% NORMAL DRG PAYMENT WITH OUTLIER        *
+031400*                                                             *
+031100*             06 = BLEND YEAR 1 - 80% FACILITY RATE PLUS      *
+031500*                  20% SHORT STAY PAYMENT WITHOUT OUTLIER     *
+031600*                                                             *
+031100*             07 = BLEND YEAR 1 - 80% FACILITY RATE PLUS      *
+031700*                  20% SHORT STAY PAYMENT WITH OUTLIER        *
+033100*                                                             *
+031100*             08 = BLEND YEAR 2 - 60% FACILITY RATE PLUS      *
+031100*                  40% NORMAL DRG PAYMENT WITHOUT OUTLIER     *
+031200*                                                             *
+031100*             09 = BLEND YEAR 2 - 60% FACILITY RATE PLUS      *
+031300*                  40% NORMAL DRG PAYMENT WITH OUTLIER        *
+031400*                                                             *
+031100*             10 = BLEND YEAR 2 - 60% FACILITY RATE PLUS      *
+031500*                  40% SHORT STAY PAYMENT WITHOUT OUTLIER     *
+031600*                                                             *
+031100*             11 = BLEND YEAR 2 - 60% FACILITY RATE PLUS      *
+031700*                  40% SHORT STAY PAYMENT WITH OUTLIER        *
+033100*                                                             *
+031100*             12 = BLEND YEAR 3 - 40% FACILITY RATE PLUS      *
+031100*                  60% NORMAL DRG PAYMENT WITHOUT OUTLIER     *
+031200*                                                             *
+031100*             13 = BLEND YEAR 3 - 40% FACILITY RATE PLUS      *
+031300*                  60% NORMAL DRG PAYMENT WITH OUTLIER        *
+031400*                                                             *
+031100*             14 = BLEND YEAR 3 - 40% FACILITY RATE PLUS      *
+031500*                  60% SHORT STAY PAYMENT WITHOUT OUTLIER     *
+031600*                                                             *
+031100*             15 = BLEND YEAR 3 - 40% FACILITY RATE PLUS      *
+031700*                  60% SHORT STAY PAYMENT WITH OUTLIER        *
+033100*                                                             *
+031100*             16 = BLEND YEAR 4 - 20% FACILITY RATE PLUS      *
+031100*                  80% NORMAL DRG PAYMENT WITHOUT OUTLIER     *
+031200*                                                             *
+031100*             17 = BLEND YEAR 4 - 20% FACILITY RATE PLUS      *
+031300*                  80% NORMAL DRG PAYMENT WITH OUTLIER        *
+031400*                                                             *
+031100*             18 = BLEND YEAR 4 - 20% FACILITY RATE PLUS      *
+031500*                  80% SHORT STAY PAYMENT WITHOUT OUTLIER     *
+031600*                                                             *
+031100*             19 = BLEND YEAR 4 - 20% FACILITY RATE PLUS      *
+031700*                  80% SHORT STAY PAYMENT WITH OUTLIER        *
+033100*                                                             *
+033200*      ****  PPS-RTC 50-99 = WHY THE BILL WAS NOT PAID        *
+033300*             50 = PROVIDER SPECIFIC RATE NOT NUMERIC         *
+033400*             51 = PROVIDER RECORD TERMINATED                 *
+033500*             52 = INVALID WAGE INDEX                         *
+033600*             53 = WAIVER STATE - NOT CALCULATED BY PPS       *
+033700*             54 = DRG ON CLAIM NOT FOUND IN TABLE            *
+033800*             55 = DISCHARGE DATE < PROVIDER EFF START DATE   *
+033900*                                     OR                      *
+034000*                  DISCHARGE DATE < MSA EFF START DATE        *
+034100*                  FOR PPS                                    *
+034500*             56 = INVALID LENGTH OF STAY                     *
+034800*             58 = TOTAL COVERED CHARGES NOT NUMERIC          *
+034900*             59 = PROVIDER SPECIFIC RECORD NOT FOUND         *
+035000*             60 = MSA WAGE INDEX RECORD NOT FOUND            *
+035100*             61 = LIFETIME RESERVE DAYS NOT NUMERIC          *
+035200*                  OR BILL-LTR-DAYS > 60                      *
+035300*             62 = INVALID NUMBER OF COVERED DAYS             *
+035500*                  OR BILL-LTR-DAYS > COVERED DAYS            *
+035500*             65 = OPERATING COST-TO-CHARGE RATIO NOT NUMERIC *
+035600*             67 = COST OUTLIER WITH LOS > COVERED DAYS       *
+035700*                  OR COST OUTLIER THRESHOLD CALCULATION      *
+035800*             72 = INVALID BLEND INDICATOR (NOT 1 THRU 5)     *
+035900*             73 = DISCHARGED BEFORE PROVIDER FY BEGIN        *
+036100*             74 = PROVIDER FY BEGIN DATE NOT IN 2002         *
+036200***************************************************************
+036300 01  PPS-DATA-ALL.
+036500     05  PPS-RTC                       PIC 9(02).
+036500     05  PPS-CHRG-THRESHOLD            PIC 9(07)V9(02).
+036400     05  PPS-DATA.
+036600         10  PPS-MSA                   PIC X(04).
+036600         10  PPS-WAGE-INDEX            PIC 9(02)V9(04).
+036800         10  PPS-AVG-LOS               PIC 9(02)V9(01).
+036900         10  PPS-RELATIVE-WGT          PIC 9(01)V9(04).
+037300         10  PPS-OUTLIER-PAY-AMT       PIC 9(07)V9(02).
+037500         10  PPS-LOS                   PIC 9(03).
+038000         10  PPS-DRG-ADJ-PAY-AMT       PIC 9(07)V9(02).
+038000         10  PPS-FED-PAY-AMT           PIC 9(07)V9(02).
+038000         10  PPS-FINAL-PAY-AMT         PIC 9(07)V9(02).
+038000         10  PPS-FAC-COSTS             PIC 9(07)V9(02).
+038000         10  PPS-NEW-FAC-SPEC-RATE     PIC 9(07)V9(02).
+038300         10  PPS-OUTLIER-THRESHOLD     PIC 9(07)V9(02).
+038500         10  PPS-SUBM-DRG-CODE         PIC X(03).
+               10  PPS-CALC-VERS-CD          PIC X(05).
+               10  PPS-REG-DAYS-USED         PIC 9(03).
+               10  PPS-LTR-DAYS-USED         PIC 9(03).
+               10  PPS-BLEND-YEAR            PIC 9(01).
+               10  PPS-COLA                  PIC 9(01)V9(03).
+038800         10  FILLER                    PIC X(04).
+038900     05  PPS-OTHER-DATA.
+039200         10  PPS-NAT-LABOR-PCT         PIC 9(01)V9(05).
+039200         10  PPS-NAT-NONLABOR-PCT      PIC 9(01)V9(05).
+039400         10  PPS-STD-FED-RATE          PIC 9(05)V9(02).
+039400         10  PPS-BDGT-NEUT-RATE        PIC 9(01)V9(03).
+039800         10  FILLER                    PIC X(20).
+039900     05  PPS-PC-DATA.
+040000         10  PPS-COT-IND               PIC X(01).
+040100         10  FILLER                    PIC X(20).
+040200
+040300******************************************************************
+040400*            THESE ARE THE VERSIONS OF THE LTDRV031
+040500*           PROGRAMS THAT WILL BE PASSED BACK----
+040600*          ASSOCIATED WITH THE BILL BEING PROCESSED
+040700******************************************************************
+040800 01  PRICER-OPT-VERS-SW.
+040900     05  PRICER-OPTION-SW          PIC X(01).
+041000         88  ALL-TABLES-PASSED          VALUE 'A'.
+041100         88  PROV-RECORD-PASSED         VALUE 'P'.
+041200     05  PPS-VERSIONS.
+041300         10  PPDRV-VERSION         PIC X(05).
+041500
+041600**************************************************************
+041700*      THIS IS THE PROV-RECORD THAT WILL BE PASSED BY        *
+041800*      THE LTCAL032 PROGRAM                                  *
+041900**************************************************************
+042000 01  PROV-NEW-HOLD.
+042100     02  PROV-NEWREC-HOLD1.
+042200         05  P-NEW-NPI10.
+042300             10  P-NEW-NPI8             PIC X(08).
+042400             10  P-NEW-NPI-FILLER       PIC X(02).
+042500         05  P-NEW-PROVIDER-NO.
+042600             10  P-NEW-STATE            PIC 9(02).
+042700             10  FILLER                 PIC X(04).
+042800         05  P-NEW-DATE-DATA.
+042900             10  P-NEW-EFF-DATE.
+043000                 15  P-NEW-EFF-DT-CC    PIC 9(02).
+043100                 15  P-NEW-EFF-DT-YY    PIC 9(02).
+043200                 15  P-NEW-EFF-DT-MM    PIC 9(02).
+043300                 15  P-NEW-EFF-DT-DD    PIC 9(02).
+043400             10  P-NEW-FY-BEGIN-DATE.
+043500                 15  P-NEW-FY-BEG-DT-CC PIC 9(02).
+043600                 15  P-NEW-FY-BEG-DT-YY PIC 9(02).
+043700                 15  P-NEW-FY-BEG-DT-MM PIC 9(02).
+043800                 15  P-NEW-FY-BEG-DT-DD PIC 9(02).
+043900             10  P-NEW-REPORT-DATE.
+044000                 15  P-NEW-REPORT-DT-CC PIC 9(02).
+044100                 15  P-NEW-REPORT-DT-YY PIC 9(02).
+044200                 15  P-NEW-REPORT-DT-MM PIC 9(02).
+044300                 15  P-NEW-REPORT-DT-DD PIC 9(02).
+044400             10  P-NEW-TERMINATION-DATE.
+044500                 15  P-NEW-TERM-DT-CC   PIC 9(02).
+044600                 15  P-NEW-TERM-DT-YY   PIC 9(02).
+044700                 15  P-NEW-TERM-DT-MM   PIC 9(02).
+044800                 15  P-NEW-TERM-DT-DD   PIC 9(02).
+044900         05  P-NEW-WAIVER-CODE          PIC X(01).
+045000             88  P-NEW-WAIVER-STATE       VALUE 'Y'.
+045100         05  P-NEW-INTER-NO             PIC 9(05).
+045200         05  P-NEW-PROVIDER-TYPE        PIC X(02).
+047000         05  P-NEW-CURRENT-CENSUS-DIV   PIC 9(01).
+048000         05  P-NEW-CURRENT-DIV   REDEFINES
+048100                    P-NEW-CURRENT-CENSUS-DIV   PIC 9(01).
+048300         05  P-NEW-MSA-DATA.
+048400             10  P-NEW-CHG-CODE-INDEX       PIC X.
+048500             10  P-NEW-GEO-LOC-MSAX         PIC X(04) JUST RIGHT.
+048600             10  P-NEW-GEO-LOC-MSA9   REDEFINES
+048700                             P-NEW-GEO-LOC-MSAX  PIC 9(04).
+048800             10  P-NEW-WAGE-INDEX-LOC-MSA   PIC X(04) JUST RIGHT.
+048900             10  P-NEW-STAND-AMT-LOC-MSA    PIC X(04) JUST RIGHT.
+049000             10  P-NEW-STAND-AMT-LOC-MSA9
+049100                 REDEFINES P-NEW-STAND-AMT-LOC-MSA.
+049200                 15  P-NEW-RURAL-1ST.
+049300                     20  P-NEW-STAND-RURAL  PIC XX.
+049400                         88  P-NEW-STD-RURAL-CHECK VALUE '  '.
+049500                 15  P-NEW-RURAL-2ND        PIC XX.
+049600         05  P-NEW-SOL-COM-DEP-HOSP-YR PIC XX.
+050000         05  P-NEW-LUGAR                    PIC X.
+050100         05  P-NEW-TEMP-RELIEF-IND          PIC X.
+050200         05  P-NEW-FED-PPS-BLEND-IND        PIC X.
+050300         05  FILLER                         PIC X(05).
+050400     02  PROV-NEWREC-HOLD2.
+050500         05  P-NEW-VARIABLES.
+050600             10  P-NEW-FAC-SPEC-RATE     PIC  9(05)V9(02).
+050700             10  P-NEW-COLA              PIC  9(01)V9(03).
+050800             10  P-NEW-INTERN-RATIO      PIC  9(01)V9(04).
+050900             10  P-NEW-BED-SIZE          PIC  9(05).
+051000             10  P-NEW-OPER-CSTCHG-RATIO PIC  9(01)V9(03).
+051100             10  P-NEW-CMI               PIC  9(01)V9(04).
+051200             10  P-NEW-SSI-RATIO         PIC  V9(04).
+051300             10  P-NEW-MEDICAID-RATIO    PIC  V9(04).
+051400             10  P-NEW-PPS-BLEND-YR-IND  PIC  9(01).
+051500             10  P-NEW-PRUF-UPDTE-FACTOR PIC  9(01)V9(05).
+051600             10  P-NEW-DSH-PERCENT       PIC  V9(04).
+051700             10  P-NEW-FYE-DATE          PIC  X(08).
+051800         05  FILLER                      PIC  X(23).
+051900     02  PROV-NEWREC-HOLD3.
+052000         05  P-NEW-PASS-AMT-DATA.
+052100             10  P-NEW-PASS-AMT-CAPITAL    PIC 9(04)V99.
+052200             10  P-NEW-PASS-AMT-DIR-MED-ED PIC 9(04)V99.
+052300             10  P-NEW-PASS-AMT-ORGAN-ACQ  PIC 9(04)V99.
+052400             10  P-NEW-PASS-AMT-PLUS-MISC  PIC 9(04)V99.
+052500         05  P-NEW-CAPI-DATA.
+052600             15  P-NEW-CAPI-PPS-PAY-CODE   PIC X.
+052700             15  P-NEW-CAPI-HOSP-SPEC-RATE PIC 9(04)V99.
+052800             15  P-NEW-CAPI-OLD-HARM-RATE  PIC 9(04)V99.
+052900             15  P-NEW-CAPI-NEW-HARM-RATIO PIC 9(01)V9999.
+053000             15  P-NEW-CAPI-CSTCHG-RATIO   PIC 9V999.
+053100             15  P-NEW-CAPI-NEW-HOSP       PIC X.
+053200             15  P-NEW-CAPI-IME            PIC 9V9999.
+053300             15  P-NEW-CAPI-EXCEPTIONS     PIC 9(04)V99.
+053400         05  FILLER                        PIC X(22).
+053500******************************************************************
+053600*                   THIS IS THE WAGE-INDEX
+053700*          ASSOCIATED WITH THE BILL BEING PROCESSED
+053800******************************************************************
+053900 01  WAGE-NEW-INDEX-RECORD.
+054000     05  W-MSA                         PIC X(4).
+054100     05  W-EFF-DATE                    PIC X(8).
+054200     05  W-WAGE-INDEX1                 PIC S9(02)V9(04).
+054200     05  W-WAGE-INDEX2                 PIC S9(02)V9(04).
+           05  W-WAGE-INDEX3                 PIC S9(02)V9(04).
+054400
+054500 PROCEDURE DIVISION  USING BILL-NEW-DATA
+054600                           PPS-DATA-ALL
+054700                           PRICER-OPT-VERS-SW
+054800                           PROV-NEW-HOLD
+054900                           WAGE-NEW-INDEX-RECORD.
+055000
+055100***************************************************************
+055200*    PROCESSING:                                              *
+055300*        A. WILL PROCESS CLAIMS BASED ON LENGTH OF STAY       *
+055400*        B. INITIALIZE LTCAL HOLD VARIABLES.                  *
+055500*        C. EDIT THE DATA PASSED FROM THE CLAIM BEFORE        *
+055600*           ATTEMPTING TO CALCULATE PPS. IF THIS CLAIM        *
+055700*           CANNOT BE PROCESSED, SET A RETURN CODE AND        *
+055800*           GOBACK.                                           *
+055900*        D. ASSEMBLE PRICING COMPONENTS.                      *
+056000*        E. CALCULATE THE PRICE.                              *
+056100*        F. CALCULATE OUTLIERS IF APPLICABLE.                 *
+056200***************************************************************
+056300
+056400 0000-MAINLINE-CONTROL.
+056500
+           PERFORM 0100-INITIAL-ROUTINE
+              THRU 0100-EXIT.
+063400     PERFORM 1000-EDIT-THE-BILL-INFO
+063400        THRU 1000-EXIT.
+063600     IF PPS-RTC = 00
+065800        PERFORM 1700-EDIT-DRG-CODE
+                 THRU 1700-EXIT.
+063500
+063600     IF PPS-RTC = 00
+063700        PERFORM 2000-ASSEMBLE-PPS-VARIABLES
+063700           THRU 2000-EXIT.
+063800
+063900     IF PPS-RTC = 00
+064000        PERFORM 3000-CALC-PAYMENT
+064000           THRU 3000-EXIT
+064000        PERFORM 7000-CALC-OUTLIER
+064000           THRU 7000-EXIT.
+
+           IF PPS-RTC < 50
+064000        PERFORM 8000-BLEND
+064000           THRU 8000-EXIT.
+
+064200     PERFORM 9000-MOVE-RESULTS
+064200        THRU 9000-EXIT.
+064300
+061800     GOBACK.
+061900
+062000 0100-INITIAL-ROUTINE.
+062100
+           MOVE ZEROS TO PPS-RTC.
+062200     INITIALIZE PPS-DATA.
+062300     INITIALIZE PPS-OTHER-DATA.
+062400     INITIALIZE HOLD-PPS-COMPONENTS.
+062500
+063000     MOVE .72885 TO PPS-NAT-LABOR-PCT.
+063000     MOVE .27115 TO PPS-NAT-NONLABOR-PCT.
+063000     MOVE 34956.15 TO PPS-STD-FED-RATE.
+063000     MOVE 24450 TO H-FIXED-LOSS-AMT.
+063000     MOVE 0.934 TO PPS-BDGT-NEUT-RATE.
+062100
+062000 0100-EXIT.
+062100      EXIT.
+063100
+064500***************************************************************
+064600*    BILL DATA EDITS IF ANY FAIL SET PPS-RTC                  *
+064700*    AND DO NOT ATTEMPT TO PRICE.                             *
+064800***************************************************************
+064400 1000-EDIT-THE-BILL-INFO.
+065100
+065200     IF (B-LOS NUMERIC) AND (B-LOS > 0)
+06

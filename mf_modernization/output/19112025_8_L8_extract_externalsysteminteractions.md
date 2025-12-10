@@ -1,0 +1,1 @@
+Please provide the COBOL program code you would like me to analyze. I need the code to identify database calls, web service interactions, CICS calls, SQL queries, and other external system interactions. Once you provide the code, I will generate the markdown formatted analysis as requested.

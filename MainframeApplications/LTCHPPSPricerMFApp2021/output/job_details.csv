@@ -1,0 +1,823 @@
+job_id,time_stamp,llm_model_name,llm_processing_time,overall_processing_time,prompt_name,prompt_template,unit,input,output_type,output_file,output_value
+06082025_2,2025-08-06 07:08:13,gemini-1.5-flash,9.252037763595581,9.365415334701538,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_2_L8_extract_program_overview.md,
+06082025_2,2025-08-06 07:08:27,gemini-1.5-flash,14.017810106277466,14.048677682876587,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_2_L8_extract_data_definition_filehandling.md,
+06082025_2,2025-08-06 07:08:43,gemini-1.5-flash,15.34677243232727,15.368333578109741,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_2_L8_extract_businesslogic.md,
+06082025_2,2025-08-06 07:08:49,gemini-1.5-flash,6.400328159332275,6.428452491760254,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_2_L8_extract_externalsysteminteractions.md,
+06082025_2,2025-08-06 07:08:58,gemini-1.5-flash,8.7725191116333,8.813265323638916,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_2_L8_extract_controlflow_moduleexecutionorder.md,
+06082025_7,2025-08-06 07:45:01,gemini-1.5-flash,17.825596570968628,17.83686590194702,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_7_L8_extract_program_overview.md,
+06082025_14,2025-08-06 08:10:26,gemini-1.5-flash,0.0006940364837646484,0.0740206241607666,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_14_L8_extract_program_overview.md,
+06082025_14,2025-08-06 08:10:26,gemini-1.5-flash,0.0008759498596191406,0.06328344345092773,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_14_L8_extract_data_definition_filehandling.md,
+06082025_14,2025-08-06 08:10:26,gemini-1.5-flash,0.0006418228149414062,0.009831905364990234,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_14_L8_extract_businesslogic.md,
+06082025_14,2025-08-06 08:10:26,gemini-1.5-flash,0.0006227493286132812,0.009043693542480469,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_14_L8_extract_externalsysteminteractions.md,
+06082025_14,2025-08-06 08:10:26,gemini-1.5-flash,0.0006086826324462891,0.026712656021118164,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_14_L8_extract_controlflow_moduleexecutionorder.md,
+06082025_15,2025-08-06 08:12:02,gemini-1.5-flash,0.0007245540618896484,0.020933866500854492,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_15_L8_extract_program_overview.md,
+06082025_15,2025-08-06 08:12:02,gemini-1.5-flash,0.0007061958312988281,0.009504556655883789,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_15_L8_extract_data_definition_filehandling.md,
+06082025_15,2025-08-06 08:12:02,gemini-1.5-flash,0.0008919239044189453,0.009600400924682617,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_15_L8_extract_businesslogic.md,
+06082025_15,2025-08-06 08:12:02,gemini-1.5-flash,0.000667572021484375,0.019946813583374023,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_15_L8_extract_externalsysteminteractions.md,
+06082025_15,2025-08-06 08:12:02,gemini-1.5-flash,0.0010018348693847656,0.009651660919189453,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_15_L8_extract_controlflow_moduleexecutionorder.md,
+06082025_20,2025-08-06 08:18:01,gemini-1.5-flash,0.0005805492401123047,0.03164052963256836,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_20_L8_extract_program_overview.md,
+06082025_20,2025-08-06 08:18:01,gemini-1.5-flash,0.0006840229034423828,0.02649402618408203,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_20_L8_extract_data_definition_filehandling.md,
+06082025_20,2025-08-06 08:18:01,gemini-1.5-flash,0.0017812252044677734,0.010832071304321289,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_20_L8_extract_businesslogic.md,
+06082025_20,2025-08-06 08:18:01,gemini-1.5-flash,0.0030879974365234375,0.059213876724243164,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_20_L8_extract_externalsysteminteractions.md,
+06082025_20,2025-08-06 08:18:01,gemini-1.5-flash,0.001016855239868164,0.05518221855163574,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_20_L8_extract_controlflow_moduleexecutionorder.md,
+06082025_22,2025-08-06 08:18:36,gemini-1.5-flash,0.0007140636444091797,0.016621112823486328,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_22_L8_extract_program_overview.md,
+06082025_22,2025-08-06 08:18:36,gemini-1.5-flash,0.0006501674652099609,0.036063194274902344,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_22_L8_extract_data_definition_filehandling.md,
+06082025_22,2025-08-06 08:18:36,gemini-1.5-flash,0.0017268657684326172,0.011099576950073242,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_22_L8_extract_businesslogic.md,
+06082025_22,2025-08-06 08:18:36,gemini-1.5-flash,0.0017201900482177734,0.016858816146850586,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_22_L8_extract_externalsysteminteractions.md,
+06082025_22,2025-08-06 08:18:37,gemini-1.5-flash,0.0008378028869628906,0.0556483268737793,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_22_L8_extract_controlflow_moduleexecutionorder.md,
+06082025_27,2025-08-06 09:24:26,gemini-1.5-flash,9.213666915893555,9.233529090881348,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_27_L8_extract_program_overview.md,
+06082025_27,2025-08-06 09:24:43,gemini-1.5-flash,16.74971604347229,16.760258674621582,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_27_L8_extract_data_definition_filehandling.md,
+06082025_27,2025-08-06 09:24:54,gemini-1.5-flash,11.398013591766357,11.40867829322815,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_27_L8_extract_businesslogic.md,
+06082025_27,2025-08-06 09:25:00,gemini-1.5-flash,6.111403465270996,6.121149063110352,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_27_L8_extract_externalsysteminteractions.md,
+06082025_27,2025-08-06 09:25:10,gemini-1.5-flash,9.899815797805786,9.908143520355225,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_27_L8_extract_controlflow_moduleexecutionorder.md,
+06082025_50,2025-08-06 10:35:44,gemini-1.5-flash,0.0008919239044189453,0.017039060592651367,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_50_L8_extract_program_overview.md,
+06082025_50,2025-08-06 10:35:44,gemini-1.5-flash,0.0008847713470458984,0.010081291198730469,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_50_L8_extract_data_definition_filehandling.md,
+06082025_50,2025-08-06 10:35:44,gemini-1.5-flash,0.000823974609375,0.010739326477050781,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_50_L8_extract_businesslogic.md,
+06082025_50,2025-08-06 10:35:44,gemini-1.5-flash,0.00072479248046875,0.02045416831970215,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_50_L8_extract_externalsysteminteractions.md,
+06082025_50,2025-08-06 10:35:44,gemini-1.5-flash,0.0010371208190917969,0.01297616958618164,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_50_L8_extract_controlflow_moduleexecutionorder.md,
+06082025_52,2025-08-06 10:37:46,gemini-1.5-flash,0.0006966590881347656,0.012760639190673828,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_52_L8_extract_program_overview.md,
+06082025_52,2025-08-06 10:37:46,gemini-1.5-flash,0.0007476806640625,0.01438283920288086,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_52_L8_extract_data_definition_filehandling.md,
+06082025_52,2025-08-06 10:37:46,gemini-1.5-flash,0.0006961822509765625,0.01103067398071289,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_52_L8_extract_businesslogic.md,
+06082025_52,2025-08-06 10:37:46,gemini-1.5-flash,0.0006711483001708984,0.011536836624145508,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_52_L8_extract_externalsysteminteractions.md,
+06082025_52,2025-08-06 10:37:46,gemini-1.5-flash,0.001308441162109375,0.01511836051940918,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_52_L8_extract_controlflow_moduleexecutionorder.md,
+06082025_57,2025-08-06 10:50:11,gemini-1.5-flash,0.0011436939239501953,0.01884913444519043,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_57_L8_extract_program_overview.md,
+06082025_57,2025-08-06 10:50:11,gemini-1.5-flash,0.0011014938354492188,0.01485300064086914,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_57_L8_extract_data_definition_filehandling.md,
+06082025_57,2025-08-06 10:50:11,gemini-1.5-flash,0.0012621879577636719,0.016374826431274414,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_57_L8_extract_businesslogic.md,
+06082025_57,2025-08-06 10:50:11,gemini-1.5-flash,0.0006372928619384766,0.014454364776611328,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_57_L8_extract_externalsysteminteractions.md,
+06082025_57,2025-08-06 10:50:11,gemini-1.5-flash,0.0005803108215332031,0.009912967681884766,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\06082025_57_L8_extract_controlflow_moduleexecutionorder.md,
+job_id,2025-08-06 10:50:25,gemini-1.5-flash,0.006491184234619141,0.02270650863647461,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-08-06 10:50:25,gemini-1.5-flash,0.003833770751953125,0.016805171966552734,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-08-06 10:50:25,gemini-1.5-flash,0.005667209625244141,0.017336368560791016,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-08-06 10:50:25,gemini-1.5-flash,0.009523153305053711,0.032941341400146484,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-08-06 10:50:25,gemini-1.5-flash,0.00722813606262207,0.020119905471801758,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+07082025_17,2025-08-07 07:04:04,gemini-1.5-flash,11.139709711074829,11.267258405685425,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\07082025_17_L8_extract_program_overview.md,
+07082025_17,2025-08-07 07:04:17,gemini-1.5-flash,12.457679033279419,12.482164859771729,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\07082025_17_L8_extract_data_definition_filehandling.md,
+07082025_17,2025-08-07 07:04:32,gemini-1.5-flash,15.287933111190796,15.30659008026123,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\07082025_17_L8_extract_businesslogic.md,
+07082025_17,2025-08-07 07:04:37,gemini-1.5-flash,5.267624855041504,5.277623414993286,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\07082025_17_L8_extract_externalsysteminteractions.md,
+07082025_17,2025-08-07 07:04:45,gemini-1.5-flash,8.003082752227783,8.022649049758911,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\07082025_17_L8_extract_controlflow_moduleexecutionorder.md,
+10082025_4,2025-08-10 17:16:38,gemini-2.5-flash-lite,12.702697277069092,12.711564064025879,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L3,"['BLEND152', 'IPDRG130', 'IPDRG141', 'IPDRG152', 'LTCAL130', 'LTCAL141', 'LTCAL152', 'LTCAL154', 'LTDRG130', 'LTDRG141', 'LTDRG152']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\10082025_4_L3_extract_program_overview.md,
+02092025_2,2025-09-02 11:31:56,gemini-2.0-flash-lite,10.34656548500061,10.400532722473145,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\02092025_2_L8_extract_program_overview.md,
+02092025_2,2025-09-02 11:32:38,gemini-2.0-flash-lite,42.32311987876892,42.35086727142334,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\02092025_2_L8_extract_data_definition_filehandling.md,
+02092025_2,2025-09-02 11:33:05,gemini-2.0-flash-lite,26.97489857673645,27.00238275527954,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\02092025_2_L8_extract_businesslogic.md,
+02092025_2,2025-09-02 11:33:10,gemini-2.0-flash-lite,4.822816848754883,4.844238042831421,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\02092025_2_L8_extract_externalsysteminteractions.md,
+02092025_2,2025-09-02 11:33:23,gemini-2.0-flash-lite,12.278318166732788,12.297083616256714,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\SeenuWS\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\output\02092025_2_L8_extract_controlflow_moduleexecutionorder.md,
+job_id,2025-09-02 11:33:56,gemini-2.0-flash-lite,24.17192840576172,24.231626987457275,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-09-02 11:34:35,gemini-2.0-flash-lite,39.41665840148926,39.464319944381714,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-09-02 11:34:58,gemini-2.0-flash-lite,22.27229332923889,22.29689359664917,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-09-02 11:35:00,gemini-2.0-flash-lite,1.9001898765563965,1.9150137901306152,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-09-02 11:35:13,gemini-2.0-flash-lite,13.25900650024414,13.336407899856567,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,

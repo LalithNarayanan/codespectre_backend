@@ -1,0 +1,15 @@
+openai
+loguru
+python-dotenv
+streamlit
+google-generativeai
+streamlit-option-menu
+ollama
+tree-sitter
+tree-sitter-java
+rich
+neo4j
+pypandoc
+python-docx 
+markdown
+beautifulsoup4

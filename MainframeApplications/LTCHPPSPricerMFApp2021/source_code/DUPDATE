@@ -1,0 +1,51 @@
+%macro DUPDATE(prev_ds=OUTPUTP.customer_data, new_ds=OUTPUT.customer_data, out_ds=FINAL.customer_data);
+
+data &out_ds;
+    format valid_from valid_to YYMMDD10.;
+    merge &prev_ds(in=old) &new_ds(in=new);
+    by Customer_ID;
+
+    if new and not old then do;
+        /* New Customer_ID → Insert */
+        valid_from = today();
+        valid_to = 99991231;
+        output;
+    end;
+    else if old and new then do;
+        /* Compare all fields except valid_from/valid_to */
+        if _n_ = 1 then call missing(valid_from, valid_to); /* Initialize */
+        
+        /* Check if any change in data */
+        if (Customer_Name ne Customer_Name_new) or
+           (Street_Num ne Street_Num_new) or
+           (House_Num ne House_Num_new) or
+           (Road ne Road_new) or
+           (City ne City_new) or
+           (District ne District_new) or
+           (State ne State_new) or
+           (Country ne Country_new) or
+           (Zip_Code ne Zip_Code_new) or
+           (Phone_Number ne Phone_Number_new) or
+           (Email ne Email_new) or
+           (Account_Number ne Account_Number_new) or
+           (Transaction_Date ne Transaction_Date_new) or
+           (Amount ne Amount_new) then do;
+
+            /* Close old record */
+            valid_to = today();
+            output;
+
+            /* Insert new record */
+            valid_from = today();
+            valid_to = 99991231;
+            output;
+        end;
+        else do;
+            /* No change → Ignore */
+        end;
+    end;
+run;
+
+%mend DUPDATE;
+
+/* Example call */

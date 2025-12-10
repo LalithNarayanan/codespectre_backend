@@ -1,0 +1,115 @@
+/*******************************************************************************
+** PROGRAM:       Program_Name.sas
+** AUTHOR:        [Your Name]
+** CREATED:       [Date created]
+**
+** DESCRIPTION:   
+** This program performs [brief, high-level function of the program]. 
+**
+** FUNCTION:
+** [Detailed description of the program's logic and goal. 
+** e.g., "Reads raw data from the 'sasuser.raw_data' table, cleans missing 
+** values, calculates BMI, and saves the final output to 'work.final_output'."]
+**
+** INPUT:
+** - Library: sasuser 
+** - Table:   raw_data (contains patient_id, height_cm, weight_kg, date_visit)
+** - Parameters: &start_date, &end_date (macro variables for filtering)
+**
+** OUTPUT:
+** - Library: work
+** - Table:   final_output (contains patient_id, bmi, date_visit, status)
+** - Log messages: Includes data quality checks for out-of-range values.
+**
+** HISTORY:
+** DATE         AUTHOR        DESCRIPTION OF CHANGE
+** -------------------------------------------------------------------------
+** 2025-11-26   [Your Name]   Initial version created with basic data cleaning.
+** 2025-12-01   [Collaborator] Added BMI calculation and 'status' variable logic.
+** 2025-12-15   [Your Name]   Optimized for large datasets using specific data step techniques.
+*******************************************************************************/
+
+
+%macro DREAD(filepath);
+
+data customer_data;
+    infile "&filepath" dlm='|' missover dsd firstobs=2;
+
+    /* ATTRIB statement with meaningful names */
+    attrib
+        Customer_ID        length=$15  label="Customer Identifier"
+        Customer_Name      length=$50  label="Customer Full Name"
+        Street_Num         length=$10  label="Street Number"
+        House_Num          length=$10  label="House Number"
+        Road               length=$50  label="Road Name"
+        Address_Line1      length=$100 label="Address Line 1"
+        Address_Line2      length=$100 label="Address Line 2"
+        City               length=$30  label="City Name"
+        District           length=$30  label="District Name"
+        State              length=$20  label="State Name"
+        Country            length=$30  label="Country Name"
+        Zip_Code           length=$10  label="Postal Code"
+        Phone_Number       length=$15  label="Contact Number"
+        Email              length=$50  label="Email Address"
+        Account_Number     length=$20  label="Account Number"
+        Transaction_Date   length=$10  label="Transaction Date"
+        Amount             length=8    label="Transaction Amount"
+        Product_ID         length=$15  label="Product Identifier"
+        Product_Name       length=$50  label="Product Name"
+        Quantity           length=8    label="Quantity Purchased"
+        Price              length=8    label="Unit Price"
+        /* Continue adding until 100 variables with meaningful names */
+        Notes              length=$200 label="Additional Notes"
+        /* ... up to Var100 or meaningful placeholders */
+    ;
+
+    /* INPUT statement for all variables */
+    input
+        Customer_ID        : $15.
+        Customer_Name      : $50.
+        Street_Num         : $10.
+        House_Num          : $10.
+        Road               : $50.
+        Address_Line1      : $100.
+        Address_Line2      : $100.
+        City               : $30.
+        District           : $30.
+        State              : $20.
+        Country            : $30.
+        Zip_Code           : $10.
+        Phone_Number       : $15.
+        Email              : $50.
+        Account_Number     : $20.
+        Transaction_Date   : $10.
+        Amount             : 8.
+        Product_ID         : $15.
+        Product_Name       : $50.
+        Quantity           : 8.
+        Price              : 8.
+        Notes              : $200.
+        /* ... continue until 100 variables */
+    ;
+run;
+
+%mend DREAD;
+
+data OUTRDP.customer_data;
+   set customer_data;
+run;
+
+proc datasets library = work;
+ modify customer_data;
+  index create cust_indx = (Customer_ID);
+run;
+
+%if %SYSFUNC(EXIST(output.customer_data)) ne 1 %then %do;
+  data output.customer_data;
+    set work.customer_data;
+  run;
+
+ proc datasets library = output;
+   modify customer_data;
+   index create cust_indx = (Customer_ID);
+ run;
+%end;
+%mend 

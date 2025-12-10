@@ -1,0 +1,32 @@
+# Generating object oriented design from functional spec
+# functional_specs and oo_design are the inputs. parent_oo_code is the baseline code for the updates.
+design2code:
+    versions:
+      - version: java
+        system_message: You are a top tier software developer skilled at writing object oriented code using JAVA
+        user_message: |
+            Generate Java code following the below instructions. 
+            Instruction:
+            1. Use the given design document to generate the revised code.  
+                Object Oriented Design: ```{oo_design}```
+            2. Use functional specifications to include the business logics in the generatedcode 
+              ```{functional_spec}```
+            3. Each generated should contain the file along with path prefixing with ###FilePath: and with src
+            4. Code should be compliable
+            -------------------------------------------
+
+      - version: python 
+        system_message: You are a top tier software developer skilled at writing object oriented code using Python
+        user_message: |
+            Generate Python code following the below instructions. 
+            Instruction:
+            1. Use the given design document to generate the revised code.  
+                Object Oriented Design: ```{oo_design}```
+            2. Use functional specifications to include the business logics in the generated code 
+              ```{functional_spec}```
+            3. Each generated should contain the file along with path prefixing with ###FilePath: and with src
+            4. Code should be compliable
+
+            -------------------------------------------
+    
+  

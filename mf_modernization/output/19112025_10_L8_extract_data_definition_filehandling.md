@@ -1,0 +1,366 @@
+# Step 1: Program Overview
+
+## Program: LTCAL032
+### Overview
+- This COBOL program, `LTCAL032`, is a subroutine for calculating Long-Term Care (LTC) DRG payments. It is effective from January 1, 2003. It receives bill data and provider information, performs edits, calculates the payment amount, including outliers and short stay payments, and returns the results. It uses a copybook `LTDRG031` which contains DRG-related data.
+
+### Files Accessed
+- No files are directly accessed within this program. However, it uses a `COPY` statement to include `LTDRG031` which presumably contains data read from a file.
+
+### Data Structures - WORKING-STORAGE SECTION
+- `W-STORAGE-REF`:  A 46-character field storing a descriptive string.
+- `CAL-VERSION`:  A 5-character field storing the version of the calculation logic.
+- `HOLD-PPS-COMPONENTS`: A group of fields used to store intermediate calculation results, including:
+  - `H-LOS`: Length of Stay (3 digits).
+  - `H-REG-DAYS`: Regular Days (3 digits).
+  - `H-TOTAL-DAYS`: Total Days (5 digits).
+  - `H-SSOT`: Short Stay Outlier Threshold (2 digits).
+  - `H-BLEND-RTC`: Blend Return Code (2 digits).
+  - `H-BLEND-FAC`: Blend Facility Factor (1.1).
+  - `H-BLEND-PPS`: Blend PPS Factor (1.1).
+  - `H-SS-PAY-AMT`: Short Stay Payment Amount (7.2).
+  - `H-SS-COST`: Short Stay Cost (7.2).
+  - `H-LABOR-PORTION`: Labor Portion (7.6).
+  - `H-NONLABOR-PORTION`: Non-Labor Portion (7.6).
+  - `H-FIXED-LOSS-AMT`: Fixed Loss Amount (7.2).
+  - `H-NEW-FAC-SPEC-RATE`: New Facility Specific Rate (5.2).
+- The `LTDRG031` copybook is included and contains DRG-related data.
+
+### Data Structures - LINKAGE SECTION
+- `BILL-NEW-DATA`:  Structure containing the bill data passed from the calling program:
+  - `B-NPI10`: NPI (National Provider Identifier)
+    - `B-NPI8`: NPI (8 characters)
+    - `B-NPI-FILLER`: Filler for NPI (2 characters).
+  - `B-PROVIDER-NO`: Provider Number (6 characters).
+  - `B-PATIENT-STATUS`: Patient Status (2 characters).
+  - `B-DRG-CODE`: DRG Code (3 characters).
+  - `B-LOS`: Length of Stay (3 digits).
+  - `B-COV-DAYS`: Covered Days (3 digits).
+  - `B-LTR-DAYS`: Lifetime Reserve Days (2 digits).
+  - `B-DISCHARGE-DATE`: Discharge Date
+    - `B-DISCHG-CC`: Century Code (2 digits).
+    - `B-DISCHG-YY`: Year (2 digits).
+    - `B-DISCHG-MM`: Month (2 digits).
+    - `B-DISCHG-DD`: Day (2 digits).
+  - `B-COV-CHARGES`: Covered Charges (7.2).
+  - `B-SPEC-PAY-IND`: Special Payment Indicator (1 character).
+  - `FILLER`: Filler (13 characters).
+- `PPS-DATA-ALL`: Structure to return the calculated PPS data to the calling program.
+  - `PPS-RTC`: Return Code (2 digits). Indicates how the bill was paid or why it wasn't.
+  - `PPS-CHRG-THRESHOLD`: Charge Threshold (7.2).
+  - `PPS-DATA`: Contains the calculated PPS data.
+    - `PPS-MSA`: MSA (Metropolitan Statistical Area) Code (4 characters).
+    - `PPS-WAGE-INDEX`: Wage Index (2.4).
+    - `PPS-AVG-LOS`: Average Length of Stay (2.1).
+    - `PPS-RELATIVE-WGT`: Relative Weight (1.4).
+    - `PPS-OUTLIER-PAY-AMT`: Outlier Payment Amount (7.2).
+    - `PPS-LOS`: Length of Stay (3 digits).
+    - `PPS-DRG-ADJ-PAY-AMT`: DRG Adjusted Payment Amount (7.2).
+    - `PPS-FED-PAY-AMT`: Federal Payment Amount (7.2).
+    - `PPS-FINAL-PAY-AMT`: Final Payment Amount (7.2).
+    - `PPS-FAC-COSTS`: Facility Costs (7.2).
+    - `PPS-NEW-FAC-SPEC-RATE`: New Facility Specific Rate (7.2).
+    - `PPS-OUTLIER-THRESHOLD`: Outlier Threshold (7.2).
+    - `PPS-SUBM-DRG-CODE`: Submitted DRG Code (3 characters).
+    - `PPS-CALC-VERS-CD`: Calculation Version Code (5 characters).
+    - `PPS-REG-DAYS-USED`: Regular Days Used (3 digits).
+    - `PPS-LTR-DAYS-USED`: Lifetime Reserve Days Used (3 digits).
+    - `PPS-BLEND-YEAR`: Blend Year Indicator (1 digit).
+    - `PPS-COLA`: COLA (Cost of Living Adjustment) (1.3).
+    - `FILLER`: Filler (4 characters).
+  - `PPS-OTHER-DATA`: Contains other PPS related data.
+    - `PPS-NAT-LABOR-PCT`: National Labor Percentage (1.5).
+    - `PPS-NAT-NONLABOR-PCT`: National Non-Labor Percentage (1.5).
+    - `PPS-STD-FED-RATE`: Standard Federal Rate (5.2).
+    - `PPS-BDGT-NEUT-RATE`: Budget Neutrality Rate (1.3).
+    - `FILLER`: Filler (20 characters).
+  - `PPS-PC-DATA`: Contains PPS related data
+    - `PPS-COT-IND`: Cost Outlier Indicator (1 character).
+    - `FILLER`: Filler (20 characters).
+- `PRICER-OPT-VERS-SW`:  Structure for pricer option and version switches:
+  - `PRICER-OPTION-SW`: Option Switch (1 character).
+    - `ALL-TABLES-PASSED`: Value 'A'.
+    - `PROV-RECORD-PASSED`: Value 'P'.
+  - `PPS-VERSIONS`: PPS Versions.
+    - `PPDRV-VERSION`: Version (5 characters).
+- `PROV-NEW-HOLD`: Structure containing provider-specific data passed from the calling program:
+  - `PROV-NEWREC-HOLD1`: Contains provider information.
+    - `P-NEW-NPI10`: NPI
+      - `P-NEW-NPI8`: NPI (8 characters)
+      - `P-NEW-NPI-FILLER`: Filler for NPI (2 characters).
+    - `P-NEW-PROVIDER-NO`: Provider Number.
+      - `P-NEW-STATE`: State code (2 digits).
+      - `FILLER`: Filler (4 characters).
+    - `P-NEW-DATE-DATA`: Date data.
+      - `P-NEW-EFF-DATE`: Effective Date
+        - `P-NEW-EFF-DT-CC`: Century Code (2 digits).
+        - `P-NEW-EFF-DT-YY`: Year (2 digits).
+        - `P-NEW-EFF-DT-MM`: Month (2 digits).
+        - `P-NEW-EFF-DT-DD`: Day (2 digits).
+      - `P-NEW-FY-BEGIN-DATE`: Fiscal Year Begin Date.
+        - `P-NEW-FY-BEG-DT-CC`: Century Code (2 digits).
+        - `P-NEW-FY-BEG-DT-YY`: Year (2 digits).
+        - `P-NEW-FY-BEG-DT-MM`: Month (2 digits).
+        - `P-NEW-FY-BEG-DT-DD`: Day (2 digits).
+      - `P-NEW-REPORT-DATE`: Report Date.
+        - `P-NEW-REPORT-DT-CC`: Century Code (2 digits).
+        - `P-NEW-REPORT-DT-YY`: Year (2 digits).
+        - `P-NEW-REPORT-DT-MM`: Month (2 digits).
+        - `P-NEW-REPORT-DT-DD`: Day (2 digits).
+      - `P-NEW-TERMINATION-DATE`: Termination Date.
+        - `P-NEW-TERM-DT-CC`: Century Code (2 digits).
+        - `P-NEW-TERM-DT-YY`: Year (2 digits).
+        - `P-NEW-TERM-DT-MM`: Month (2 digits).
+        - `P-NEW-TERM-DT-DD`: Day (2 digits).
+    - `P-NEW-WAIVER-CODE`: Waiver Code.
+      - `P-NEW-WAIVER-STATE`: Value 'Y'.
+    - `P-NEW-INTER-NO`: Intern Number (5 digits).
+    - `P-NEW-PROVIDER-TYPE`: Provider Type (2 characters).
+    - `P-NEW-CURRENT-CENSUS-DIV`: Current Census Division (1 digit).
+    - `P-NEW-CURRENT-DIV`: Redefines P-NEW-CURRENT-CENSUS-DIV.
+    - `P-NEW-MSA-DATA`: MSA Data.
+      - `P-NEW-CHG-CODE-INDEX`: Charge Code Index (1 character).
+      - `P-NEW-GEO-LOC-MSAX`: Geographic Location MSA (4 characters) JUST RIGHT.
+      - `P-NEW-GEO-LOC-MSA9`: Redefines P-NEW-GEO-LOC-MSAX (4 digits).
+      - `P-NEW-WAGE-INDEX-LOC-MSA`: Wage Index Location MSA (4 characters) JUST RIGHT.
+      - `P-NEW-STAND-AMT-LOC-MSA`: Standard Amount Location MSA (4 characters) JUST RIGHT.
+      - `P-NEW-STAND-AMT-LOC-MSA9`: Redefines P-NEW-STAND-AMT-LOC-MSA.
+        - `P-NEW-RURAL-1ST`:
+          - `P-NEW-STAND-RURAL`: (2 characters).
+            - `P-NEW-STD-RURAL-CHECK`: Value '  '.
+          - `P-NEW-RURAL-2ND`: (2 characters).
+    - `P-NEW-SOL-COM-DEP-HOSP-YR`: (2 characters).
+    - `P-NEW-LUGAR`: (1 character).
+    - `P-NEW-TEMP-RELIEF-IND`: Temporary Relief Indicator (1 character).
+    - `P-NEW-FED-PPS-BLEND-IND`: Federal PPS Blend Indicator (1 character).
+    - `FILLER`: Filler (5 characters).
+  - `PROV-NEWREC-HOLD2`: Contains provider variables.
+    - `P-NEW-VARIABLES`:
+      - `P-NEW-FAC-SPEC-RATE`: Facility Specific Rate (5.2).
+      - `P-NEW-COLA`: COLA (1.3).
+      - `P-NEW-INTERN-RATIO`: Intern Ratio (1.4).
+      - `P-NEW-BED-SIZE`: Bed Size (5 digits).
+      - `P-NEW-OPER-CSTCHG-RATIO`: Operating Cost to Charge Ratio (1.3).
+      - `P-NEW-CMI`: CMI (Case Mix Index) (1.4).
+      - `P-NEW-SSI-RATIO`: SSI Ratio (0.4).
+      - `P-NEW-MEDICAID-RATIO`: Medicaid Ratio (0.4).
+      - `P-NEW-PPS-BLEND-YR-IND`: PPS Blend Year Indicator (1 digit).
+      - `P-NEW-PRUF-UPDTE-FACTOR`: (1.5).
+      - `P-NEW-DSH-PERCENT`: DSH Percentage (0.4).
+      - `P-NEW-FYE-DATE`: Fiscal Year End Date (8 characters).
+    - `FILLER`: Filler (23 characters).
+  - `PROV-NEWREC-HOLD3`: Contains pass amount data.
+    - `P-NEW-PASS-AMT-DATA`:
+      - `P-NEW-PASS-AMT-CAPITAL`: Capital Pass Through Amount (4.2).
+      - `P-NEW-PASS-AMT-DIR-MED-ED`: Direct Medical Education Pass Through Amount (4.2).
+      - `P-NEW-PASS-AMT-ORGAN-ACQ`: Organ Acquisition Pass Through Amount (4.2).
+      - `P-NEW-PASS-AMT-PLUS-MISC`: Plus Miscellaneous Pass Through Amount (4.2).
+    - `P-NEW-CAPI-DATA`: Capital Data.
+      - `P-NEW-CAPI-PPS-PAY-CODE`: Capital PPS Payment Code (1 character).
+      - `P-NEW-CAPI-HOSP-SPEC-RATE`: Hospital Specific Rate (4.2).
+      - `P-NEW-CAPI-OLD-HARM-RATE`: Old HARM Rate (4.2).
+      - `P-NEW-CAPI-NEW-HARM-RATIO`: New HARM Ratio (1.9999).
+      - `P-NEW-CAPI-CSTCHG-RATIO`: Cost to Charge Ratio (1.999).
+      - `P-NEW-CAPI-NEW-HOSP`: New Hospital (1 character).
+      - `P-NEW-CAPI-IME`: IME (Indirect Medical Education) (1.9999).
+      - `P-NEW-CAPI-EXCEPTIONS`: Exceptions (4.2).
+    - `FILLER`: Filler (22 characters).
+- `WAGE-NEW-INDEX-RECORD`: Structure containing wage index data:
+  - `W-MSA`: MSA Code (4 characters).
+  - `W-EFF-DATE`: Effective Date (8 characters).
+  - `W-WAGE-INDEX1`: Wage Index 1 (S9(2)V9(4)).
+  - `W-WAGE-INDEX2`: Wage Index 2 (S9(2)V9(4)).
+  - `W-WAGE-INDEX3`: Wage Index 3 (S9(2)V9(4)).
+
+## Program: LTCAL042
+### Overview
+- This COBOL program, `LTCAL042`, is a subroutine for calculating Long-Term Care (LTC) DRG payments. It is effective from July 1, 2003. It receives bill data and provider information, performs edits, calculates the payment amount, including outliers and short stay payments, and returns the results. It uses a copybook `LTDRG031` which contains DRG-related data.
+
+### Files Accessed
+- No files are directly accessed within this program. However, it uses a `COPY` statement to include `LTDRG031` which presumably contains data read from a file.
+
+### Data Structures - WORKING-STORAGE SECTION
+- `W-STORAGE-REF`:  A 46-character field storing a descriptive string.
+- `CAL-VERSION`:  A 5-character field storing the version of the calculation logic.
+- `HOLD-PPS-COMPONENTS`: A group of fields used to store intermediate calculation results, including:
+  - `H-LOS`: Length of Stay (3 digits).
+  - `H-REG-DAYS`: Regular Days (3 digits).
+  - `H-TOTAL-DAYS`: Total Days (5 digits).
+  - `H-SSOT`: Short Stay Outlier Threshold (2 digits).
+  - `H-BLEND-RTC`: Blend Return Code (2 digits).
+  - `H-BLEND-FAC`: Blend Facility Factor (1.1).
+  - `H-BLEND-PPS`: Blend PPS Factor (1.1).
+  - `H-SS-PAY-AMT`: Short Stay Payment Amount (7.2).
+  - `H-SS-COST`: Short Stay Cost (7.2).
+  - `H-LABOR-PORTION`: Labor Portion (7.6).
+  - `H-NONLABOR-PORTION`: Non-Labor Portion (7.6).
+  - `H-FIXED-LOSS-AMT`: Fixed Loss Amount (7.2).
+  - `H-NEW-FAC-SPEC-RATE`: New Facility Specific Rate (5.2).
+  - `H-LOS-RATIO`: Length of stay ratio (1.5).
+- The `LTDRG031` copybook is included and contains DRG-related data.
+
+### Data Structures - LINKAGE SECTION
+- `BILL-NEW-DATA`:  Structure containing the bill data passed from the calling program:
+  - `B-NPI10`: NPI (National Provider Identifier)
+    - `B-NPI8`: NPI (8 characters)
+    - `B-NPI-FILLER`: Filler for NPI (2 characters).
+  - `B-PROVIDER-NO`: Provider Number (6 characters).
+  - `B-PATIENT-STATUS`: Patient Status (2 characters).
+  - `B-DRG-CODE`: DRG Code (3 characters).
+  - `B-LOS`: Length of Stay (3 digits).
+  - `B-COV-DAYS`: Covered Days (3 digits).
+  - `B-LTR-DAYS`: Lifetime Reserve Days (2 digits).
+  - `B-DISCHARGE-DATE`: Discharge Date
+    - `B-DISCHG-CC`: Century Code (2 digits).
+    - `B-DISCHG-YY`: Year (2 digits).
+    - `B-DISCHG-MM`: Month (2 digits).
+    - `B-DISCHG-DD`: Day (2 digits).
+  - `B-COV-CHARGES`: Covered Charges (7.2).
+  - `B-SPEC-PAY-IND`: Special Payment Indicator (1 character).
+  - `FILLER`: Filler (13 characters).
+- `PPS-DATA-ALL`: Structure to return the calculated PPS data to the calling program.
+  - `PPS-RTC`: Return Code (2 digits). Indicates how the bill was paid or why it wasn't.
+  - `PPS-CHRG-THRESHOLD`: Charge Threshold (7.2).
+  - `PPS-DATA`: Contains the calculated PPS data.
+    - `PPS-MSA`: MSA (Metropolitan Statistical Area) Code (4 characters).
+    - `PPS-WAGE-INDEX`: Wage Index (2.4).
+    - `PPS-AVG-LOS`: Average Length of Stay (2.1).
+    - `PPS-RELATIVE-WGT`: Relative Weight (1.4).
+    - `PPS-OUTLIER-PAY-AMT`: Outlier Payment Amount (7.2).
+    - `PPS-LOS`: Length of Stay (3 digits).
+    - `PPS-DRG-ADJ-PAY-AMT`: DRG Adjusted Payment Amount (7.2).
+    - `PPS-FED-PAY-AMT`: Federal Payment Amount (7.2).
+    - `PPS-FINAL-PAY-AMT`: Final Payment Amount (7.2).
+    - `PPS-FAC-COSTS`: Facility Costs (7.2).
+    - `PPS-NEW-FAC-SPEC-RATE`: New Facility Specific Rate (7.2).
+    - `PPS-OUTLIER-THRESHOLD`: Outlier Threshold (7.2).
+    - `PPS-SUBM-DRG-CODE`: Submitted DRG Code (3 characters).
+    - `PPS-CALC-VERS-CD`: Calculation Version Code (5 characters).
+    - `PPS-REG-DAYS-USED`: Regular Days Used (3 digits).
+    - `PPS-LTR-DAYS-USED`: Lifetime Reserve Days Used (3 digits).
+    - `PPS-BLEND-YEAR`: Blend Year Indicator (1 digit).
+    - `PPS-COLA`: COLA (Cost of Living Adjustment) (1.3).
+    - `FILLER`: Filler (4 characters).
+  - `PPS-OTHER-DATA`: Contains other PPS related data.
+    - `PPS-NAT-LABOR-PCT`: National Labor Percentage (1.5).
+    - `PPS-NAT-NONLABOR-PCT`: National Non-Labor Percentage (1.5).
+    - `PPS-STD-FED-RATE`: Standard Federal Rate (5.2).
+    - `PPS-BDGT-NEUT-RATE`: Budget Neutrality Rate (1.3).
+    - `FILLER`: Filler (20 characters).
+  - `PPS-PC-DATA`: Contains PPS related data
+    - `PPS-COT-IND`: Cost Outlier Indicator (1 character).
+    - `FILLER`: Filler (20 characters).
+- `PRICER-OPT-VERS-SW`:  Structure for pricer option and version switches:
+  - `PRICER-OPTION-SW`: Option Switch (1 character).
+    - `ALL-TABLES-PASSED`: Value 'A'.
+    - `PROV-RECORD-PASSED`: Value 'P'.
+  - `PPS-VERSIONS`: PPS Versions.
+    - `PPDRV-VERSION`: Version (5 characters).
+- `PROV-NEW-HOLD`: Structure containing provider-specific data passed from the calling program:
+  - `PROV-NEWREC-HOLD1`: Contains provider information.
+    - `P-NEW-NPI10`: NPI
+      - `P-NEW-NPI8`: NPI (8 characters)
+      - `P-NEW-NPI-FILLER`: Filler for NPI (2 characters).
+    - `P-NEW-PROVIDER-NO`: Provider Number.
+      - `P-NEW-STATE`: State code (2 digits).
+      - `FILLER`: Filler (4 characters).
+    - `P-NEW-DATE-DATA`: Date data.
+      - `P-NEW-EFF-DATE`: Effective Date
+        - `P-NEW-EFF-DT-CC`: Century Code (2 digits).
+        - `P-NEW-EFF-DT-YY`: Year (2 digits).
+        - `P-NEW-EFF-DT-MM`: Month (2 digits).
+        - `P-NEW-EFF-DT-DD`: Day (2 digits).
+      - `P-NEW-FY-BEGIN-DATE`: Fiscal Year Begin Date.
+        - `P-NEW-FY-BEG-DT-CC`: Century Code (2 digits).
+        - `P-NEW-FY-BEG-DT-YY`: Year (2 digits).
+        - `P-NEW-FY-BEG-DT-MM`: Month (2 digits).
+        - `P-NEW-FY-BEG-DT-DD`: Day (2 digits).
+      - `P-NEW-REPORT-DATE`: Report Date.
+        - `P-NEW-REPORT-DT-CC`: Century Code (2 digits).
+        - `P-NEW-REPORT-DT-YY`: Year (2 digits).
+        - `P-NEW-REPORT-DT-MM`: Month (2 digits).
+        - `P-NEW-REPORT-DT-DD`: Day (2 digits).
+      - `P-NEW-TERMINATION-DATE`: Termination Date.
+        - `P-NEW-TERM-DT-CC`: Century Code (2 digits).
+        - `P-NEW-TERM-DT-YY`: Year (2 digits).
+        - `P-NEW-TERM-DT-MM`: Month (2 digits).
+        - `P-NEW-TERM-DT-DD`: Day (2 digits).
+    - `P-NEW-WAIVER-CODE`: Waiver Code.
+      - `P-NEW-WAIVER-STATE`: Value 'Y'.
+    - `P-NEW-INTER-NO`: Intern Number (5 digits).
+    - `P-NEW-PROVIDER-TYPE`: Provider Type (2 characters).
+    - `P-NEW-CURRENT-CENSUS-DIV`: Current Census Division (1 digit).
+    - `P-NEW-CURRENT-DIV`: Redefines P-NEW-CURRENT-CENSUS-DIV.
+    - `P-NEW-MSA-DATA`: MSA Data.
+      - `P-NEW-CHG-CODE-INDEX`: Charge Code Index (1 character).
+      - `P-NEW-GEO-LOC-MSAX`: Geographic Location MSA (4 characters) JUST RIGHT.
+      - `P-NEW-GEO-LOC-MSA9`: Redefines P-NEW-GEO-LOC-MSAX (4 digits).
+      - `P-NEW-WAGE-INDEX-LOC-MSA`: Wage Index Location MSA (4 characters) JUST RIGHT.
+      - `P-NEW-STAND-AMT-LOC-MSA`: Standard Amount Location MSA (4 characters) JUST RIGHT.
+      - `P-NEW-STAND-AMT-LOC-MSA9`: Redefines P-NEW-STAND-AMT-LOC-MSA.
+        - `P-NEW-RURAL-1ST`:
+          - `P-NEW-STAND-RURAL`: (2 characters).
+            - `P-NEW-STD-RURAL-CHECK`: Value '  '.
+          - `P-NEW-RURAL-2ND`: (2 characters).
+    - `P-NEW-SOL-COM-DEP-HOSP-YR`: (2 characters).
+    - `P-NEW-LUGAR`: (1 character).
+    - `P-NEW-TEMP-RELIEF-IND`: Temporary Relief Indicator (1 character).
+    - `P-NEW-FED-PPS-BLEND-IND`: Federal PPS Blend Indicator (1 character).
+    - `FILLER`: Filler (5 characters).
+  - `PROV-NEWREC-HOLD2`: Contains provider variables.
+    - `P-NEW-VARIABLES`:
+      - `P-NEW-FAC-SPEC-RATE`: Facility Specific Rate (5.2).
+      - `P-NEW-COLA`: COLA (1.3).
+      - `P-NEW-INTERN-RATIO`: Intern Ratio (1.4).
+      - `P-NEW-BED-SIZE`: Bed Size (5 digits).
+      - `P-NEW-OPER-CSTCHG-RATIO`: Operating Cost to Charge Ratio (1.3).
+      - `P-NEW-CMI`: CMI (Case Mix Index) (1.4).
+      - `P-NEW-SSI-RATIO`: SSI Ratio (0.4).
+      - `P-NEW-MEDICAID-RATIO`: Medicaid Ratio (0.4).
+      - `P-NEW-PPS-BLEND-YR-IND`: PPS Blend Year Indicator (1 digit).
+      - `P-NEW-PRUF-UPDTE-FACTOR`: (1.5).
+      - `P-NEW-DSH-PERCENT`: DSH Percentage (0.4).
+      - `P-NEW-FYE-DATE`: Fiscal Year End Date (8 characters).
+    - `FILLER`: Filler (23 characters).
+  - `PROV-NEWREC-HOLD3`: Contains pass amount data.
+    - `P-NEW-PASS-AMT-DATA`:
+      - `P-NEW-PASS-AMT-CAPITAL`: Capital Pass Through Amount (4.2).
+      - `P-NEW-PASS-AMT-DIR-MED-ED`: Direct Medical Education Pass Through Amount (4.2).
+      - `P-NEW-PASS-AMT-ORGAN-ACQ`: Organ Acquisition Pass Through Amount (4.2).
+      - `P-NEW-PASS-AMT-PLUS-MISC`: Plus Miscellaneous Pass Through Amount (4.2).
+    - `P-NEW-CAPI-DATA`: Capital Data.
+      - `P-NEW-CAPI-PPS-PAY-CODE`: Capital PPS Payment Code (1 character).
+      - `P-NEW-CAPI-HOSP-SPEC-RATE`: Hospital Specific Rate (4.2).
+      - `P-NEW-CAPI-OLD-HARM-RATE`: Old HARM Rate (4.2).
+      - `P-NEW-CAPI-NEW-HARM-RATIO`: New HARM Ratio (1.9999).
+      - `P-NEW-CAPI-CSTCHG-RATIO`: Cost to Charge Ratio (1.999).
+      - `P-NEW-CAPI-NEW-HOSP`: New Hospital (1 character).
+      - `P-NEW-CAPI-IME`: IME (Indirect Medical Education) (1.9999).
+      - `P-NEW-CAPI-EXCEPTIONS`: Exceptions (4.2).
+    - `FILLER`: Filler (22 characters).
+- `WAGE-NEW-INDEX-RECORD`: Structure containing wage index data:
+  - `W-MSA`: MSA Code (4 characters).
+  - `W-EFF-DATE`: Effective Date (8 characters).
+  - `W-WAGE-INDEX1`: Wage Index 1 (S9(2)V9(4)).
+  - `W-WAGE-INDEX2`: Wage Index 2 (S9(2)V9(4)).
+  - `W-WAGE-INDEX3`: Wage Index 3 (S9(2)V9(4)).
+
+## Program: LTDRG031
+### Overview
+- This is a COBOL program containing DRG-related data. It is included via `COPY` statements in other programs (LTCAL032 and LTCAL042) to provide DRG information.  It appears to contain a table used for DRG lookups.
+
+### Files Accessed
+- No files are directly accessed within this program.
+
+### Data Structures - WORKING-STORAGE SECTION
+- `W-DRG-FILLS`: A group of filler fields containing the DRG data, used to initialize the W-DRG-TABLE.
+- `W-DRG-TABLE`: Redefines `W-DRG-FILLS` to provide structure for DRG lookups.
+  - `WWM-ENTRY`:  A repeating group (OCCURS 502 TIMES) containing the DRG data.
+    - `WWM-DRG`: DRG Code (3 characters).  Used as the key.
+    - `WWM-RELWT`: Relative Weight (1.4).
+    - `WWM-ALOS`: Average Length of Stay (2.1).
+
+# Summary
+- Each program (`LTCAL032`, `LTCAL042`, and `LTDRG031`) has been analyzed.
+- The files accessed, data structures in WORKING-STORAGE and LINKAGE sections have been detailed for each program.
+- `LTDRG031` is a copybook containing DRG data.

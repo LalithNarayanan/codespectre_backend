@@ -1,0 +1,31 @@
+functionalspec2design:
+# 1 generating object oriented design from functional spec
+  oo_design_new:
+    versions:
+      - version: "1.0" 
+        system_message: You are an expert AI Engineer skilled at Object Oriented Design.
+        user_message: |
+          I have a detailed functional specification.  
+          I want you to take a look at it from an object oriented design perspective.
+          I prefer containment over inheritance. I dont want code, only the design
+          functional specifications 
+          -------------------------
+            [```{functional_spec}```]
+          
+          Object Oriented Design: 
+
+# 2 generating object oriented design from functional spec
+  oo_design_update:
+    versions:
+      - version: "1.0" 
+        system_message: You are an expert AI Engineer skilled at Object Oriented Design.
+        user_message: |
+          I have a detailed functional specification and a baseline Object-Oriented Design document.  
+          I want you to take a look at it from an object oriented design perspective.
+          I prefer containment over inheritance. I dont want code, only the design
+          Please update the following baseline Object-Oriented Design document 
+            [ ```{parent_oo_design}```] 
+          to incorporate the functionalities and requirements outlined   in these new functional specifications 
+            [```{functional_spec}```]
+          
+          Object Oriented Design: 

@@ -1,0 +1,1 @@
+Okay, I will analyze the provided SAS program contents (once they are provided) and provide the requested details for each program using markdown formatting.  I will adhere to the instructions, including not providing code snippets unless specifically requested. I'm ready when you are.  Please provide the contents of the SAS programs.

@@ -1,0 +1,343 @@
+# Step 1: Program Overview
+# Step 2: Data Definition and File Handling
+# Step 3: Business Logic Extraction
+# Step 4: External System Interactions 
+# Step 5: Control Flow and Module Execution Order
+
+code2functionalspec:
+# 1 Extracts highlevel functional spec from code
+  extract_program_overview:
+    versions:
+      - version: code
+        system_message: You are a top tier software developer skilled at COBOL
+        user_message: |
+            Analyze all the given COBOL programs and provide the following detail for each of the Programs:
+            Overview of the Program
+            List of all the buinsess functions addressed by the Program 
+            List of all the other programs it calls along with the data structures passed to them.
+
+            Instruction:
+              Don't exclude any programs.
+
+
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+
+      - version: code,context_1,context_2
+        system_message: You are a top tier software developer skilled at COBOL
+        user_message: |
+            Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+            Overview of the Program
+            List of all the buinsess functions addressed by the Program 
+            List of all the other programs it calls along with the data structures passed to them.
+
+            Instruction:
+              Don't exclude any programs.
+
+
+            
+            Context_1: ```{context_1}```
+            Context_2:```{context_2}```
+
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```         
+
+      - version: code,context_1,context_2,context_3
+        system_message: You are a top tier software developer skilled at COBOL
+        user_message: |
+            Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+            Overview of the Program
+            List of all the buinsess functions addressed by the Program 
+            List of all the other programs it calls along with the data structures passed to them.
+
+            Instruction:
+              Don't exclude any programs.
+
+            
+            Context_1: ```{context_1}```
+            Context_2:```{context_2}```
+            Context_3:```{context_3}```
+
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```         
+            
+
+
+# 2 Extracts highlevel data_definition_filehandling spec from code
+  extract_data_definition_filehandling:
+      versions:
+        - version: code
+          system_message: You are a top tier software developer skilled at COBOL.
+          user_message: |
+              Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+              All the files accessed, along with the description 
+              All data structures defined in the WORKING-STORAGE SECTION, along with the description
+              All data structures defined in LINKAGE SECTION, along with the description 
+              
+              Instruction:
+                Don't exclude any programs.
+  
+              
+              COBOL Program:
+              -------------------------------------------
+                 ```{code}```
+
+#3 Extracts business logic from code
+  extract_businesslogic:
+      versions:
+        - version: code
+          system_message: You are a top tier software developer skilled at COBOL
+          user_message: |
+            Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+            List of paragraphs in the order they are executed, along with the description(IMPORTANT)
+            Business Rules(IMPORTANT)
+            Data validation and error handling logic
+
+            Instruction:
+              Don't exclude any programs. For each rule/logic/paragraph, include relevant information.
+
+
+
+
+                COBOL Program:
+            -------------------------------------------
+                   ```{code}```
+
+#4 extract_externalsysteminteractions
+  extract_externalsysteminteractions:
+      versions:
+        - version: code
+          system_message: You are a top tier software developer skilled at COBOL
+          user_message: |
+            Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+            Identify calls to databases, web services, online transaction systems or other programs.
+            List of SQL Queries (EXEC SQL blocks)
+            List of CICS Calls (EXEC CICS blocks)
+
+            Instruction:
+              Don't exclude any programs. Include code blocks for every SQL/CICS/external call shown in the COBOL code.
+
+  
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+
+#5 extract_controlflow_moduleexecutionorder
+  extract_controlflow_moduleexecutionorder:
+      versions:
+        - version: code
+          system_message: You are a top tier software developer skilled at COBOL
+          user_message: |
+            Analyze all the COBOL programs given and provide the following details:
+            List of COBOL programs analyzed
+            Sequence in which these programs are called, along with the description
+            List of use cases addressed by all the programs together.
+
+            Instruction:
+              Don't exclude any programs. Summarize the call sequence.
+
+            
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+
+
+#11 merge two functional specificartions
+  merge_functional_specs:
+    versions:
+      - version: functional_specs,section
+        system_message: You are a top tier business analyst. 
+        user_message: |
+          The {section} section was extracted from multiple functional specifications file. 
+          The consolidated content is as follows:
+          {functional_specs}
+          Please merge all the contents logically. 
+          Ensure that no original information is omitted in the enhanced version.
+          Enusre all the merged contents are grouped under the section {section}
+
+          Instruction: 
+            Don't exclude any details or program.
+
+      - version: functional_specs,section,context_1
+        system_message: You are a top tier business analyst. 
+        user_message: |
+          You are given the following business logic 
+              ``` {functional_specs}   ```
+          extracted from the COBOL Programs
+            Combine the section {context_1} across functional specs logically.
+          
+          Instruction: 
+            Don't exclude any details or program, don't abstract the information.
+
+      # - version: functional_specs,context_1
+      #   system_message: You are a top tier business analyst. 
+      #   user_message: |
+      #     You are given the following business logic 
+      #         ``` {functional_specs}   ```
+      #     extracted from the COBOL Programs
+      #       {context_1}. But logic extracted is at high level and 
+      #       it needs to be enhanced with more details.
+      #     Use the given "mapping spec" document to enhance the business logic:
+      #        ```{context_1}   ```
+
+      #     Instruction: Don't exclude any details or program
+
+      - version: functional_specs,context_1,context_2
+        system_message: You are a top tier business analyst. 
+        user_message: |
+          You are given the following business logic 
+              ``` {functional_specs}   ```
+          extracted from the COBOL Programs
+            {context_1}. But logic extracted is at high level and 
+            it needs to be enhanced with more details.
+          Use the given "mapping spec" document to enhance the business logic:
+             ```{context_2}   ```
+
+          Instruction: Don't exclude any details or program         
+      # - version: "1.1"
+      #   system_message: You are an expert system analyst 
+      #     and software documentation specialist skilled in merging complex technical documents. 
+      #     Your goal is to create a single, concise, and comprehensive functional specification 
+      #     from specifications and additional context without losing any critical information.
+      #   user_message: |
+      #     You have been provided with the content of individual functional specifications and additional context
+      #     Your task is to analyze these specifications, additional context 
+      #     and produce a single,  merged functional specification document.
+
+      #     **Input Functional Specifications:**
+      #     -------------------------------------------
+      #     ```
+      #     {functional_specs}
+      #     ```
+      #     **Additional Context:**
+      #     -------------------------------------------
+      #     ```
+      #     {additional_context}
+      #     ```
+          
+      #     **Expected Output:**
+
+      #     - A single,  functional specification document specifications, retains all the essential information, 
+      #       functionalities, and requirements. 
+
+    
+              # ```yaml
+              # - Service Name: LTCAL032
+              #   Overview: Main program to calculate LTC payments
+              #   Execution Flow:
+              #     - Paragraph: 0000-MAINLINE-CONTROL
+              #       Description: ...
+              #       Code: |-{code}
+              #         PERFORM ...
+              #     - Paragraph: 0100-INITIAL-ROUTINE
+              #       Description: ...
+              #       Code: |-{code}
+              #         MOVE ZEROS TO PPS-RTC.
+              #   Business Rules:
+              #     - Payment Calculation: The core function...
+              #     - Short Stay: If LOS <= threshold...
+              #   Validation:
+              #     - B-LOS Validation: If B-LOS not numeric, set PPS-RTC to 56.
+              # ```
+
+
+
+
+
+
+
+
+
+
+# , embed the corresponding COBOL code snippet with proper indendation support for file formats like .yaml, .md and .pdf.
+#               Generate the entire code blocks in YAML structure as instructed below:
+              
+#               YAML Output Format (Generate for EACH paragraph/section):
+
+#               - ProgramName: LTCAL032
+#                 Overview: >
+#                   This program calculates LTC payments using PPS rules. It performs billing edits,
+#                   DRG lookups, payment computations (including short-stay, outliers, blends), and
+#                   sets output fields. It uses `LTDRG031` as a DRG lookup table.
+#                 Paragraphs:
+#                   - Name: 0000-MAINLINE-CONTROL
+#                     Description: Main control paragraph orchestrating overall processing.
+#                     Calls:
+#                       <explaining code with the variables and methods used>
+#                     CodeSnippet: |
+#                       PERFORM 0100-INITIAL-ROUTINE
+#                       ...
+#                   - Name: 0100-INITIAL-ROUTINE
+#                     Description: Initializes variables and constants in working storage.
+#                     Calls:
+#                       <explaining code with the variables and methods used>
+#                     CodeSnippet: |
+#                       MOVE ZEROS TO PPS-RTC
+#                       INITIALIZE PPS-DATA
+#                       ...
+#                   # Add further paragraphs similarly...
+#                 BusinessRules:
+#                   - Calculates payment for LTC DRGs.
+#                   - Uses DRG table LTDRG031 for lookups.
+#                   - Applies normal, short-stay, outlier, and blended payment methodologies.
+#                   - Considers provider-specific data, dates, budget neutrality.
+#                 DataValidation:
+#                   - B-LOS must be numeric and >0 (Error code 56)
+#                   - B-COV-CHARGES must be numeric (Error code 58)
+#                   - B-LTR-DAYS must be numeric and <=60 (Error code 61)
+#                   - ... # Add all others
+#                 ErrorHandling:
+#                   - Stores error state in PPS-RTC 50-99.
+#                   - On error, PPS-RTC triggers skip/exit logic.
+
+
+
+
+            # Analyze all the given COBOL programs and provide the following detail for each of the Programs in YAML: 
+            # Generate the entire code blocks in YAML structure as instructed below:
+
+            # - ProgramName: LTCAL032
+            #   Overview: >
+            #     This COBOL program is a subroutine designed to calculate Long-Term Care (LTC) payments based on the Diagnosis Related Group (DRG) system for the fiscal year 2003 (effective January 1, 2003).
+            #     It takes bill data as input, performs various edits and calculations, and returns the payment information to the calling program.
+            #     It incorporates logic for standard DRG payments, short-stay payments, outlier payments, and blending logic for different facility payment years.
+
+            #   BusinessFunctions:
+            #     - DRG Calculation: Determining the appropriate payment amount based on the DRG code, length of stay, and other factors.
+            #     - Payment Edits: Validating the input bill data to ensure accuracy and adherence to payment rules.
+            #     - Short-Stay Payment Calculation: Calculating payments for patients with shorter lengths of stay.
+            #     - Outlier Payment Calculation: Determining additional payments for exceptionally high-cost cases.
+            #     - Blending Logic: Applying the correct blend of facility-specific rates and DRG payments based on the facility's transition year.
+
+            #   CalledProgramsAndDataStructures:
+            #     - COPY LTDRG031:
+            #         DataStructure: DRG table (DRG codes, relative weights, average lengths of stay, etc.)
+            #     - MainlineCalls:
+            #         - Routine: 1000-EDIT-THE-BILL-INFO
+            #           DataStructures: [BILL-NEW-DATA, PROV-NEW-HOLD, WAGE-NEW-INDEX-RECORD]
+            #         - Routine: 1700-EDIT-DRG-CODE
+            #           DataStructures: [BILL-NEW-DATA, W-DRG-TABLE]
+            #         - Routine: 2000-ASSEMBLE-PPS-VARIABLES
+            #           DataStructures: [PROV-NEW-HOLD, WAGE-NEW-INDEX-RECORD, PPS-DATA-ALL, BILL-NEW-DATA]
+            #         - Routine: 3000-CALC-PAYMENT
+            #           DataStructures: [BILL-NEW-DATA, PPS-DATA-ALL, PROV-NEW-HOLD]
+            #         - Routine: 7000-CALC-OUTLIER
+            #           DataStructures: [BILL-NEW-DATA, PPS-DATA-ALL, PROV-NEW-HOLD]
+            #         - Routine: 8000-BLEND
+            #           DataStructures: [BILL-NEW-DATA, PPS-DATA-ALL, PROV-NEW-HOLD]
+            #         - Routine: 9000-MOVE-RESULTS
+            #           DataStructures: [PPS-DATA-ALL]
+
+
+
+
+                #           Follow the particular order for each file strictly as below(replace '>' with '#'):
+                # >Business Logic:
+                # >>Analysis of {file_name}:
+                # >>>Program Overview:
+                # >>>Paragraph Execution Order and Description:
+                # >>>Business Rules:
+                # >>>Data Validation and Error Handling Logic:

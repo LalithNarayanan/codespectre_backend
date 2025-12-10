@@ -1,0 +1,214 @@
+/*******************************************************************************
+* Program: 03_feature_engineering.sas
+* Purpose: Create features for fraud detection
+* Author: Generated Example
+* Date: 2025-12-01
+*******************************************************************************/
+
+%let input_lib = WORK;
+%let output_lib = WORK;
+
+/* MACRO 1: Calculate velocity features */
+%macro CALCULATE_VELOCITY(inds=, outds=, window_days=7);
+
+    /* Sort by customer and date */
+    PROC SORT DATA=&inds;
+        BY customer_id transaction_date_sas transaction_time;
+    RUN;
+
+    /* Calculate velocity features */
+    DATA &outds;
+        SET &inds;
+        BY customer_id;
+
+        /* Retain variables for calculations */
+        RETAIN txn_count_&window_days.d 0
+               txn_amount_&window_days.d 0
+               last_txn_date .;
+
+        /* Reset on new customer */
+        if FIRST.customer_id then do;
+            txn_count_&window_days.d = 0;
+            txn_amount_&window_days.d = 0;
+            last_txn_date = .;
+        end;
+
+        /* Calculate days since last transaction */
+        if NOT missing(last_txn_date) then 
+            days_since_last_txn = transaction_date_sas - last_txn_date;
+        else 
+            days_since_last_txn = .;
+
+        /* Update counters (rolling window) */
+        if NOT missing(last_txn_date) then do;
+            if days_since_last_txn <= &window_days then do;
+                txn_count_&window_days.d + 1;
+                txn_amount_&window_days.d + amount;
+            end;
+            else do;
+                txn_count_&window_days.d = 1;
+                txn_amount_&window_days.d = amount;
+            end;
+        end;
+        else do;
+            txn_count_&window_days.d = 1;
+            txn_amount_&window_days.d = amount;
+        end;
+
+        /* Update last transaction date */
+        last_txn_date = transaction_date_sas;
+
+        /* Calculate average transaction amount in window */
+        if txn_count_&window_days.d > 0 then 
+            avg_txn_amount_&window_days.d = txn_amount_&window_days.d / txn_count_&window_days.d;
+        else 
+            avg_txn_amount_&window_days.d = 0;
+
+        DROP last_txn_date;
+
+    RUN;
+
+    %PUT NOTE: Calculated velocity features for &window_days day window;
+
+%mend CALCULATE_VELOCITY;
+
+/* MACRO 2: Calculate amount deviation */
+%macro CALCULATE_AMOUNT_DEVIATION(inds=, outds=);
+
+    /* Calculate customer statistics */
+    PROC MEANS DATA=&inds NOPRINT;
+        BY customer_id;
+        VAR amount;
+        OUTPUT OUT=customer_stats
+            MEAN=customer_avg_amount
+            STD=customer_std_amount
+            N=customer_txn_count;
+    RUN;
+
+    /* Merge statistics back */
+    PROC SQL;
+        CREATE TABLE &outds AS
+        SELECT 
+            a.*,
+            b.customer_avg_amount,
+            b.customer_std_amount,
+            b.customer_txn_count,
+            /* Calculate z-score */
+            CASE 
+                WHEN b.customer_std_amount > 0 THEN
+                    (a.amount - b.customer_avg_amount) / b.customer_std_amount
+                ELSE 0
+            END AS amount_zscore,
+            /* Calculate percentage deviation */
+            CASE
+                WHEN b.customer_avg_amount > 0 THEN
+                    ((a.amount - b.customer_avg_amount) / b.customer_avg_amount) * 100
+                ELSE 0
+            END AS amount_pct_deviation
+        FROM &inds a
+        LEFT JOIN customer_stats b
+        ON a.customer_id = b.customer_id;
+    QUIT;
+
+    %PUT NOTE: Calculated amount deviation features;
+
+%mend CALCULATE_AMOUNT_DEVIATION;
+
+/* MACRO 3: Create time-based features */
+%macro CREATE_TIME_FEATURES(inds=, outds=);
+
+    DATA &outds;
+        SET &inds;
+
+        /* Extract time components */
+        txn_hour = HOUR(transaction_time);
+        txn_day_of_week = WEEKDAY(transaction_date_sas);
+        txn_day_of_month = DAY(transaction_date_sas);
+        txn_month = MONTH(transaction_date_sas);
+
+        /* Create time-of-day categories */
+        length time_of_day $20;
+        if txn_hour >= 0 AND txn_hour < 6 then time_of_day = 'NIGHT';
+        else if txn_hour >= 6 AND txn_hour < 12 then time_of_day = 'MORNING';
+        else if txn_hour >= 12 AND txn_hour < 18 then time_of_day = 'AFTERNOON';
+        else time_of_day = 'EVENING';
+
+        /* Create weekend flag */
+        is_weekend = (txn_day_of_week IN (1, 7));  /* Sunday=1, Saturday=7 */
+
+        /* Create unusual hour flag */
+        is_unusual_hour = (txn_hour >= 0 AND txn_hour < 6);
+
+    RUN;
+
+    %PUT NOTE: Created time-based features;
+
+%mend CREATE_TIME_FEATURES;
+
+/* MACRO 4: Create location features */
+%macro CREATE_LOCATION_FEATURES(inds=, outds=);
+
+    /* Calculate country transaction counts */
+    PROC SQL;
+        CREATE TABLE country_counts AS
+        SELECT 
+            country_code_clean,
+            COUNT(*) AS country_txn_count
+        FROM &inds
+        GROUP BY country_code_clean;
+    QUIT;
+
+    /* Merge back and create features */
+    PROC SQL;
+        CREATE TABLE &outds AS
+        SELECT 
+            a.*,
+            b.country_txn_count,
+            /* Flag for rare countries */
+            CASE 
+                WHEN b.country_txn_count < 10 THEN 1
+                ELSE 0
+            END AS is_rare_country,
+            /* Check if international transaction */
+            CASE
+                WHEN a.country_code_clean NE 'US' THEN 1
+                ELSE 0
+            END AS is_international
+        FROM &inds a
+        LEFT JOIN country_counts b
+        ON a.country_code_clean = b.country_code_clean;
+    QUIT;
+
+    %PUT NOTE: Created location-based features;
+
+%mend CREATE_LOCATION_FEATURES;
+
+/* Execute feature engineering pipeline */
+%CALCULATE_VELOCITY(
+    inds=&input_lib..transactions_final,
+    outds=&output_lib..txn_with_velocity,
+    window_days=7
+);
+
+%CALCULATE_AMOUNT_DEVIATION(
+    inds=&output_lib..txn_with_velocity,
+    outds=&output_lib..txn_with_deviation
+);
+
+%CREATE_TIME_FEATURES(
+    inds=&output_lib..txn_with_deviation,
+    outds=&output_lib..txn_with_time_features
+);
+
+%CREATE_LOCATION_FEATURES(
+    inds=&output_lib..txn_with_time_features,
+    outds=&output_lib..transactions_engineered
+);
+
+/* Display sample of engineered features */
+PROC PRINT DATA=&output_lib..transactions_engineered(OBS=10);
+    VAR transaction_id customer_id amount 
+        txn_count_7d avg_txn_amount_7d amount_zscore
+        time_of_day is_weekend is_unusual_hour;
+    TITLE 'Sample of Engineered Features';
+RUN;

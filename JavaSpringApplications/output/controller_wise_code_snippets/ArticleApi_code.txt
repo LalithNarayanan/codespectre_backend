@@ -1,0 +1,221 @@
+
+=========== Current Method: article =============
+ArticleApi - article:
+```java
+@GetMapping
+  public ResponseEntity<?> article(
+      @PathVariable("slug") String slug, @AuthenticationPrincipal User user) {
+    return articleQueryService
+        .findBySlug(slug, user)
+        .map(articleData -> ResponseEntity.ok(articleResponse(articleData)))
+        .orElseThrow(ResourceNotFoundException::new);
+  }
+```
+=========== Dependent Methods of article: ===============
+                
+UserRelationshipQueryService - followingAuthors:
+```java
+Set<String> followingAuthors(@Param("userId") String userId, @Param("ids") List<String> ids);
+```
+
+                    
+ArticleFavoritesReadService - isUserFavorite:
+```java
+boolean isUserFavorite(@Param("userId") String userId, @Param("articleId") String articleId);
+```
+
+                    
+ArticleFavoritesReadService - articleFavoriteCount:
+```java
+int articleFavoriteCount(@Param("articleId") String articleId);
+```
+
+                    
+ArticleFavoritesReadService - userFavorites:
+```java
+Set<String> userFavorites(@Param("ids") List<String> ids, @Param("currentUser") User currentUser);
+```
+
+                    
+ArticleReadService - findBySlug:
+```java
+ArticleData findBySlug(@Param("slug") String slug);
+```
+
+                    
+UserRelationshipQueryService - isUserFollowing:
+```java
+boolean isUserFollowing(
+      @Param("userId") String userId, @Param("anotherUserId") String anotherUserId);
+```
+
+                    
+ArticleFavoritesReadService - articlesFavoriteCount:
+```java
+List<ArticleFavoriteCount> articlesFavoriteCount(@Param("ids") List<String> ids);
+```
+
+                    
+ArticleApi - articleResponse:
+```java
+private Map<String, Object> articleResponse(ArticleData articleData) {
+    return new HashMap<String, Object>() {
+      {
+        put("article", articleData);
+      }
+    };
+  }
+```
+
+                    
+=========== Current Method: updateArticle =============
+ArticleApi - updateArticle:
+```java
+@PutMapping
+  public ResponseEntity<?> updateArticle(
+      @PathVariable("slug") String slug,
+      @AuthenticationPrincipal User user,
+      @Valid @RequestBody UpdateArticleParam updateArticleParam) {
+    return articleRepository
+        .findBySlug(slug)
+        .map(
+            article -> {
+              if (!AuthorizationService.canWriteArticle(user, article)) {
+                throw new NoAuthorizationException();
+              }
+              Article updatedArticle =
+                  articleCommandService.updateArticle(article, updateArticleParam);
+              return ResponseEntity.ok(
+                  articleResponse(
+                      articleQueryService.findBySlug(updatedArticle.getSlug(), user).get()));
+            })
+        .orElseThrow(ResourceNotFoundException::new);
+  }
+```
+=========== Dependent Methods of updateArticle: ===============
+                
+UserRelationshipQueryService - followingAuthors:
+```java
+Set<String> followingAuthors(@Param("userId") String userId, @Param("ids") List<String> ids);
+```
+
+                    
+ArticleRepository - findBySlug:
+```java
+Optional<Article> findBySlug(String slug);
+```
+
+                    
+ArticleFavoritesReadService - isUserFavorite:
+```java
+boolean isUserFavorite(@Param("userId") String userId, @Param("articleId") String articleId);
+```
+
+                    
+ArticleFavoritesReadService - articleFavoriteCount:
+```java
+int articleFavoriteCount(@Param("articleId") String articleId);
+```
+
+                    
+ArticleFavoritesReadService - userFavorites:
+```java
+Set<String> userFavorites(@Param("ids") List<String> ids, @Param("currentUser") User currentUser);
+```
+
+                    
+ArticleReadService - findBySlug:
+```java
+ArticleData findBySlug(@Param("slug") String slug);
+```
+
+                    
+UserRelationshipQueryService - isUserFollowing:
+```java
+boolean isUserFollowing(
+      @Param("userId") String userId, @Param("anotherUserId") String anotherUserId);
+```
+
+                    
+ArticleRepository - save:
+```java
+void save(Article article);
+```
+
+                    
+ArticleFavoritesReadService - articlesFavoriteCount:
+```java
+List<ArticleFavoriteCount> articlesFavoriteCount(@Param("ids") List<String> ids);
+```
+
+                    
+ArticleApi - articleResponse:
+```java
+private Map<String, Object> articleResponse(ArticleData articleData) {
+    return new HashMap<String, Object>() {
+      {
+        put("article", articleData);
+      }
+    };
+  }
+```
+
+                    
+=========== Current Method: deleteArticle =============
+ArticleApi - deleteArticle:
+```java
+@DeleteMapping
+  public ResponseEntity deleteArticle(
+      @PathVariable("slug") String slug, @AuthenticationPrincipal User user) {
+    return articleRepository
+        .findBySlug(slug)
+        .map(
+            article -> {
+              if (!AuthorizationService.canWriteArticle(user, article)) {
+                throw new NoAuthorizationException();
+              }
+              articleRepository.remove(article);
+              return ResponseEntity.noContent().build();
+            })
+        .orElseThrow(ResourceNotFoundException::new);
+  }
+```
+=========== Dependent Methods of deleteArticle: ===============
+                
+ArticleRepository - remove:
+```java
+void remove(Article article);
+```
+
+                    
+ArticleRepository - findBySlug:
+```java
+Optional<Article> findBySlug(String slug);
+```
+
+                    
+=========== Current Method: articleResponse =============
+ArticleApi - articleResponse:
+```java
+private Map<String, Object> articleResponse(ArticleData articleData) {
+    return new HashMap<String, Object>() {
+      {
+        put("article", articleData);
+      }
+    };
+  }
+```
+=========== Dependent Methods of articleResponse: ===============
+                
+ArticleApi - articleResponse:
+```java
+private Map<String, Object> articleResponse(ArticleData articleData) {
+    return new HashMap<String, Object>() {
+      {
+        put("article", articleData);
+      }
+    };
+  }
+```
+
+                    

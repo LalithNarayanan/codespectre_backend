@@ -1,0 +1,180 @@
+
+=========== Current Method: getProfile =============
+ProfileApi - getProfile:
+```java
+@GetMapping
+  public ResponseEntity getProfile(
+      @PathVariable("username") String username, @AuthenticationPrincipal User user) {
+    return profileQueryService
+        .findByUsername(username, user)
+        .map(this::profileResponse)
+        .orElseThrow(ResourceNotFoundException::new);
+  }
+```
+=========== Dependent Methods of getProfile: ===============
+                
+UserReadService - findByUsername:
+```java
+UserData findByUsername(@Param("username") String username);
+```
+
+                    
+UserRelationshipQueryService - isUserFollowing:
+```java
+boolean isUserFollowing(
+      @Param("userId") String userId, @Param("anotherUserId") String anotherUserId);
+```
+
+                    
+=========== Current Method: follow =============
+ProfileApi - follow:
+```java
+@PostMapping(path = "follow")
+  public ResponseEntity follow(
+      @PathVariable("username") String username, @AuthenticationPrincipal User user) {
+    return userRepository
+        .findByUsername(username)
+        .map(
+            target -> {
+              FollowRelation followRelation = new FollowRelation(user.getId(), target.getId());
+              userRepository.saveRelation(followRelation);
+              return profileResponse(profileQueryService.findByUsername(username, user).get());
+            })
+        .orElseThrow(ResourceNotFoundException::new);
+  }
+```
+=========== Dependent Methods of follow: ===============
+                
+UserReadService - findByUsername:
+```java
+UserData findByUsername(@Param("username") String username);
+```
+
+                    
+UserRelationshipQueryService - isUserFollowing:
+```java
+boolean isUserFollowing(
+      @Param("userId") String userId, @Param("anotherUserId") String anotherUserId);
+```
+
+                    
+UserRepository - findByUsername:
+```java
+Optional<User> findByUsername(String username);
+```
+
+                    
+UserRepository - saveRelation:
+```java
+void saveRelation(FollowRelation followRelation);
+```
+
+                    
+ProfileApi - profileResponse:
+```java
+private ResponseEntity profileResponse(ProfileData profile) {
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("profile", profile);
+          }
+        });
+  }
+```
+
+                    
+=========== Current Method: unfollow =============
+ProfileApi - unfollow:
+```java
+@DeleteMapping(path = "follow")
+  public ResponseEntity unfollow(
+      @PathVariable("username") String username, @AuthenticationPrincipal User user) {
+    Optional<User> userOptional = userRepository.findByUsername(username);
+    if (userOptional.isPresent()) {
+      User target = userOptional.get();
+      return userRepository
+          .findRelation(user.getId(), target.getId())
+          .map(
+              relation -> {
+                userRepository.removeRelation(relation);
+                return profileResponse(profileQueryService.findByUsername(username, user).get());
+              })
+          .orElseThrow(ResourceNotFoundException::new);
+    } else {
+      throw new ResourceNotFoundException();
+    }
+  }
+```
+=========== Dependent Methods of unfollow: ===============
+                
+UserRepository - findRelation:
+```java
+Optional<FollowRelation> findRelation(String userId, String targetId);
+```
+
+                    
+UserReadService - findByUsername:
+```java
+UserData findByUsername(@Param("username") String username);
+```
+
+                    
+UserRelationshipQueryService - isUserFollowing:
+```java
+boolean isUserFollowing(
+      @Param("userId") String userId, @Param("anotherUserId") String anotherUserId);
+```
+
+                    
+UserRepository - removeRelation:
+```java
+void removeRelation(FollowRelation followRelation);
+```
+
+                    
+UserRepository - findByUsername:
+```java
+Optional<User> findByUsername(String username);
+```
+
+                    
+ProfileApi - profileResponse:
+```java
+private ResponseEntity profileResponse(ProfileData profile) {
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("profile", profile);
+          }
+        });
+  }
+```
+
+                    
+=========== Current Method: profileResponse =============
+ProfileApi - profileResponse:
+```java
+private ResponseEntity profileResponse(ProfileData profile) {
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("profile", profile);
+          }
+        });
+  }
+```
+=========== Dependent Methods of profileResponse: ===============
+                
+ProfileApi - profileResponse:
+```java
+private ResponseEntity profileResponse(ProfileData profile) {
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("profile", profile);
+          }
+        });
+  }
+```
+
+                    

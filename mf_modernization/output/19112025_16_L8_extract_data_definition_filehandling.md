@@ -1,0 +1,343 @@
+# Step 1: Program Analysis for LTCAL032
+
+## LTCAL032
+
+### Overview
+- This COBOL program, LTCAL032, is a subroutine designed to calculate Long-Term Care (LTC) payments based on the DRG (Diagnosis Related Group) system.
+- It receives bill data as input, performs edits, assembles pricing components, calculates payment amounts (including outliers), and returns the results to the calling program.
+- It uses a `COPY` statement to include the data definitions from `LTDRG031`
+
+### Files Accessed
+- **None explicitly opened in the program**. However, it accesses data through the `COPY` statement which brings in the data definitions.
+- Implicitly uses the data defined in `LTDRG031`.
+
+### Data Structures in WORKING-STORAGE SECTION
+- **W-STORAGE-REF**:  PIC X(46) - Contains a program identification string.
+- **CAL-VERSION**:  PIC X(05) - Stores the version of the calculation logic, "C03.2".
+- **HOLD-PPS-COMPONENTS**: This group holds intermediate calculation values.
+  - **H-LOS**: PIC 9(03) - Length of Stay.
+  - **H-REG-DAYS**: PIC 9(03) - Regular days.
+  - **H-TOTAL-DAYS**: PIC 9(05) - Total days.
+  - **H-SSOT**: PIC 9(02) - Short Stay Outlier Threshold.
+  - **H-BLEND-RTC**: PIC 9(02) - Return Code for Blended Payment.
+  - **H-BLEND-FAC**: PIC 9(01)V9(01) - Blend Factor for Facility Rate.
+  - **H-BLEND-PPS**: PIC 9(01)V9(01) - Blend Factor for PPS Payment.
+  - **H-SS-PAY-AMT**: PIC 9(07)V9(02) - Short Stay Payment Amount.
+  - **H-SS-COST**: PIC 9(07)V9(02) - Short Stay Cost.
+  - **H-LABOR-PORTION**: PIC 9(07)V9(06) - Labor Portion of Payment.
+  - **H-NONLABOR-PORTION**: PIC 9(07)V9(06) - Non-Labor Portion of Payment.
+  - **H-FIXED-LOSS-AMT**: PIC 9(07)V9(02) - Fixed Loss Amount.
+  - **H-NEW-FAC-SPEC-RATE**: PIC 9(05)V9(02) - New Facility Specific Rate.
+- **W-DRG-FILLS**: (Defined by `COPY LTDRG031`) - This is a series of PIC X(44) values.
+- **W-DRG-TABLE**:  REDEFINES W-DRG-FILLS.  This is the DRG table structure.
+  - **WWM-ENTRY**: OCCURS 502 TIMES -  Each entry in the DRG table.
+    - **WWM-DRG**: PIC X(3) - DRG Code.
+    - **WWM-RELWT**: PIC 9(1)V9(4) - Relative Weight.
+    - **WWM-ALOS**: PIC 9(2)V9(1) - Average Length of Stay.
+
+### Data Structures in LINKAGE SECTION
+- **BILL-NEW-DATA**: This structure receives the bill data from the calling program.
+  - **B-NPI10**: Group containing NPI data.
+    - **B-NPI8**: PIC X(08) - NPI (National Provider Identifier) - first 8 characters.
+    - **B-NPI-FILLER**: PIC X(02) - NPI Filler - last 2 characters.
+  - **B-PROVIDER-NO**: PIC X(06) - Provider Number.
+  - **B-PATIENT-STATUS**: PIC X(02) - Patient Status.
+  - **B-DRG-CODE**: PIC X(03) - DRG Code.
+  - **B-LOS**: PIC 9(03) - Length of Stay.
+  - **B-COV-DAYS**: PIC 9(03) - Covered Days.
+  - **B-LTR-DAYS**: PIC 9(02) - Lifetime Reserve Days.
+  - **B-DISCHARGE-DATE**: Group containing discharge date components.
+    - **B-DISCHG-CC**: PIC 9(02) - Century/Year of Discharge Date.
+    - **B-DISCHG-YY**: PIC 9(02) - Year of Discharge Date.
+    - **B-DISCHG-MM**: PIC 9(02) - Month of Discharge Date.
+    - **B-DISCHG-DD**: PIC 9(02) - Day of Discharge Date.
+  - **B-COV-CHARGES**: PIC 9(07)V9(02) - Covered Charges.
+  - **B-SPEC-PAY-IND**: PIC X(01) - Special Payment Indicator.
+  - **FILLER**: PIC X(13) - Unused Filler.
+- **PPS-DATA-ALL**:  This structure returns the calculated PPS data to the calling program.
+  - **PPS-RTC**: PIC 9(02) - Return Code.
+  - **PPS-CHRG-THRESHOLD**: PIC 9(07)V9(02) - Charge Threshold.
+  - **PPS-DATA**: Group containing PPS data.
+    - **PPS-MSA**: PIC X(04) - MSA (Metropolitan Statistical Area) Code.
+    - **PPS-WAGE-INDEX**: PIC 9(02)V9(04) - Wage Index.
+    - **PPS-AVG-LOS**: PIC 9(02)V9(01) - Average Length of Stay.
+    - **PPS-RELATIVE-WGT**: PIC 9(01)V9(04) - Relative Weight.
+    - **PPS-OUTLIER-PAY-AMT**: PIC 9(07)V9(02) - Outlier Payment Amount.
+    - **PPS-LOS**: PIC 9(03) - Length of Stay.
+    - **PPS-DRG-ADJ-PAY-AMT**: PIC 9(07)V9(02) - DRG Adjusted Payment Amount.
+    - **PPS-FED-PAY-AMT**: PIC 9(07)V9(02) - Federal Payment Amount.
+    - **PPS-FINAL-PAY-AMT**: PIC 9(07)V9(02) - Final Payment Amount.
+    - **PPS-FAC-COSTS**: PIC 9(07)V9(02) - Facility Costs.
+    - **PPS-NEW-FAC-SPEC-RATE**: PIC 9(07)V9(02) - New Facility Specific Rate.
+    - **PPS-OUTLIER-THRESHOLD**: PIC 9(07)V9(02) - Outlier Threshold.
+    - **PPS-SUBM-DRG-CODE**: PIC X(03) - Submitted DRG Code.
+    - **PPS-CALC-VERS-CD**: PIC X(05) - Calculation Version Code.
+    - **PPS-REG-DAYS-USED**: PIC 9(03) - Regular Days Used.
+    - **PPS-LTR-DAYS-USED**: PIC 9(03) - Lifetime Reserve Days Used.
+    - **PPS-BLEND-YEAR**: PIC 9(01) - Blend Year.
+    - **PPS-COLA**: PIC 9(01)V9(03) - COLA (Cost of Living Adjustment).
+    - **FILLER**: PIC X(04) - Unused Filler.
+  - **PPS-OTHER-DATA**: Group containing other PPS data.
+    - **PPS-NAT-LABOR-PCT**: PIC 9(01)V9(05) - National Labor Percentage.
+    - **PPS-NAT-NONLABOR-PCT**: PIC 9(01)V9(05) - National Non-Labor Percentage.
+    - **PPS-STD-FED-RATE**: PIC 9(05)V9(02) - Standard Federal Rate.
+    - **PPS-BDGT-NEUT-RATE**: PIC 9(01)V9(03) - Budget Neutrality Rate.
+    - **FILLER**: PIC X(20) - Unused Filler.
+  - **PPS-PC-DATA**: Group containing PPS PC data.
+    - **PPS-COT-IND**: PIC X(01) - Cost Outlier Indicator.
+    - **FILLER**: PIC X(20) - Unused Filler.
+- **PRICER-OPT-VERS-SW**:  Switch to indicate which tables are passed.
+  - **PRICER-OPTION-SW**: PIC X(01) - Option switch.
+    - **ALL-TABLES-PASSED**: VALUE 'A' - Indicates all tables are passed.
+    - **PROV-RECORD-PASSED**: VALUE 'P' - Indicates Provider record is passed.
+  - **PPS-VERSIONS**: Group containing PPS versions.
+    - **PPDRV-VERSION**: PIC X(05) - Version of the PPDRV program.
+- **PROV-NEW-HOLD**: Structure containing provider-specific information.
+  - **PROV-NEWREC-HOLD1**: Group containing provider record data part 1.
+    - **P-NEW-NPI10**: Group containing NPI data.
+      - **P-NEW-NPI8**: PIC X(08) - NPI - first 8 characters.
+      - **P-NEW-NPI-FILLER**: PIC X(02) - NPI Filler - last 2 characters.
+    - **P-NEW-PROVIDER-NO**: Provider Number.
+      - **P-NEW-STATE**: PIC 9(02) - State Code.
+      - **FILLER**: PIC X(04) - Unused Filler.
+    - **P-NEW-DATE-DATA**: Group containing date information.
+      - **P-NEW-EFF-DATE**: Group containing effective date.
+        - **P-NEW-EFF-DT-CC**: PIC 9(02) - Effective Date Century/Year.
+        - **P-NEW-EFF-DT-YY**: PIC 9(02) - Effective Date Year.
+        - **P-NEW-EFF-DT-MM**: PIC 9(02) - Effective Date Month.
+        - **P-NEW-EFF-DT-DD**: PIC 9(02) - Effective Date Day.
+      - **P-NEW-FY-BEGIN-DATE**: Group containing fiscal year begin date.
+        - **P-NEW-FY-BEG-DT-CC**: PIC 9(02) - FY Begin Date Century/Year.
+        - **P-NEW-FY-BEG-DT-YY**: PIC 9(02) - FY Begin Date Year.
+        - **P-NEW-FY-BEG-DT-MM**: PIC 9(02) - FY Begin Date Month.
+        - **P-NEW-FY-BEG-DT-DD**: PIC 9(02) - FY Begin Date Day.
+      - **P-NEW-REPORT-DATE**: Group containing report date.
+        - **P-NEW-REPORT-DT-CC**: PIC 9(02) - Report Date Century/Year.
+        - **P-NEW-REPORT-DT-YY**: PIC 9(02) - Report Date Year.
+        - **P-NEW-REPORT-DT-MM**: PIC 9(02) - Report Date Month.
+        - **P-NEW-REPORT-DT-DD**: PIC 9(02) - Report Date Day.
+      - **P-NEW-TERMINATION-DATE**: Group containing termination date.
+        - **P-NEW-TERM-DT-CC**: PIC 9(02) - Termination Date Century/Year.
+        - **P-NEW-TERM-DT-YY**: PIC 9(02) - Termination Date Year.
+        - **P-NEW-TERM-DT-MM**: PIC 9(02) - Termination Date Month.
+        - **P-NEW-TERM-DT-DD**: PIC 9(02) - Termination Date Day.
+    - **P-NEW-WAIVER-CODE**: PIC X(01) - Waiver Code.
+      - **P-NEW-WAIVER-STATE**: VALUE 'Y' - Waiver State.
+    - **P-NEW-INTER-NO**: PIC 9(05) - Internal Number.
+    - **P-NEW-PROVIDER-TYPE**: PIC X(02) - Provider Type.
+    - **P-NEW-CURRENT-CENSUS-DIV**: PIC 9(01) - Current Census Division.
+    - **P-NEW-CURRENT-DIV**: REDEFINES P-NEW-CURRENT-CENSUS-DIV.
+    - **P-NEW-MSA-DATA**: Group containing MSA data.
+      - **P-NEW-CHG-CODE-INDEX**: PIC X - Charge Code Index.
+      - **P-NEW-GEO-LOC-MSAX**: PIC X(04) - Geographic Location MSA (right justified).
+      - **P-NEW-GEO-LOC-MSA9**: REDEFINES P-NEW-GEO-LOC-MSAX, PIC 9(04) - Numeric version of MSA.
+      - **P-NEW-WAGE-INDEX-LOC-MSA**: PIC X(04) - Wage Index Location MSA (right justified).
+      - **P-NEW-STAND-AMT-LOC-MSA**: PIC X(04) - Standard Amount Location MSA (right justified).
+      - **P-NEW-STAND-AMT-LOC-MSA9**: REDEFINES P-NEW-STAND-AMT-LOC-MSA.
+        - **P-NEW-RURAL-1ST**: Group containing rural status.
+          - **P-NEW-STAND-RURAL**: PIC XX.
+            - **P-NEW-STD-RURAL-CHECK**: VALUE '  ' - Check for rural status.
+          - **P-NEW-RURAL-2ND**: PIC XX.
+    - **P-NEW-SOL-COM-DEP-HOSP-YR**: PIC XX - Sole Community Hospital Year.
+    - **P-NEW-LUGAR**: PIC X - Lugar (Location).
+    - **P-NEW-TEMP-RELIEF-IND**: PIC X - Temporary Relief Indicator.
+    - **P-NEW-FED-PPS-BLEND-IND**: PIC X - Federal PPS Blend Indicator.
+    - **FILLER**: PIC X(05) - Unused Filler.
+  - **PROV-NEWREC-HOLD2**: Group containing provider record data part 2.
+    - **P-NEW-VARIABLES**: Group containing various variables.
+      - **P-NEW-FAC-SPEC-RATE**: PIC 9(05)V9(02) - Facility Specific Rate.
+      - **P-NEW-COLA**: PIC 9(01)V9(03) - COLA.
+      - **P-NEW-INTERN-RATIO**: PIC 9(01)V9(04) - Intern Ratio.
+      - **P-NEW-BED-SIZE**: PIC 9(05) - Bed Size.
+      - **P-NEW-OPER-CSTCHG-RATIO**: PIC 9(01)V9(03) - Operating Cost to Charge Ratio.
+      - **P-NEW-CMI**: PIC 9(01)V9(04) - CMI (Case Mix Index).
+      - **P-NEW-SSI-RATIO**: PIC V9(04) - SSI Ratio.
+      - **P-NEW-MEDICAID-RATIO**: PIC V9(04) - Medicaid Ratio.
+      - **P-NEW-PPS-BLEND-YR-IND**: PIC 9(01) - PPS Blend Year Indicator.
+      - **P-NEW-PRUF-UPDTE-FACTOR**: PIC 9(01)V9(05) - Pruf Update Factor.
+      - **P-NEW-DSH-PERCENT**: PIC V9(04) - DSH (Disproportionate Share Hospital) Percentage.
+      - **P-NEW-FYE-DATE**: PIC X(08) - Fiscal Year End Date.
+    - **FILLER**: PIC X(23) - Unused Filler.
+  - **PROV-NEWREC-HOLD3**: Group containing provider record data part 3.
+    - **P-NEW-PASS-AMT-DATA**: Group containing pass-through amount data.
+      - **P-NEW-PASS-AMT-CAPITAL**: PIC 9(04)V99 - Capital Pass-Through Amount.
+      - **P-NEW-PASS-AMT-DIR-MED-ED**: PIC 9(04)V99 - Direct Medical Education Pass-Through Amount.
+      - **P-NEW-PASS-AMT-ORGAN-ACQ**: PIC 9(04)V99 - Organ Acquisition Pass-Through Amount.
+      - **P-NEW-PASS-AMT-PLUS-MISC**: PIC 9(04)V99 - Plus Miscellaneous Pass-Through Amount.
+    - **P-NEW-CAPI-DATA**: Group containing capital data.
+      - **P-NEW-CAPI-PPS-PAY-CODE**: PIC X - Capital PPS Payment Code.
+      - **P-NEW-CAPI-HOSP-SPEC-RATE**: PIC 9(04)V99 - Hospital Specific Rate for Capital.
+      - **P-NEW-CAPI-OLD-HARM-RATE**: PIC 9(04)V99 - Old Harm Rate for Capital.
+      - **P-NEW-CAPI-NEW-HARM-RATIO**: PIC 9(01)V9999 - New Harm Ratio for Capital.
+      - **P-NEW-CAPI-CSTCHG-RATIO**: PIC 9V999 - Cost to Charge Ratio for Capital.
+      - **P-NEW-CAPI-NEW-HOSP**: PIC X - New Hospital Indicator for Capital.
+      - **P-NEW-CAPI-IME**: PIC 9V9999 - IME (Indirect Medical Education) for Capital.
+      - **P-NEW-CAPI-EXCEPTIONS**: PIC 9(04)V99 - Capital Exceptions.
+    - **FILLER**: PIC X(22) - Unused Filler.
+- **WAGE-NEW-INDEX-RECORD**: Structure containing wage index information.
+  - **W-MSA**: PIC X(4) - MSA Code.
+  - **W-EFF-DATE**: PIC X(8) - Effective Date.
+  - **W-WAGE-INDEX1**: PIC S9(02)V9(04) - Wage Index 1.
+  - **W-WAGE-INDEX2**: PIC S9(02)V9(04) - Wage Index 2.
+  - **W-WAGE-INDEX3**: PIC S9(02)V9(04) - Wage Index 3.
+
+# Step 2: Program Analysis for LTCAL042
+
+## LTCAL042
+
+### Overview
+- This COBOL program, LTCAL042, is a subroutine designed to calculate Long-Term Care (LTC) payments based on the DRG (Diagnosis Related Group) system.
+- It receives bill data as input, performs edits, assembles pricing components, calculates payment amounts (including outliers), and returns the results to the calling program.
+- It uses a `COPY` statement to include the data definitions from `LTDRG031`
+
+### Files Accessed
+- **None explicitly opened in the program**. However, it accesses data through the `COPY` statement which brings in the data definitions.
+- Implicitly uses the data defined in `LTDRG031`.
+
+### Data Structures in WORKING-STORAGE SECTION
+- **W-STORAGE-REF**:  PIC X(46) - Contains a program identification string.
+- **CAL-VERSION**:  PIC X(05) - Stores the version of the calculation logic, "C04.2".
+- **HOLD-PPS-COMPONENTS**: This group holds intermediate calculation values.
+  - **H-LOS**: PIC 9(03) - Length of Stay.
+  - **H-REG-DAYS**: PIC 9(03) - Regular days.
+  - **H-TOTAL-DAYS**: PIC 9(05) - Total days.
+  - **H-SSOT**: PIC 9(02) - Short Stay Outlier Threshold.
+  - **H-BLEND-RTC**: PIC 9(02) - Return Code for Blended Payment.
+  - **H-BLEND-FAC**: PIC 9(01)V9(01) - Blend Factor for Facility Rate.
+  - **H-BLEND-PPS**: PIC 9(01)V9(01) - Blend Factor for PPS Payment.
+  - **H-SS-PAY-AMT**: PIC 9(07)V9(02) - Short Stay Payment Amount.
+  - **H-SS-COST**: PIC 9(07)V9(02) - Short Stay Cost.
+  - **H-LABOR-PORTION**: PIC 9(07)V9(06) - Labor Portion of Payment.
+  - **H-NONLABOR-PORTION**: PIC 9(07)V9(06) - Non-Labor Portion of Payment.
+  - **H-FIXED-LOSS-AMT**: PIC 9(07)V9(02) - Fixed Loss Amount.
+  - **H-NEW-FAC-SPEC-RATE**: PIC 9(05)V9(02) - New Facility Specific Rate.
+  - **H-LOS-RATIO**: PIC 9(01)V9(05) - Length of Stay Ratio.
+- **W-DRG-FILLS**: (Defined by `COPY LTDRG031`) - This is a series of PIC X(44) values.
+- **W-DRG-TABLE**:  REDEFINES W-DRG-FILLS.  This is the DRG table structure.
+  - **WWM-ENTRY**: OCCURS 502 TIMES -  Each entry in the DRG table.
+    - **WWM-DRG**: PIC X(3) - DRG Code.
+    - **WWM-RELWT**: PIC 9(1)V9(4) - Relative Weight.
+    - **WWM-ALOS**: PIC 9(2)V9(1) - Average Length of Stay.
+
+### Data Structures in LINKAGE SECTION
+- **BILL-NEW-DATA**: This structure receives the bill data from the calling program.
+  - **B-NPI10**: Group containing NPI data.
+    - **B-NPI8**: PIC X(08) - NPI (National Provider Identifier) - first 8 characters.
+    - **B-NPI-FILLER**: PIC X(02) - NPI Filler - last 2 characters.
+  - **B-PROVIDER-NO**: PIC X(06) - Provider Number.
+  - **B-PATIENT-STATUS**: PIC X(02) - Patient Status.
+  - **B-DRG-CODE**: PIC X(03) - DRG Code.
+  - **B-LOS**: PIC 9(03) - Length of Stay.
+  - **B-COV-DAYS**: PIC 9(03) - Covered Days.
+  - **B-LTR-DAYS**: PIC 9(02) - Lifetime Reserve Days.
+  - **B-DISCHARGE-DATE**: Group containing discharge date components.
+    - **B-DISCHG-CC**: PIC 9(02) - Century/Year of Discharge Date.
+    - **B-DISCHG-YY**: PIC 9(02) - Year of Discharge Date.
+    - **B-DISCHG-MM**: PIC 9(02) - Month of Discharge Date.
+    - **B-DISCHG-DD**: PIC 9(02) - Day of Discharge Date.
+  - **B-COV-CHARGES**: PIC 9(07)V9(02) - Covered Charges.
+  - **B-SPEC-PAY-IND**: PIC X(01) - Special Payment Indicator.
+  - **FILLER**: PIC X(13) - Unused Filler.
+- **PPS-DATA-ALL**:  This structure returns the calculated PPS data to the calling program.
+  - **PPS-RTC**: PIC 9(02) - Return Code.
+  - **PPS-CHRG-THRESHOLD**: PIC 9(07)V9(02) - Charge Threshold.
+  - **PPS-DATA**: Group containing PPS data.
+    - **PPS-MSA**: PIC X(04) - MSA (Metropolitan Statistical Area) Code.
+    - **PPS-WAGE-INDEX**: PIC 9(02)V9(04) - Wage Index.
+    - **PPS-AVG-LOS**: PIC 9(02)V9(01) - Average Length of Stay.
+    - **PPS-RELATIVE-WGT**: PIC 9(01)V9(04) - Relative Weight.
+    - **PPS-OUTLIER-PAY-AMT**: PIC 9(07)V9(02) - Outlier Payment Amount.
+    - **PPS-LOS**: PIC 9(03) - Length of Stay.
+    - **PPS-DRG-ADJ-PAY-AMT**: PIC 9(07)V9(02) - DRG Adjusted Payment Amount.
+    - **PPS-FED-PAY-AMT**: PIC 9(07)V9(02) - Federal Payment Amount.
+    - **PPS-FINAL-PAY-AMT**: PIC 9(07)V9(02) - Final Payment Amount.
+    - **PPS-FAC-COSTS**: PIC 9(07)V9(02) - Facility Costs.
+    - **PPS-NEW-FAC-SPEC-RATE**: PIC 9(07)V9(02) - New Facility Specific Rate.
+    - **PPS-OUTLIER-THRESHOLD**: PIC 9(07)V9(02) - Outlier Threshold.
+    - **PPS-SUBM-DRG-CODE**: PIC X(03) - Submitted DRG Code.
+    - **PPS-CALC-VERS-CD**: PIC X(05) - Calculation Version Code.
+    - **PPS-REG-DAYS-USED**: PIC 9(03) - Regular Days Used.
+    - **PPS-LTR-DAYS-USED**: PIC 9(03) - Lifetime Reserve Days Used.
+    - **PPS-BLEND-YEAR**: PIC 9(01) - Blend Year.
+    - **PPS-COLA**: PIC 9(01)V9(03) - COLA (Cost of Living Adjustment).
+    - **FILLER**: PIC X(04) - Unused Filler.
+  - **PPS-OTHER-DATA**: Group containing other PPS data.
+    - **PPS-NAT-LABOR-PCT**: PIC 9(01)V9(05) - National Labor Percentage.
+    - **PPS-NAT-NONLABOR-PCT**: PIC 9(01)V9(05) - National Non-Labor Percentage.
+    - **PPS-STD-FED-RATE**: PIC 9(05)V9(02) - Standard Federal Rate.
+    - **PPS-BDGT-NEUT-RATE**: PIC 9(01)V9(03) - Budget Neutrality Rate.
+    - **FILLER**: PIC X(20) - Unused Filler.
+  - **PPS-PC-DATA**: Group containing PPS PC data.
+    - **PPS-COT-IND**: PIC X(01) - Cost Outlier Indicator.
+    - **FILLER**: PIC X(20) - Unused Filler.
+- **PRICER-OPT-VERS-SW**:  Switch to indicate which tables are passed.
+  - **PRICER-OPTION-SW**: PIC X(01) - Option switch.
+    - **ALL-TABLES-PASSED**: VALUE 'A' - Indicates all tables are passed.
+    - **PROV-RECORD-PASSED**: VALUE 'P' - Indicates Provider record is passed.
+  - **PPS-VERSIONS**: Group containing PPS versions.
+    - **PPDRV-VERSION**: PIC X(05) - Version of the PPDRV program.
+- **PROV-NEW-HOLD**: Structure containing provider-specific information.
+  - **PROV-NEWREC-HOLD1**: Group containing provider record data part 1.
+    - **P-NEW-NPI10**: Group containing NPI data.
+      - **P-NEW-NPI8**: PIC X(08) - NPI - first 8 characters.
+      - **P-NEW-NPI-FILLER**: PIC X(02) - NPI Filler - last 2 characters.
+    - **P-NEW-PROVIDER-NO**: Provider Number.
+      - **P-NEW-STATE**: PIC 9(02) - State Code.
+      - **FILLER**: PIC X(04) - Unused Filler.
+    - **P-NEW-DATE-DATA**: Group containing date information.
+      - **P-NEW-EFF-DATE**: Group containing effective date.
+        - **P-NEW-EFF-DT-CC**: PIC 9(02) - Effective Date Century/Year.
+        - **P-NEW-EFF-DT-YY**: PIC 9(02) - Effective Date Year.
+        - **P-NEW-EFF-DT-MM**: PIC 9(02) - Effective Date Month.
+        - **P-NEW-EFF-DT-DD**: PIC 9(02) - Effective Date Day.
+      - **P-NEW-FY-BEGIN-DATE**: Group containing fiscal year begin date.
+        - **P-NEW-FY-BEG-DT-CC**: PIC 9(02) - FY Begin Date Century/Year.
+        - **P-NEW-FY-BEG-DT-YY**: PIC 9(02) - FY Begin Date Year.
+        - **P-NEW-FY-BEG-DT-MM**: PIC 9(02) - FY Begin Date Month.
+        - **P-NEW-FY-BEG-DT-DD**: PIC 9(02) - FY Begin Date Day.
+      - **P-NEW-REPORT-DATE**: Group containing report date.
+        - **P-NEW-REPORT-DT-CC**: PIC 9(02) - Report Date Century/Year.
+        - **P-NEW-REPORT-DT-YY**: PIC 9(02) - Report Date Year.
+        - **P-NEW-REPORT-DT-MM**: PIC 9(02) - Report Date Month.
+        - **P-NEW-REPORT-DT-DD**: PIC 9(02) - Report Date Day.
+      - **P-NEW-TERMINATION-DATE**: Group containing termination date.
+        - **P-NEW-TERM-DT-CC**: PIC 9(02) - Termination Date Century/Year.
+        - **P-NEW-TERM-DT-YY**: PIC 9(02) - Termination Date Year.
+        - **P-NEW-TERM-DT-MM**: PIC 9(02) - Termination Date Month.
+        - **P-NEW-TERM-DT-DD**: PIC 9(02) - Termination Date Day.
+    - **P-NEW-WAIVER-CODE**: PIC X(01) - Waiver Code.
+      - **P-NEW-WAIVER-STATE**: VALUE 'Y' - Waiver State.
+    - **P-NEW-INTER-NO**: PIC 9(05) - Internal Number.
+    - **P-NEW-PROVIDER-TYPE**: PIC X(02) - Provider Type.
+    - **P-NEW-CURRENT-CENSUS-DIV**: PIC 9(01) - Current Census Division.
+    - **P-NEW-CURRENT-DIV**: REDEFINES P-NEW-CURRENT-CENSUS-DIV.
+    - **P-NEW-MSA-DATA**: Group containing MSA data.
+      - **P-NEW-CHG-CODE-INDEX**: PIC X - Charge Code Index.
+      - **P-NEW-GEO-LOC-MSAX**: PIC X(04) - Geographic Location MSA (right justified).
+      - **P-NEW-GEO-LOC-MSA9**: REDEFINES P-NEW-GEO-LOC-MSAX, PIC 9(04) - Numeric version of MSA.
+      - **P-NEW-WAGE-INDEX-LOC-MSA**: PIC X(04) - Wage Index Location MSA (right justified).
+      - **P-NEW-STAND-AMT-LOC-MSA**: PIC X(04) - Standard Amount Location MSA (right justified).
+      - **P-NEW-STAND-AMT-LOC-MSA9**: REDEFINES P-NEW-STAND-AMT-LOC-MSA.
+        - **P-NEW-RURAL-1ST**: Group containing rural status.
+          - **P-NEW-STAND-RURAL**: PIC XX.
+            - **P-NEW-STD-RURAL-CHECK**: VALUE '  ' - Check for rural status.
+          - **P-NEW-RURAL-2ND**: PIC XX.
+    - **P-NEW-SOL-COM-DEP-HOSP-YR**: PIC XX - Sole Community Hospital Year.
+    - **P-NEW-LUGAR**: PIC X - Lugar (Location).
+    - **P-NEW-TEMP-RELIEF-IND**: PIC X - Temporary Relief Indicator.
+    - **P-NEW-FED-PPS-BLEND-IND**: PIC X - Federal PPS Blend Indicator.
+    - **FILLER**: PIC X(05) - Unused Filler.
+  - **PROV-NEWREC-HOLD2**: Group containing provider record data part 2.
+    - **P-NEW-VARIABLES**: Group containing various variables.
+      - **P-NEW-FAC-SPEC-RATE**: PIC 9(05)V9(02) - Facility Specific Rate.
+      - **P-NEW-COLA**: PIC 9(01)V9(03) - COLA.
+      - **P-NEW-INTERN-RATIO**: PIC 9(01)V9(04) - Intern Ratio.
+      - **P-NEW-BED-SIZE**: PIC 9(05) - Bed Size.
+      - **P-NEW-OPER-CSTCHG-RATIO**: PIC 9(01)V9(03) - Operating Cost to Charge Ratio.
+      - **P-NEW-CMI**: PIC 9(01)V9(04) - CMI (Case Mix Index).
+      - **P-NEW-SSI-RATIO**: PIC V9(04) - SSI Ratio.
+      - **P-NEW-MEDICAID-RATIO**: PIC V9(04) - Medicaid Ratio.
+      - **P-NEW-PPS-BLEND-YR-IND**: PIC 9(01) - PPS Blend Year Indicator.
+      - **P-NEW-PRUF-UPDTE-FACTOR**: PIC 9(01)V9(05) - Pruf Update Factor.
+      - **P-NEW-DSH-PERCENT**: PIC V9(04) - DSH (Disproportionate Share Hospital) Percentage.
+      - **P-NEW-FYE-DATE**: PIC X(08

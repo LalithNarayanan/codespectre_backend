@@ -1,0 +1,226 @@
+code2functionalspec:
+
+  # Step 1: Program Overview
+  extract_program_overview:
+    versions:
+      - version: code
+        system_message: You are an expert PySpark developer and analyst.
+        user_message: |
+          Analyze all the given PySpark programs and provide the following detail for each of the Programs:
+          Overview of the Program
+          List of all the business functions addressed by the Program
+          List of all DataFrames/tables it creates and consumes, along with the data flow.
+  
+          Instruction:
+          Don't exclude any programs.
+  
+          PySpark Program:
+          -------------------------------------------
+          ```{code}```
+  
+      - version: code,context_1,context_2
+        system_message: You are an expert PySpark developer and analyst.
+        user_message: |
+          Analyze all the given PySpark programs and provide the following detail for each of the Programs:
+          Overview of the Program
+          List of all the business functions addressed by the Program
+          List of all DataFrames/tables it creates and consumes, along with the data flow.
+  
+          Instruction:
+          Don't exclude any programs.
+  
+          Context_1: ``````
+          Context_2: ``````
+  
+          PySpark Program:
+          -------------------------------------------
+          ```{code}```
+  
+      - version: code,context_1,context_2,context_3
+        system_message: You are an expert PySpark developer and analyst.
+        user_message: |
+          Analyze all the given PySpark programs and provide the following detail for each of the Programs:
+          Overview of the Program
+          List of all the business functions addressed by the Program
+          List of all DataFrames/tables it creates and consumes, along with the data flow.
+  
+          Instruction:
+          Don't exclude any programs.
+  
+          Context_1: ``````
+          Context_2: ``````
+          Context_3: ``````
+  
+          PySpark Program:
+          -------------------------------------------
+          ```{code}```
+  
+  # Step 2: DataFrame and Table Analysis
+  extract_dataframe_table_analysis:
+    versions:
+      - version: code
+        system_message: You are an expert PySpark developer.
+        user_message: |
+          Analyze all the given PySpark programs and provide the following detail for each of the Programs:
+          All the DataFrames/tables created and consumed, along with the description
+          All input sources (spark.read, createDataFrame, read.parquet, read.csv, read.jdbc, etc.) with details
+          All output DataFrames/tables (temporary views vs permanent catalog tables)
+          Key column usage and transformations (select, withColumn, drop, cast)
+          Schema definitions and column data types
+          Table/view registration (createOrReplaceTempView, saveAsTable)
+  
+          Instruction:
+          Don't exclude any programs.
+  
+          PySpark Program:
+          -------------------------------------------
+          ```{code}```
+  
+  # Step 3: Transformation and Business Logic
+  extract_transformation_businesslogic:
+    versions:
+      - version: code
+        system_message: You are a PySpark transformation expert.
+        user_message: |
+          Analyze all the given PySpark programs and provide the following detail for each of the Programs:
+          List of transformations in the order of how they are executed (per each file as usual, within each file, every transformation pipeline), along with the description explaining its purpose (IMPORTANT)
+          Business Rules implemented in transformations (IMPORTANT)
+          Conditional logic (when, otherwise, filter, where)
+          Aggregations and groupBy operations
+          Window functions (over, partitionBy, orderBy, row_number, rank, lag, lead)
+          Key calculations and column transformations (withColumn, expr)
+          Data validation and quality checks (filter, isNull, isNotNull)
+  
+          Instruction:
+          Don't exclude any programs. For each rule/logic/transformation, include relevant information.
+  
+          PySpark Program:
+          -------------------------------------------
+          ```{code}```
+  
+  # Step 4: Spark SQL and Analytical Operations
+  extract_sparksql_analytical_operations:
+    versions:
+      - version: code
+        system_message: You are a PySpark analytics specialist.
+        user_message: |
+          Analyze all the given PySpark programs and provide the following detail for each of the Programs:
+          List of all Spark SQL queries (spark.sql, createOrReplaceTempView) with descriptions
+          Analytical operations (agg, groupBy, pivot, unpivot, cube, rollup)
+          Statistical functions used (mean, stddev, percentile, corr, count, sum, min, max)
+          Machine learning or predictive logic (if any)
+          Report generation and formatting logic
+          Business application of each SQL query or analytical operation
+  
+          Instruction:
+          Don't exclude any programs. Include all SQL statements shown in the PySpark code.
+  
+          PySpark Program:
+          -------------------------------------------
+          ```{code}```
+  
+  # Step 5: Data Connectivity and I/O Operations
+  extract_data_connectivity_io:
+    versions:
+      - version: code
+        system_message: You are an expert PySpark ETL and connectivity specialist.
+        user_message: |
+          Analyze all the given PySpark programs and provide the following detail for each of the Programs:
+          Identify all external data sources, file I/O, and database operations.
+          List of spark.read operations (parquet, csv, json, jdbc, orc, delta, etc.)
+          List of DataFrame.write operations (parquet, csv, json, jdbc, saveAsTable, mode: overwrite/append)
+          JDBC/database connection details (url, driver, dbtable, query)
+          File system operations (HDFS, S3, Azure Blob, local paths)
+          Data format specifications (schema, delimiter, header, inferSchema)
+  
+          Instruction:
+          Don't exclude any programs. Include code blocks for every read/write/database operation only if necessary.
+  
+          PySpark Program:
+          -------------------------------------------
+          ```{code}```
+  
+  # Step 6: Execution Flow and Dependencies
+  extract_execution_flow:
+    versions:
+      - version: code
+        system_message: You are a PySpark program flow expert.
+        user_message: |
+          Analyze all the PySpark programs given and provide the following details:
+          List of PySpark programs analyzed
+          Sequence in which transformations and actions are executed, along with the description
+          DataFrame dependencies (which operations depend on outputs from prior transformations)
+          Function/pipeline execution order (if applicable)
+          Action trigger points (collect, show, write, count, take)
+          List of use cases addressed by all the programs together.
+  
+          Instruction:
+          Don't exclude any programs. Summarize the execution sequence.
+  
+          PySpark Program:
+          -------------------------------------------
+          ```{code}```
+  
+  # Step 7: Error Handling and Logging
+  extract_errorhandling_logging:
+    versions:
+      - version: code
+        system_message: You are an expert in PySpark error handling and logging.
+        user_message: |
+          Analyze all the given PySpark programs and provide the following detail for each of the Programs:
+          Error checking mechanisms (try/except blocks, if-else validation)
+          Logging statements (print, logging.info, logging.error, log4j)
+          DataFrame validation (null checks, schema validation, count validation)
+          Exception handling in transformations and actions
+          Error output handling (writing error records to separate tables/files)
+          Spark job failure conditions and retry logic
+  
+          Instruction:
+          Don't exclude any programs. Include all error handling logic shown in the PySpark code.
+  
+          PySpark Program:
+          -------------------------------------------
+          ```{code}```
+  
+  # Merge functional specifications
+  merge_functional_specs:
+    versions:
+      - version: functional_specs,section
+        system_message: You are a top tier business analyst.
+        user_message: |
+          The {section} section was extracted from multiple functional specifications file.
+          The consolidated content is as follows:
+          {functional_specs}
+  
+          Please merge all the contents logically.
+          Ensure that no original information is omitted in the enhanced version.
+          Ensure all the merged contents are grouped under the section {section}
+  
+          Instruction:
+          Don't exclude any details or program.
+  
+      - version: functional_specs,section,context_1
+        system_message: You are a top tier business analyst.
+        user_message: |
+          You are given the following business logic
+          ``````
+          extracted from the PySpark Programs
+  
+          Combine the section {context_1} across functional specs logically.
+  
+          Instruction:
+          Don't exclude any details or program, don't abstract the information.
+  
+      - version: functional_specs,context_1,context_2
+        system_message: You are a top tier business analyst.
+        user_message: |
+          You are given the following business logic
+          ``````
+          extracted from the PySpark Programs
+  
+          {context_1}. But logic extracted is at high level and
+          it needs to be enhanced with more details.
+          Use the given "mapping spec" document to enhance the business logic:
+          ``````
+  
+          Instruction: Don't exclude any details or program

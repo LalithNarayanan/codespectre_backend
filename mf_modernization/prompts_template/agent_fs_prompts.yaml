@@ -1,0 +1,334 @@
+# Step 1: Program Overview
+# Step 2: Data Definition and File Handling
+# Step 3: Business Logic Extraction
+# Step 4: Data Flow Analysis
+# Step 5: Error Handling and Exception Processing
+# Step 6: External System Interactions (APIs, DB Calls, etc.)
+# Step 7: Control Flow and Module Execution Order
+# Step 8: Functionality Mapping to Functional Specification
+# Step 9: Pseudocode Generation from COBOL Code
+
+code2functionalspec:
+# 1 Extracts highlevel functional spec from code
+  extract_program_overview:
+    versions:
+      - version: "1.0" 
+        system_message: You are a top tier software developer skilled at COBOL
+        user_message: |
+            Analyze the provided COBOL program and summarize its overall functionality. 
+            Identify the main purpose, key modules, and any external dependencies:
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+          
+            Instruction:
+              Don't exclude any programs 
+ 
+            Expected Output:
+                - Program name and description
+                - Main functionalities
+                - External dependencies (files, databases, other programs)
+
+# 2 Extracts highlevel data_definition_filehandling spec from code
+  extract_data_definition_filehandling:
+      versions:
+        - version: "1.0" 
+          system_message: You are a top tier software developer skilled at COBOL.
+          user_message: |
+              Extract and describe all data structures defined in the COBOL program, including WORKING-STORAGE, LINKAGE, 
+              and FILE SECTION. Highlight key variables, record structures, and their roles:
+
+              COBOL Program:
+              -------------------------------------------
+                 ```{code}```
+
+              Expected Output:
+                  - List of WORKING-STORAGE variables with descriptions
+                  - FILE SECTION details (file types, access mode, key fields)
+                  - LINKAGE SECTION details (if applicable)
+
+#3 Extracts business logic  from code
+  extract_businesslogic:
+      versions:
+        - version: "1.0" 
+          system_message: You are a top tier software developer skilled at COBOL
+          user_message: |
+            Identify and document the core business logic implemented in the program. Extract conditional statements, loops, 
+            and calculations. Provide a structured breakdown of key operations:
+
+            COBOL Program:
+            -------------------------------------------
+                   ```{code}```
+
+            Expected Output:
+                - IF-ELSE conditions and their purpose
+                - LOOPS (PERFORM, GO TO, etc.) and iteration logic
+                - Computations and transformations
+
+#4 Extracts extract_dataflowanalysis  from code
+  extract_dataflowanalysis:
+      versions:
+        - version: "1.0" 
+          system_message: You are a top tier software developer skilled at COBOL
+          user_message: |
+            Trace the flow of data in the program. Identify how data is read, processed, and written. Represent the flow 
+              using structured steps or diagrams:
+
+              COBOL Program:
+              -------------------------------------------
+              ```{code}```
+
+              Expected Output:
+                  - Data Input Sources: Files, user inputs, databases
+                  - Processing Steps: Transformations, calculations
+                  - Data Output: Reports, files, database updates
+
+#5 Extract extract_errorhandling_exceptionprocessing
+  extract_errorhandling_exceptionprocessing:
+      versions:
+        - version: "1.0" 
+          system_message: You are a top tier software developer skilled at COBOL
+          user_message: |
+            Identify error-handling mechanisms in the COBOL program. Describe how the program handles file errors, 
+            data validation errors, and unexpected conditions:
+
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+
+            Expected Output:
+                - USE AFTER ERROR HANDLER
+                - ON ERROR processing for I/O operations
+                - Custom error messages/logging
+
+
+#6 extract_externalsysteminteractions
+  extract_externalsysteminteractions:
+      versions:
+        - version: "1.0" 
+          system_message: You are a top tier software developer skilled at COBOL
+          user_message: |
+            Analyze interactions with external systems in the COBOL program. Identify calls to databases, web services, 
+            or other programs:
+
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+
+            Expected Output:
+                - SQL Queries (EXEC SQL blocks)
+                - CICS Calls (if applicable)
+                - File handling operations (OPEN, READ, WRITE, CLOSE)
+
+#7 extract_controlflow_moduleexecutionorder
+  extract_controlflow_moduleexecutionorder:
+      versions:
+        - version: "1.0" 
+          system_message: You are a top tier software developer skilled at COBOL
+          user_message: |
+            Break down the control flow of the COBOL program. Identify key sections (PROCEDURE DIVISION) and determine 
+            their execution order:
+
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+            Expected Output:
+                - Program entry point (first executed statement)
+                - Sequence of PERFORM and CALL statements
+                - Dependency tree of module execution
+
+#8 extract_functionalitymapping_to_functionalspecification
+  extract_functionalitymapping_to_functionalspecification:
+      versions:
+        - version: "1.0" 
+          system_message: You are a top tier software developer skilled at COBOL
+          user_message: |
+            Convert the extracted COBOL program logic into a structured functional specification. Provide module-wise 
+            breakdown and describe each function in business terms:
+
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+
+            Expected Output:
+                - **Use cases** mapped to COBOL logic
+                - **Functional breakdown per module**
+                - **Business rules and validation criteria**
+
+#9 extract_pseudocodegeneration
+  extract_pseudocodegeneration:
+      versions:
+        - version: "1.0" 
+          system_message: You are a top tier software developer skilled at COBOL
+          user_message: |
+            Generate a structured pseudocode representation of the given COBOL program, preserving its logic but in a 
+            simplified format:
+
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+
+            Expected Output:
+                - **Readable pseudocode** for business/non-technical users
+                - **Step-by-step logic mapping**
+
+#9 extract_pseudocodegeneration
+  extract_mermaid_sequence_diagram:
+      versions:
+        - version: "1.0" 
+          system_message: You are a COBOL expert and a software documentation specialist.
+          user_message: |
+            Your task is to analyze the given COBOL program and generate a Mermaid sequence diagram 
+              that accurately represents the program's control flow and interactions between different paragraphs, files, and external calls.
+
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+
+            Instructions:
+              Identify the main paragraphs (000-MAIN-PROCEDURE, 100-LOAD-CUSTOMER-TABLE, etc.).
+              Represent each paragraph as a participant in the Mermaid sequence diagram.
+              Show the sequence of calls between paragraphs using arrows (->>).
+              Represent file I/O operations (e.g., READ, WRITE) as messages to the corresponding file participants (CUSTOMER-FILE, TRANSACTION-FILE, REPORT-FILE).
+              Focus on the control flow and the sequence of operations.
+              Generate the Mermaid code as the output.
+              Do not include any additional explanation or commentary.
+
+            Expected Output:
+                - Mermaid sequence diagram output
+
+#9 extract_pseudocodegeneration
+  extract_mermaid_flow_diagram:
+      versions:
+        - version: "1.0" 
+          system_message: You are a COBOL expert and a software documentation specialist.
+          user_message: |
+            Your task is to analyze the given COBOL program and generate a mermaid FlowChart diagram 
+
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+
+            *Instructions*:
+            Represent each paragraph as a node in the Mermaid Flowchart.
+            Show the flow of control between paragraphs using arrows.
+            Represent conditional logic (IF, EVALUATE) as decision nodes.
+            Represent loops (PERFORM UNTIL) as loop structures.
+            Represent file I/O operations (e.g., READ, WRITE) as input/output nodes or annotations.
+            Focus on the control flow and the sequence of operations, including conditional branches and loops.
+            Generate the Mermaid Flowchart code as the output.
+            Do not include any additional explanation or commentary.
+
+            Expected Output:
+                - Mermaid Flowchart diagram output
+
+#10 extract_batchprogram_details
+  extract_batchprogram_details:
+      versions:
+        - version: "1.0" 
+          system_message: You are a COBOL expert and a software documentation specialist.
+          user_message: |
+            Your task is to analyze the given COBOL program and generate a deails in the table format 
+
+            COBOL Program:
+            -------------------------------------------
+            ```{code}```
+
+            *Instructions*:
+            Extract the input and output attributes that are passed to the program.
+            Include the business logic that transforms the input attributes into output attributes
+
+            Do not include any additional explanation or commentary.
+
+            Expected Output:
+                - Generated output in the table details
+
+#11 merge two functional specificartions
+  merge_functional_specs:
+    versions:
+    - version: "1.0"
+      system_message: You are an expert system analyst 
+        and software documentation specialist skilled in merging complex technical documents. Your goal is to create a single, concise, and comprehensive functional specification from multiple input specifications without losing any critical information.
+      user_message: |
+        You have been provided with the content of individual functional specifications. Your task is to analyze these specifications and produce a single, merged functional specification document.
+
+        **Input Functional Specifications:**
+        -------------------------------------------
+        ```
+        {functional_specs}
+        ```
+
+        **Instructions:**
+        1.  **Comprehensive Analysis:** Carefully read and understand the purpose, scope, functionalities, data elements (inputs, outputs, internal), business rules, constraints, and any specific requirements outlined in each of the 8 functional specifications.
+        2.  **Identify Commonalities and Differences:** Determine which functionalities, data elements, and rules are common across multiple specifications and which are unique to specific specifications.
+        3.  **Logical Consolidation:** Merge descriptions of the same or similar functionalities into a single, clear, and concise description. Avoid verbatim repetition. Instead, synthesize the information.
+        4.  **Preserve Unique Information:** Ensure that any functionality, data element, business rule, or requirement that is unique to a specific specification is retained in the merged document and clearly attributed or contextualized if necessary.
+        5.  **Address Conflicts and Variations:** If there are any conflicting descriptions or variations in how a functionality is described across the specifications, identify these discrepancies. Present the different versions clearly, potentially noting which specification they originated from or suggesting a resolution if possible.
+        6.  **Maintain Logical Structure:** Organize the merged specification in a logical and coherent manner. This might involve retaining the original sectioning where appropriate, creating new sections for combined functionalities, or reordering information for better flow.
+        7.  **Ensure Clarity and Conciseness:** Use clear, precise language and avoid jargon where possible. Aim for conciseness without sacrificing essential details.
+        8.  **Retain All Details:** Do not discard any information present in the original specifications, even if it seems minor. The goal is to create a smaller document through intelligent merging, not by omitting details.
+        9.  **Focus on Functionality:** Ensure the merged specification clearly describes *what* the system should do, *what* data it handles, and the rules governing its behavior.
+
+        **Expected Output:**
+
+        - A single, logically merged functional specification document that is significantly smaller than the combined length of the all specifications, yet retains all the essential information, functionalities, and requirements from each of the original documents. This merged document should be well-organized, clear, and concise.
+
+
+    - version: "2.0"
+      system_message: You are a software documentation specialist and a system analyst 
+                    with expertise in merging functional specifications.
+      user_message: |
+        Your task is to logically merge the following functional specifications, ensuring no information is lost and that the merged document is coherent and comprehensive.
+
+        Functional Specifications:
+        -------------------------------------------
+        ```
+        {functional_specs}
+        ```
+        *Instructions*:
+        1.  Analyze all provided functional specifications.
+        2.  Identify common functionalities, data elements, and business rules across the specifications.
+        3.  Consolidate redundant information, but retain all unique details.
+        4.  Resolve any conflicting information by prioritizing the most recent or comprehensive specification, or by noting the conflict and potential resolutions.
+        5.  Organize the merged document logically, maintaining the original structure of sections, tables, and lists where appropriate, and creating new sections as needed to logically organize the information.
+        6.  Ensure that the merged document retains the original intent and detail of each individual specification.
+        7.  Maintain clarity and precision in the merged document, using consistent terminology and phrasing.
+        8.  Retain all inputs, outputs, processes, and constraints described in the original specifications.
+        9.  If a function specification describes a change to a previous specification, make sure to show the changes that are being made.
+        10. If there are multiple specifications that describe the same functionality, merge them into a single, comprehensive description.
+
+        Do not include any additional explanation or commentary outside of the merged functional specification.
+
+        Expected Output:
+        - A single, merged functional specification document that incorporates all information from the provided input.
+ 
+#11 merge two functional specificartions
+  merge_functional_specs_with_context:
+    versions:
+    - version: "1.0"
+      system_message: You are an expert system analyst 
+        and software documentation specialist skilled in merging complex technical documents. 
+        Your goal is to create a single, concise, and comprehensive functional specification 
+        from specifications and additional context without losing any critical information.
+      user_message: |
+        You have been provided with the content of individual functional specifications and additional context
+        Your task is to analyze these specifications, additional context 
+        and produce a single,  merged functional specification document.
+
+        **Input Functional Specifications:**
+        -------------------------------------------
+        ```
+        {functional_specs}
+        ```
+        **Additional Context:**
+        -------------------------------------------
+        ```
+        {additional_context}
+        ```
+        
+        **Expected Output:**
+
+        - A single,  functional specification document specifications, retains all the essential information, 
+          functionalities, and requirements. 
+
+    

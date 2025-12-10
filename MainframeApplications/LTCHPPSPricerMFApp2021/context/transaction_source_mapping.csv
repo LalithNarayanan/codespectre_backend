@@ -1,0 +1,15 @@
+Field Name,Data Type,Description,Source System,Validation Rule
+transaction_id,String,Unique transaction identifier,Transaction System,"NOT NULL, UNIQUE"
+customer_id,String,Customer identifier,Transaction System,"NOT NULL, EXISTS in customer_master"
+transaction_amount,Numeric,Transaction amount in USD,Transaction System,">0, <1000000"
+transaction_date,Date,Transaction date,Transaction System,"NOT NULL, <=TODAY"
+transaction_time,Time,Transaction time,Transaction System,NOT NULL
+transaction_type,String,Type of transaction,Transaction System,"IN (DEPOSIT,WITHDRAWAL,TRANSFER,PAYMENT)"
+merchant_id,String,Merchant identifier,Transaction System,NULL allowed for ATM
+country_code,String,Country ISO code,Transaction System,2-character ISO code
+account_open_date,Date,Account opening date,Customer Master,NOT NULL
+customer_segment,String,Customer segment,Customer Master,"IN (RETAIL,BUSINESS,PREMIUM)"
+risk_rating,String,Customer risk rating,Customer Master,"IN (LOW,MEDIUM,HIGH)"
+country_residence,String,Customer country,Customer Master,2-character ISO code
+kyc_status,String,KYC verification status,Customer Master,"IN (VERIFIED,PENDING,EXPIRED)"
+fraud_flag,Binary,Historical fraud indicator,Fraud History,0 or 1

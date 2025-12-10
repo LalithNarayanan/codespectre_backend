@@ -1,0 +1,1 @@
+Okay, I'm ready to analyze your PySpark programs. Please provide the PySpark program code. I will then break down the code into the requested sections: transformations, business rules, conditional logic, aggregations, window functions, key calculations, and data validation. I will format the response using markdown.

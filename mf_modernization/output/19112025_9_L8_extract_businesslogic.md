@@ -1,0 +1,1 @@
+Please provide the COBOL program code you would like me to analyze. I need the code to generate the requested analysis. Once you provide the code, I will format the output as requested, including paragraphs, business rules, and data validation/error handling.

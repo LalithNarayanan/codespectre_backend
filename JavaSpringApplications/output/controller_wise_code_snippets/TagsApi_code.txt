@@ -1,0 +1,22 @@
+
+=========== Current Method: getTags =============
+TagsApi - getTags:
+```java
+@GetMapping
+  public ResponseEntity getTags() {
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("tags", tagsQueryService.allTags());
+          }
+        });
+  }
+```
+=========== Dependent Methods of getTags: ===============
+                
+TagReadService - all:
+```java
+List<String> all();
+```
+
+                    

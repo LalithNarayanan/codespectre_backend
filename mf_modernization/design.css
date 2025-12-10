@@ -1,0 +1,142 @@
+/* main_app */
+
+.main-title {
+    font-size: 2.4em;
+    color: #1195CE;
+    font-weight: bold;
+    margin-top: -60px;
+    padding-bottom: 0.5em;
+    text-align: center;
+}
+
+.main-sub-title {
+    font-size: 1.4em;
+    color: #8999a8;
+    /* font-weight: bold; */
+    margin-top: -20px;
+    padding-bottom: 0.5em;
+    text-align: center;
+}
+
+.stButton>button {
+    background-color: #F2F6FF;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.stButton>button:hover {
+    background-color: #1195CE;
+    color: white;
+    ;
+}
+
+/* main_upload_code.py */
+/* main_functional_specs.py */
+
+/* Font - Using a common sans-serif font similar to TCS */
+html,
+body,
+[class*="css"] {
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* Header Styling */
+.css-18e3th9 {
+    /* Target the main content div */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 5%;
+    /* Add some padding */
+    padding-right: 5%;
+}
+
+/* Sidebar Styling (Optional - requires more specific selectors) */
+.css-1lcbmhc,
+.css-1lcbmhc>div>section {
+    /* Target sidebar */
+    background-color: #f8f8f8;
+    /* Light grey background */
+    color: #333;
+    /* Darker text */
+}
+
+/* Button Styling (Inspired by TCS button styles) */
+.stButton>button {
+    background-color: #005696;
+    /* TCS Blue */
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1em;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.stButton>button:hover {
+    background-color: #003d6b;
+    /* Darker blue on hover */
+    color: white;
+}
+
+/* Input Field Styling */
+/* .stTextInput>div>div>input {
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    padding: 10px;
+} */
+
+/* Expander Styling */
+.streamlit-expanderHeader {
+    background-color: #e0f2f7;
+    /* Light blue header */
+    color: #005696;
+    /* TCS Blue text */
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+/* Success/Error/Info Message Styling */
+.stAlert {
+    border-radius: 5px;
+}
+
+/* Add more specific styling as needed */
+
+
+/* main_oo_design.py */
+/* main_code.py */
+
+div[data-testid="column"]>div {
+    min-height: 150px;
+    /* Adjust as needed for consistency */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid red;
+    /* Add your desired border style */
+    padding: 10px;
+    /* Optional: Add some padding inside the border */
+    border-radius: 5px;
+    /* Optional: Add rounded corners */
+}
+
+
+div.st-emotion-cache-t74pzu {
+    background-color: white;
+    padding: 20px;
+    /* border: 1px rgb(44, 179, 224) solid; */
+    border: 1px #c0e6f7 solid;
+    border-radius: 5px;
+    /* margin-right: 1rem; */
+    /* width: 200px !important; */
+    width: "50%";
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Example box shadow */
+}

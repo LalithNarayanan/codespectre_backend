@@ -1,0 +1,21 @@
+  functional_specificiations:
+    - L1_FunctionalSpecification.md
+    - L2_FunctionalSpecification.md
+    - L3_FunctionalSpecification.md
+    - L4_FunctionalSpecification.md
+    - L5_FunctionalSpecification.md
+    - L6_FunctionalSpecification.md
+    - L7_FunctionalSpecification.md
+    - L8_FunctionalSpecification.md
+  sections: 
+    - Program Overview
+    - Data Definition and File Handling
+    - Business Logic
+    - External System Interactions
+    - Control Flow and Module Execution Order
+
+  consolidation_type: section-by-section
+  context_1: 
+  context_2: 
+  remarks: list of functional specifications
+  action: process

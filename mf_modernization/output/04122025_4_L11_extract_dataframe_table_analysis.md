@@ -1,0 +1,1 @@
+Okay, I understand. I will analyze each PySpark program provided, providing the requested details in a clear and organized Markdown format. I will focus on DataFrames/tables, input/output sources, key column usage, schema, and table/view registration.  I will not include code snippets unless explicitly asked.

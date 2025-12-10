@@ -1,0 +1,208 @@
+
+=========== Current Method: favoriteArticle =============
+ArticleFavoriteApi - favoriteArticle:
+```java
+@PostMapping
+  public ResponseEntity favoriteArticle(
+      @PathVariable("slug") String slug, @AuthenticationPrincipal User user) {
+    Article article =
+        articleRepository.findBySlug(slug).orElseThrow(ResourceNotFoundException::new);
+    ArticleFavorite articleFavorite = new ArticleFavorite(article.getId(), user.getId());
+    articleFavoriteRepository.save(articleFavorite);
+    return responseArticleData(articleQueryService.findBySlug(slug, user).get());
+  }
+```
+=========== Dependent Methods of favoriteArticle: ===============
+                
+UserRelationshipQueryService - followingAuthors:
+```java
+Set<String> followingAuthors(@Param("userId") String userId, @Param("ids") List<String> ids);
+```
+
+                    
+ArticleRepository - findBySlug:
+```java
+Optional<Article> findBySlug(String slug);
+```
+
+                    
+ArticleFavoriteApi - responseArticleData:
+```java
+private ResponseEntity<HashMap<String, Object>> responseArticleData(
+      final ArticleData articleData) {
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("article", articleData);
+          }
+        });
+  }
+```
+
+                    
+ArticleFavoritesReadService - isUserFavorite:
+```java
+boolean isUserFavorite(@Param("userId") String userId, @Param("articleId") String articleId);
+```
+
+                    
+ArticleFavoritesReadService - articleFavoriteCount:
+```java
+int articleFavoriteCount(@Param("articleId") String articleId);
+```
+
+                    
+ArticleFavoritesReadService - userFavorites:
+```java
+Set<String> userFavorites(@Param("ids") List<String> ids, @Param("currentUser") User currentUser);
+```
+
+                    
+ArticleReadService - findBySlug:
+```java
+ArticleData findBySlug(@Param("slug") String slug);
+```
+
+                    
+UserRelationshipQueryService - isUserFollowing:
+```java
+boolean isUserFollowing(
+      @Param("userId") String userId, @Param("anotherUserId") String anotherUserId);
+```
+
+                    
+ArticleFavoritesReadService - articlesFavoriteCount:
+```java
+List<ArticleFavoriteCount> articlesFavoriteCount(@Param("ids") List<String> ids);
+```
+
+                    
+ArticleFavoriteRepository - save:
+```java
+void save(ArticleFavorite articleFavorite);
+```
+
+                    
+=========== Current Method: unfavoriteArticle =============
+ArticleFavoriteApi - unfavoriteArticle:
+```java
+@DeleteMapping
+  public ResponseEntity unfavoriteArticle(
+      @PathVariable("slug") String slug, @AuthenticationPrincipal User user) {
+    Article article =
+        articleRepository.findBySlug(slug).orElseThrow(ResourceNotFoundException::new);
+    articleFavoriteRepository
+        .find(article.getId(), user.getId())
+        .ifPresent(
+            favorite -> {
+              articleFavoriteRepository.remove(favorite);
+            });
+    return responseArticleData(articleQueryService.findBySlug(slug, user).get());
+  }
+```
+=========== Dependent Methods of unfavoriteArticle: ===============
+                
+UserRelationshipQueryService - followingAuthors:
+```java
+Set<String> followingAuthors(@Param("userId") String userId, @Param("ids") List<String> ids);
+```
+
+                    
+ArticleRepository - findBySlug:
+```java
+Optional<Article> findBySlug(String slug);
+```
+
+                    
+ArticleFavoriteRepository - find:
+```java
+Optional<ArticleFavorite> find(String articleId, String userId);
+```
+
+                    
+ArticleFavoriteApi - responseArticleData:
+```java
+private ResponseEntity<HashMap<String, Object>> responseArticleData(
+      final ArticleData articleData) {
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("article", articleData);
+          }
+        });
+  }
+```
+
+                    
+ArticleFavoritesReadService - isUserFavorite:
+```java
+boolean isUserFavorite(@Param("userId") String userId, @Param("articleId") String articleId);
+```
+
+                    
+ArticleFavoritesReadService - articleFavoriteCount:
+```java
+int articleFavoriteCount(@Param("articleId") String articleId);
+```
+
+                    
+ArticleFavoritesReadService - userFavorites:
+```java
+Set<String> userFavorites(@Param("ids") List<String> ids, @Param("currentUser") User currentUser);
+```
+
+                    
+ArticleReadService - findBySlug:
+```java
+ArticleData findBySlug(@Param("slug") String slug);
+```
+
+                    
+UserRelationshipQueryService - isUserFollowing:
+```java
+boolean isUserFollowing(
+      @Param("userId") String userId, @Param("anotherUserId") String anotherUserId);
+```
+
+                    
+ArticleFavoritesReadService - articlesFavoriteCount:
+```java
+List<ArticleFavoriteCount> articlesFavoriteCount(@Param("ids") List<String> ids);
+```
+
+                    
+ArticleFavoriteRepository - remove:
+```java
+void remove(ArticleFavorite favorite);
+```
+
+                    
+=========== Current Method: responseArticleData =============
+ArticleFavoriteApi - responseArticleData:
+```java
+private ResponseEntity<HashMap<String, Object>> responseArticleData(
+      final ArticleData articleData) {
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("article", articleData);
+          }
+        });
+  }
+```
+=========== Dependent Methods of responseArticleData: ===============
+                
+ArticleFavoriteApi - responseArticleData:
+```java
+private ResponseEntity<HashMap<String, Object>> responseArticleData(
+      final ArticleData articleData) {
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("article", articleData);
+          }
+        });
+  }
+```
+
+                    

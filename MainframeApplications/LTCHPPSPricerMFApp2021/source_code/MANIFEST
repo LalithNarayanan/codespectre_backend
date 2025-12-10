@@ -1,0 +1,126 @@
+************************************************************************00010077
+*                                                                      *00020077
+*                           MANIFEST LIST                              *00030077
+*                                                                      *00040077
+*                                                                      *00050077
+* PDS NAME: MU00.@BFN2699.LTNDM212                                     *00060099
+* PRICER: LONG-TERM CARE HOSPITAL (LTCH) PRICER                        *00070077
+* VERSION: 2021.2                                                      *00080099
+* TO BE USED W/ RELEASE: 2021.1 - PREVIOUS PRODUCTION RELEASE          *00090099
+* EFFECTIVE DATE: 10/01/2020                                           *00100098
+* BETA/PRODUCTION: PRODUCTION                                          *00110091
+* RELEASE DATE: 12/01/2020                                             *00120099
+*    NOTE: RELEASE DATE = DATE CMS RELEASES TO FISS                    *00130077
+*                                                                      *00140077
+*                                                                      *00150077
+* TOTAL NUMBER OF MEMBERS ASSOCIATED WITH THIS PRICER: 77              *00160091
+*                                                                      *00170077
+*     - NUMBER OF MEMBERS INCLUDED IN THIS DATASET:  4                 *00180099
+*       - NEW MEMBERS: 0                                               *00190094
+*         (LISTED BELOW UNDER "NON-PAIRED NEW FILE MEMBERS")           *00200077
+*       - MEMBERS THAT REPLACE THE PREVIOUS VERSION: 4                 *00210099
+*         (LISTED BELOW WITH "**" IN THE "CHNG" COLUMN)                *00220077
+*                                                                      *00230077
+*     - NUMBER OF MEMBERS NOT INCLUDED IN THIS DATASET: 73             *00240099
+*       - MEMBERS WITH NO CHANGES: 73                                  *00250099
+*         (LISTED BELOW WITH NOTHING IN THE "CHNG" COLUMN)             *00260077
+*                                                                      *00270077
+************************************************************************00280077
+                                                                        00290077
+                                                                        00300077
+                       MEMBER SUMMARY LISTING (LINE COMPARE)            00310077
+                                                                        00320077
+ CHNG MEMBERS-COMPARED NEW-PROC OLD-PROC  MATCHED NEW-INS OLD-DEL REFM-L00330077
+                                                                        00340077
+      BLEND152               58       58       58                       00350077
+      IPDRG063              294      294      294                       00360077
+      IPDRG071              304      304      304                       00370077
+      IPDRG080              514      514      514                       00380077
+      IPDRG090              514      514      514                       00390077
+      IPDRG104              514      514      514                       00400077
+      IPDRG110              514      514      514                       00410077
+      IPDRG123              515      515      515                       00420077
+      IPDRG130              515      515      515                       00430077
+      IPDRG141             1530     1530     1530                       00440077
+      IPDRG152             1536     1536     1536                       00450077
+      IPDRG160             1543     1543     1543                       00460077
+      IPDRG170             1541     1541     1541                       00470077
+      IPDRG181             1535     1535     1535                       00480077
+      IPDRG190             1549     1549     1549                       00490077
+      IPDRG200             1549     1549     1549                       00500082
+      IPDRG211             1561     1561     1561                       00510099
+      IPWIX211             7804     7804     7804                       00520099
+      IRFBN091              173      173      173                       00530077
+      IRFBN102              173      173      173                       00540077
+      IRFBN105              173      173      173                       00550077
+      LTCAL032              685      685      685                       00560077
+      LTCAL042              726      726      726                       00570077
+      LTCAL043              793      793      793                       00580077
+      LTCAL058              834      834      834                       00590077
+      LTCAL059              873      873      873                       00600077
+      LTCAL063              913      913      913                       00610077
+      LTCAL064              959      959      959                       00620077
+      LTCAL072             1684     1684     1684                       00630077
+      LTCAL075             1726     1726     1726                       00640077
+      LTCAL080             1771     1771     1771                       00650077
+      LTCAL087             1794     1794     1794                       00660077
+      LTCAL091             1706     1706     1706                       00670077
+      LTCAL094             1781     1781     1781                       00680077
+      LTCAL095             1783     1783     1783                       00690077
+      LTCAL103             1779     1779     1779                       00700077
+      LTCAL105             1779     1779     1779                       00710077
+      LTCAL111             1778     1778     1778                       00720077
+      LTCAL123             1779     1779     1779                       00730077
+      LTCAL130             1836     1836     1836                       00740077
+      LTCAL141             1999     1999     1999                       00750077
+      LTCAL152             2058     2058     2058                       00760077
+      LTCAL154             2140     2140     2140                       00770077
+      LTCAL162             2761     2761     2761                       00780077
+      LTCAL170             2593     2593     2593                       00790077
+      LTCAL183             2645     2645     2645                       00800077
+      LTCAL190             2598     2598     2598                       00810077
+      LTCAL202             2783     2783     2783                       00820090
+ **   LTCAL212:LTCAL211    2902     2887     2874      28      13       00830099
+      LTDRG031              260      260      260                       00840077
+      LTDRG041              264      264      264                       00850077
+      LTDRG057              264      264      264                       00860077
+      LTDRG062              268      268      268                       00870077
+      LTDRG075              274      274      274                       00880077
+      LTDRG080              363      363      363                       00890077
+      LTDRG086              499      499      499                       00900077
+      LTDRG093              376      376      376                       00910077
+      LTDRG095              376      376      376                       00920077
+      LTDRG100              376      376      376                       00930077
+      LTDRG110              378      378      378                       00940077
+      LTDRG123              380      380      380                       00950077
+      LTDRG130              503      503      503                       00960077
+      LTDRG141              503      503      503                       00970077
+      LTDRG152              503      503      503                       00980077
+      LTDRG160              509      509      509                       00990077
+      LTDRG170              507      507      507                       01000077
+      LTDRG180              380      380      380                       01010077
+      LTDRG181              380      380      380                       01020077
+      LTDRG190              384      384      384                       01030077
+      LTDRG200              384      384      384                       01040082
+      LTDRG210              386      386      386                       01050095
+ **   LTDRV212:LTDRV211    4074     4071     4066       8       5       01060099
+      LTMSA152             1119     1119     1119                       01070077
+      LTWIX210             7145     7145     7145                       01080095
+ **   MANIFEST              126      126      112      14      14       01090099
+ **   README                114      120      105       9      15       01100099
+      RUFL200               476      476      476                       01110087
+                                                                        01120077
+    77   TOTAL MEMBER(S) PROCESSED AS A PDS                             01130091
+     4   TOTAL MEMBER(S) PROCESSED HAD CHANGES                          01140099
+    73   TOTAL MEMBER(S) PROCESSED HAD NO CHANGES                       01150099
+     0   TOTAL NEW FILE MEMBER(S) NOT PAIRED                            01160094
+     0   TOTAL OLD FILE MEMBER(S) NOT PAIRED                            01170077
+                                                                        01180077
+                                                                        01190077
+    NON-PAIRED NEW FILE MEMBERS         |   NON-PAIRED OLD FILE MEMBERS 01200077
+                                        |                               01210079
+                                        |                               01220094
+                                        |                               01230094
+                                        |                               01240094
+                                        |                               01250079
+                                        |                               01260079

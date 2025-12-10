@@ -1,0 +1,117 @@
+
+=========== Current Method: createUser =============
+UsersApi - createUser:
+```java
+@RequestMapping(path = "/users", method = POST)
+  public ResponseEntity createUser(@Valid @RequestBody RegisterParam registerParam) {
+    User user = userService.createUser(registerParam);
+    UserData userData = userQueryService.findById(user.getId()).get();
+    return ResponseEntity.status(201)
+        .body(userResponse(new UserWithToken(userData, jwtService.toToken(user))));
+  }
+```
+=========== Dependent Methods of createUser: ===============
+                
+UserReadService - findById:
+```java
+UserData findById(@Param("id") String id);
+```
+
+                    
+JwtService - toToken:
+```java
+String toToken(User user);
+```
+
+                    
+UsersApi - userResponse:
+```java
+private Map<String, Object> userResponse(UserWithToken userWithToken) {
+    return new HashMap<String, Object>() {
+      {
+        put("user", userWithToken);
+      }
+    };
+  }
+```
+
+                    
+UserRepository - save:
+```java
+void save(User user);
+```
+
+                    
+=========== Current Method: userLogin =============
+UsersApi - userLogin:
+```java
+@RequestMapping(path = "/users/login", method = POST)
+  public ResponseEntity userLogin(@Valid @RequestBody LoginParam loginParam) {
+    Optional<User> optional = userRepository.findByEmail(loginParam.getEmail());
+    if (optional.isPresent()
+        && passwordEncoder.matches(loginParam.getPassword(), optional.get().getPassword())) {
+      UserData userData = userQueryService.findById(optional.get().getId()).get();
+      return ResponseEntity.ok(
+          userResponse(new UserWithToken(userData, jwtService.toToken(optional.get()))));
+    } else {
+      throw new InvalidAuthenticationException();
+    }
+  }
+```
+=========== Dependent Methods of userLogin: ===============
+                
+UserReadService - findById:
+```java
+UserData findById(@Param("id") String id);
+```
+
+                    
+JwtService - toToken:
+```java
+String toToken(User user);
+```
+
+                    
+UsersApi - userResponse:
+```java
+private Map<String, Object> userResponse(UserWithToken userWithToken) {
+    return new HashMap<String, Object>() {
+      {
+        put("user", userWithToken);
+      }
+    };
+  }
+```
+
+                    
+UserRepository - findByEmail:
+```java
+Optional<User> findByEmail(String email);
+```
+
+                    
+=========== Current Method: userResponse =============
+UsersApi - userResponse:
+```java
+private Map<String, Object> userResponse(UserWithToken userWithToken) {
+    return new HashMap<String, Object>() {
+      {
+        put("user", userWithToken);
+      }
+    };
+  }
+```
+=========== Dependent Methods of userResponse: ===============
+                
+UsersApi - userResponse:
+```java
+private Map<String, Object> userResponse(UserWithToken userWithToken) {
+    return new HashMap<String, Object>() {
+      {
+        put("user", userWithToken);
+      }
+    };
+  }
+```
+
+                    

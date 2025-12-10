@@ -1,0 +1,398 @@
+job_id,time_stamp,prompt_name,prompt_template,unit,input,output_type,output_file,output_value
+05052025_4,2025-05-05 01:48:00,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_4_L8_extract_program_overview.md,
+job_id,2025-05-05 01:48:32,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 01:51:07,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 01:51:53,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 01:52:17,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 01:52:28,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 01:52:40,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+05052025_6,2025-05-05 02:19:25,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_6_L8_extract_program_overview.md,
+05052025_6,2025-05-05 02:19:36,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_6_L8_extract_data_definition_filehandling.md,
+05052025_6,2025-05-05 02:19:49,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_6_L8_extract_businesslogic.md,
+05052025_6,2025-05-05 02:19:54,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_6_L8_extract_externalsysteminteractions.md,
+05052025_6,2025-05-05 02:20:01,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_6_L8_extract_controlflow_moduleexecutionorder.md,
+job_id,2025-05-05 02:21:07,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 02:21:46,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 02:21:58,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 02:22:15,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 02:22:28,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+05052025_7,2025-05-05 02:43:10,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_7_L8_extract_program_overview.md,
+05052025_7,2025-05-05 02:43:24,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_7_L8_extract_data_definition_filehandling.md,
+05052025_7,2025-05-05 02:43:36,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_7_L8_extract_businesslogic.md,
+05052025_7,2025-05-05 02:43:40,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_7_L8_extract_externalsysteminteractions.md,
+05052025_7,2025-05-05 02:43:47,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_7_L8_extract_controlflow_moduleexecutionorder.md,
+job_id,2025-05-05 02:45:10,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 02:46:07,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 02:46:19,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 02:46:28,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 02:46:41,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+05052025_12,2025-05-05 10:35:50,extract_program_overview,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Overview of the Program
+List of all the buinsess functions addressed by the Program 
+List of all the other programs it calls along with the data structures passed to them.
+
+Instruction:
+  Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2:```{context_2}```
+Context_3:```{context_3}```
+
+COBOL Program:
+-------------------------------------------
+```{code}```         
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_12_L8_extract_program_overview.md,
+05052025_12,2025-05-05 10:36:01,extract_data_definition_filehandling,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+All the files accessed, along with the description 
+All data structures defined in the WORKING-STORAGE SECTION, along with the description
+All data structures defined in LINKAGE SECTION, along with the description 
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+   ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_12_L8_extract_data_definition_filehandling.md,
+05052025_12,2025-05-05 10:36:16,extract_businesslogic,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+List of paragraphs in the order they are executed, along with the description
+Business Rules
+Data validation and error handling logic
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+       ```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_12_L8_extract_businesslogic.md,
+05052025_12,2025-05-05 10:36:20,extract_externalsysteminteractions,"Analyze all the given COBOL programs and provide the following detail for each of the Programs: 
+Identify calls to databases, web services, online transaction systems or other programs.
+List of SQL Queries (EXEC SQL blocks)
+List of CICS Calls (EXEC CICS blocks)
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_12_L8_extract_externalsysteminteractions.md,
+05052025_12,2025-05-05 10:36:27,extract_controlflow_moduleexecutionorder,"Analyze all the COBOL programs given and provide the following details:
+List of COBOL programs analyzed
+Sequence in which these programs are called, along with the description
+List of use cases addressed by all the programs together.
+
+Instruction:
+  Don't exclude any programs.
+
+COBOL Program:
+-------------------------------------------
+```{code}```
+",L8,"['LTCAL032', 'LTCAL042', 'LTDRG031']",func_spec,C:\MainframeApplications\LTCHPPSPricerMFApp2021\output\05052025_12_L8_extract_controlflow_moduleexecutionorder.md,
+job_id,2025-05-05 10:37:29,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 10:38:17,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 10:38:30,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 10:38:42,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+job_id,2025-05-05 10:38:55,merge_functional_specs,"The {section} section was extracted from multiple functional specifications file. 
+The consolidated content is as follows:
+{functional_specs}
+Please merge all the contents logically. 
+Ensure that no original information is omitted in the enhanced version.
+Enusre all the merged contents are grouped under the section {section}
+
+Instruction: Don't exclude any details or program
+",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,

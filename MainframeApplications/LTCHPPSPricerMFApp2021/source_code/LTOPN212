@@ -1,0 +1,1297 @@
+000100 IDENTIFICATION DIVISION.
+000200 PROGRAM-ID. LTOPN212.
+000300*AUTHOR.     CENTERS FOR MEDICARE AND MEDICAID SERVICES
+000400*REMARKS.    - OPENS THE PROV FILE, MSAX FILE, CBSAX FILE, AND
+000500*              IPPS CBSAX FILE
+000600*            - FINDS PROV RECORD FOR THE GIVEN BILL TO BE
+000700*              PASSED TO THE LTDRV___ MODULE
+000800*            - LOADS THE MSAX, CBSAX, & IPPS CBSAX TABLES
+000900*            - CALLS THE LTDRV___ MODULE
+001000 DATE-COMPILED.
+001100****************************************************************
+001200*                                                              *
+001300*   THIS SUBROUTINE IS FURNISHED BY THE CENTERS FOR MEDICARE   *
+001400*   AND MEDICAID SERVICES.                                     *
+001500*   IT IS TO BE USED AS AN AID IN IMPLEMENTING PROSPECTIVE     *
+001600*   PAYMENT FOR LONG TERM CARE HOSPITALS.                      *
+001700*   THE RESPONSIBILITY FOR INSTALLING, MODIFYING, TESTING,     *
+001800*   MAINTAINING, AND VERIFYING THE ACCURACY OF THIS PROGRAM    *
+001900*   IS THAT OF THE USER.                                       *
+002000*                  *  *  *  *  *  *  *  *                      *
+002100*   ONCE GROUPED THE PROSPECTIVE PAYMENT SUBROUTINE IS CALLED  *
+002200*   TO CALCULATE THE TOTAL PAYMENT PRIOR TO DEDUCTIBLE,        *
+002300*   CO-INSURANCE, AND CASES WHERE MEDICARE IS SECONDARY PAYOR. *
+002400*   THE PROGRAM WILL:                                          *
+002500*       1. LOAD THE TABLES USED TO CALCULATE PPS.              *
+002600*       2. PASS BACK RETURN CODES.                             *
+002700*                                                              *
+002800*                  *  *  *  *  *  *  *  *                      *
+002900*   THIS SUBROUTINE CALCULATES THE PROVIDER SPECIFIC           *
+003000*   ELEMENTS ON A PROVIDER BREAK, THEREFORE IT WILL RUN FASTER *
+003100*   WHEN BILLS ARE BATCHED BY PROVIDER.                        *
+003200*                  *  *  *  *  *  *  *  *                      *
+003300*                                                              *
+003400*                                                              *
+003500*--------------------------------------------------------------*
+003600*   CHANGE LOG.                                                *
+003700*--------------------------------------------------------------*
+003800*                                                              *
+003900*   04/07/2005 - AT THE REQUEST OF FISS, LTDRV___ MODIFIED TO  *
+004000*                ONLY READ INPUT DATA AND LOAD TABLES FOR THE  *
+004100*                PROVIDER SPECIFIC FILE & WAGE INDEX FILE      *
+004200*                IT STILL RECEIVES THE BILL & PPS RECORDS      *
+004300*                                                              *
+004400*--------------------------------------------------------------*
+004500*                                                              *
+004600*   04/20/2005 - EFFECTIVE JULY 1, 2005, CBSA (CORE-BASED      *
+004700*                STATISTICAL AREA) IS USED IN PLACE OF MSA     *
+004800*                (METROPOLITAN STATISTICAL AREA), THE PROGRAM  *
+004900*                DETERMINES WHETHER TO USE THE CBSA WAGE INDEX *
+005000*                FILE OR MSA WAGE INDEX FILE BASED ON THE BILL *
+005100*                DISCHARGE DATE                                *
+005200*                                                              *
+005300*--------------------------------------------------------------*
+005400*                                                              *
+005500*   05/02/2005 - ADDED PSF FIELDS - SPECIAL PAY INDICATOR &    *
+005600*                SPECIAL WAGE INDEX                            *
+005700*                                                              *
+005800*--------------------------------------------------------------*
+005900*                                                              *
+006000*   01/17/2006 - MODIFIED FOR 1ST CICS PACKAGE RELEASE;        *
+006100*                TO BE RELEASED APRIL 1, 2006                  *
+006200*                                                              *
+006300*--------------------------------------------------------------*
+006400*                                                              *
+006500*   01/19/2006 - PROGRAM NAME CHANGED FROM LTDRV___ TO LTOPN___*
+006600*                                                              *
+006700*--------------------------------------------------------------*
+006800*                                                              *
+006900*   05/02/2006 - ADD IPPS CBSA WAGE INDEX TABLE TO THE PROGRAM *
+007000*                FOR SHORT STAY PROVISION #4 - STORE & LOAD    *
+007100*                                                              *
+007200*--------------------------------------------------------------*
+007300*                                                              *
+007400*   06/19/2006 - CHANGE VERSION FROM 07.0 TO 07.1              *
+007500*                                                              *
+007600*--------------------------------------------------------------*
+007700*                                                              *
+007800*   08/09/2006 - UPDATE FOR OCTOBER 2006 VERSION 07.3          *
+007900*                                                              *
+008000*--------------------------------------------------------------*
+008100*                                                              *
+008200*   09/06/2006 - UPDATE FOR OCTOBER 2006 VERSION 07.4          *
+008300*                                                              *
+008400*--------------------------------------------------------------*
+008500*                                                              *
+008600*   11/16/2006 - CREATED VERSION 07.5 FOR OCTOBER 2006         *
+008700*                DUE TO CORRECTION OF THE IME                  *
+008800*                MULTIPLIER USED IN THE 4TH SSO                *
+008900*                PROVISION (IPPS PORTION), IPPS WAGE INDEX     *
+009000*                CHANGE, & REMOVAL OF PPS-RTC 23               *
+009100*                                                              *
+009200*--------------------------------------------------------------*
+009300*                                                              *
+009400*   12/28/2006 - CREATED VERSION 07.6 FOR OCTOBER 2006         *
+009500*                DUE TO CBSA SIZE LOGIC CORRECTION             *
+009600*                ** THIS VERSION WAS NOT RELEASED **           *
+009700*                                                              *
+009800*--------------------------------------------------------------*
+009900*                                                              *
+010000*   05/03/2007 - UPDATE FOR JULY 2007 VERSION 08.0             *
+010100*                                                              *
+010200*--------------------------------------------------------------*
+010300*                                                              *
+010400*   08/13/2007 - UPDATE FOR OCTOBER 2007 VERSION 08.1          *
+010500*                                                              *
+010600*--------------------------------------------------------------*
+010700*                                                              *
+010800*   08/23/2007 - UPDATE FOR OCTOBER 2007 VERSION 08.2          *
+010900*                (FOR REVISED IPPS RATES & WAGE INDEX TABLE)   *
+011000*                                                              *
+011100*--------------------------------------------------------------*
+011200*                                                              *
+011300*   09/14/2007 - UPDATE FOR OCTOBER 2007 VERSION 08.3          *
+011400*                (FOR REVISED IPPS RATES & WAGE INDEX TABLE)   *
+011500*                                                              *
+011600*--------------------------------------------------------------*
+011700*                                                              *
+011800*   09/28/2007 - UPDATE FOR OCTOBER 2007 VERSION 08.4          *
+011900*                (FOR REVISED IPPS RATES)                      *
+012000*                                                              *
+012100*--------------------------------------------------------------*
+012200*                                                              *
+012300*   12/27/2007 - UPDATE FOR OCTOBER 2007 VERSION 08.5          *
+012400*                (FOR REVISED SHORT STAY OUTLIER LOGIC)        *
+012500*                                                              *
+012600*--------------------------------------------------------------*
+012700*                                                              *
+012800*   02/06/2008 - UPDATE FOR OCTOBER 2007 VERSION 08.6          *
+012900*                (FOR REVISED STANDARD FEDERAL RATE &          *
+013000*                 FIXED LOSS AMOUNT FOR APRIL 2008)            *
+013100*                                                              *
+013200*--------------------------------------------------------------*
+013300*                                                              *
+013400*   05/08/2008 - CREATED VERSION 09.0 FOR JULY 2008            *
+013500*                (FOR NEW RATE YEAR 2009, STILL FY 2008)       *
+013600*                                                              *
+013700*--------------------------------------------------------------*
+013800*                                                              *
+013900*   05/19/2008 - CREATED VERSION 09.1 FOR JULY 2008            *
+014000*                REVISED IPPS PUERTO RICO RATES                *
+014100*                EFFECTIVE RETROACTIVE TO 10/01/2007           *
+014200*                                                              *
+014300*--------------------------------------------------------------*
+014400*                                                              *
+014500*   08/11/2008 - CREATED VERSION 09.2 FOR OCTOBER 2008         *
+014600*                (FOR RATE YEAR 2009, FY 2009)                 *
+014700*                ADDED FIELD P-VAL-BASED-PURCH-SCORE TO THE    *
+014800*                PSF (TO BE USED IN IPPS 01/01/2008).          *
+014900*                                                              *
+015000*--------------------------------------------------------------*
+015100*                                                              *
+015200*   09/09/2008 - CREATED VERSION 09.3 FOR OCTOBER 2008         *
+015300*                (FOR RATE YEAR 2009, FY 2009)                 *
+015400*                                                              *
+015500*--------------------------------------------------------------*
+015600*                                                              *
+015700*   02/17/2009 - CREATED VERSION 09.4 FOR OCTOBER 2008         *
+015800*                (FOR RATE YEAR 2009, FY 2009)                 *
+015900*                                                              *
+016000*--------------------------------------------------------------*
+016100*                                                              *
+016200*   05/18/2009 - CREATED VERSION 09.5 FOR JUNE 3 - SEPT 30 2009*
+016300*                (FOR RATE YEAR 2009, FY 2009)                 *
+016400*                                                              *
+016500*--------------------------------------------------------------*
+016600*                                                              *
+016700*   08/05/2009 - CREATED VERSION 10.0 FOR OCTOBER 2009         *
+016800*                (FOR RATE YEAR 2010, FY 2010)                 *
+016900*                                                              *
+017000*--------------------------------------------------------------*
+017100*                                                              *
+017200*   09/03/2009 - CREATED VERSION 10.1 FOR OCTOBER 2009         *
+017300*                (FOR RATE YEAR 2010, FY 2010)                 *
+017400*                                                              *
+017500*--------------------------------------------------------------*
+017600*                                                              *
+017700*   11/11/2009 - CREATED VERSION 10.2 FOR OCTOBER 2009         *
+017800*                (FOR RATE YEAR 2010, FY 2010)                 *
+017900*                                                              *
+018000*--------------------------------------------------------------*
+018100*                                                              *
+018200*   04/07/2010 - CREATED VERSION 10.3 FOR OCTOBER 2009         *
+018300*                (FOR RATE YEAR 2010, FY 2010)                 *
+018400*                                                              *
+018500*--------------------------------------------------------------*
+018600*                                                              *
+018700*   04/19/2010 - CREATED VERSION 10.4 FOR OCTOBER 2009         *
+018800*                (FOR RATE YEAR 2010, FY 2010)                 *
+018900*                                                              *
+019000*--------------------------------------------------------------*
+019100*                                                              *
+019200*   08/04/2010 - CREATED VERSION 11.0 FOR OCTOBER 2010         *
+019300*                (FOR RATE YEAR 2011, FY 2011)                 *
+019400*                                                              *
+019500*--------------------------------------------------------------*
+019600*                                                              *
+019700*   10/20/2010 - CREATED VERSION 11.1 FOR OCTOBER 2010         *
+019800*                (FOR RATE YEAR 2011, FY 2011)                 *
+019900*                ALLOWS DATES OF SERVICE OLDER THAN 5 YEARS    *
+020000*--------------------------------------------------------------*
+020100*                                                              *
+020200*   08/01/2011 - CREATED VERSION 12.0 FOR OCTOBER 2011         *
+020300*                (FOR RATE YEAR 2012, FY 2012)                 *
+020400*                                                              *
+020500*--------------------------------------------------------------*
+020600*                                                              *
+020700*   08/31/2011 - CREATED VERSION 12.1 FOR OCTOBER 2011         *
+020800*                (FOR RATE YEAR 2012, FY 2012)                 *
+020900*                                                              *
+021000*--------------------------------------------------------------*
+021100*                                                              *
+021200*   10/28/2011 - CREATED VERSION 12.2 FOR OCTOBER 2011         *
+021300*                (FOR RATE YEAR 2012, FY 2012)                 *
+021400*                                                              *
+021500*--------------------------------------------------------------*
+021600*                                                              *
+021700*   12/09/2011 - CREATED VERSION 12.3 FOR OCTOBER 2011         *
+021800*                (FOR RATE YEAR 2012, FY 2012)                 *
+021900*                                                              *
+022000*--------------------------------------------------------------*
+022100*                                                              *
+022200*   07/31/2012 - CREATED VERSION 13.0 FOR OCTOBER 2012         *
+022300*                (FOR RATE YEAR 2013, FY 2013)                 *
+022400*                                                              *
+022500*--------------------------------------------------------------*
+022600*                                                              *
+022700*   07/31/2012 - CREATED VERSION 13.0 FOR OCTOBER 2012         *
+022800*                (FOR RATE YEAR 2013, FY 2013)                 *
+022900*                                                              *
+023000*--------------------------------------------------------------*
+023100*                                                              *
+023200*   11/16/2012 - IN VERSION 13.0 OF THE LTCH PPS PRICER        *
+023300*                CHANGED "T-CBSA-DATA  OCCURS 0 TO 4000 TIMES" *
+023400*                     TO "T-CBSA-DATA  OCCURS 0 TO 7000 TIMES" *
+023500*                FOR IPPS-CBSA-WI-TABLE IN RESPONSE TO         *
+023600*                HPAR CR8041H2 (R41212).  NO VERSION NUMBERS   *
+023700*                CHANGED AND ONLY MODULES LTDRV130 AND         *
+023800*                LTOPN130 CHANGED AS DESCRIBED ABOVE.          *
+023900*                                                              *
+024000*--------------------------------------------------------------*
+024100*                                                              *
+024200*   08/12/2013 - CREATED VERSION 14.0 FOR OCTOBER 2013         *
+024300*                (FOR RATE YEAR 2014, FY 2014)                 *
+024400*              - ADDED HOSPITAL QUALITY INDICATOR TO PSF       *
+024500*                                                              *
+024600*--------------------------------------------------------------*
+024700*                                                              *
+024800*   09/04/2013 - CREATED VERSION 14.1                          *
+024900*              - INCORPORATED CHANGES TO LTCH AND IPPS WAGE    *
+025000*                INDEX TABLES                                  *
+025100*                                                              *
+025200*                                                              *
+025300*--------------------------------------------------------------*
+025400*                                                              *
+025500*   08/07/2014 - CREATED VERSION 15.0                          *
+025600*                                                              *
+025700*--------------------------------------------------------------*
+025800*                                                              *
+025900*   09/03/2014 - CREATED VERSION 15.1                          *
+026000*                                                              *
+026100*   11/20/2014 - CREATED VERSION 15.2                          *
+026200*                                                              *
+026300*   03/20/15 - VERSION 15.3 CREATED TO ADD NEW DATA NAMES      *
+026400*                                                              *
+026500*   06/29/15 - VERSION 16.B CREATED TO TEST UPDATED LOGIC      *
+026600*                                                              *
+026700*   08/05/15 - VERSION 16.0 CREATED TO TEST UPDATED LOGIC      *
+026800*                                                              *
+026900*   11/25/15 - VERSION 16.C CREATED TO TEST UPDATED INTERFACE  *
+027000*              (BILL-NEW-DATA - ADDED COST REPORT DAYS) &      *
+027100*              LOGIC                                           *
+027200*                                                              *
+027300*   12/11/15 - VERSION 16.1 CREATED TO IMPLEMENT CR9401 4-1-16 *
+027400*                                                              *
+027500*   01/08/16 - VERSION 16.2                                    *
+027600*                                                              *
+027700* 5-23-16 - VERSION 17.B
+027800* 6-7-16 CHANGED THE SEARCH OF THE PSF FROM A BINARY TO A
+027900* SEQUENTIAL SEARCH
+028000* 7-18-16 - VERSION 17.0
+028100* 8-8-17 - VERSION 18.0
+028200* 9-21-17 - VERSION 18.1
+028300* 10-5-17 - VERSION 18.2
+028400* 2-8-18 = VERSION 18.3
+028500* 7-30-18 - VERSION 19.0
+028600* 8-1-19 - VERSION 20.0
+028700*      CHANGED "T-CBSA-DATA  OCCURS 0 TO 7000 TIMES"
+028800*           TO "T-CBSA-DATA  OCCURS 0 TO 10000 TIMES"
+028900*      FOR IPPS-CBSA-WI-TABLE
+029000* 3-4-20 - VERSION 20.B FOR TESTING
+029100* 4-7-20 - VERSION 20.2 COVID-19
+029200* 6-17-20 - VERSION 21.B BETA TEST CHANGES IN CR11707
+029300*     CHANGED C-CBSA-DATA  OCCURS 0 TO 7000 TIMES   TO
+029400*        C-CBSA-DATA  OCCURS 0 TO 10000 TIMES
+029500* 9-14-20 - VERSION 21.0
+029600* 10-9-20 - VERSION 21.1
+029700* 11-20-20 - VERSION 21.2
+029800****************************************************************
+029900
+030000 ENVIRONMENT DIVISION.
+030100 CONFIGURATION SECTION.
+030200 SOURCE-COMPUTER.            IBM-370.
+030300 OBJECT-COMPUTER.            IBM-370.
+030400 INPUT-OUTPUT  SECTION.
+030500 FILE-CONTROL.
+030600
+030700     SELECT PROV-FILE ASSIGN       TO  UT-S-PPSPROV
+030800            FILE STATUS IS PROV-STAT.
+030900     SELECT CBSAX-FILE ASSIGN      TO  UT-S-PPSCBSAX
+031000            FILE STATUS IS CBSAX-STAT.
+031100     SELECT IPPS-CBSAX-FILE ASSIGN TO  UT-S-IPCBSAX
+031200            FILE STATUS IS IPPS-CBSAX-STAT.
+031300     SELECT MSAX-FILE ASSIGN       TO  UT-S-PPSMSAX
+031400            FILE STATUS IS MSAX-STAT.
+031500
+031600 DATA DIVISION.
+031700 FILE SECTION.
+031800
+031900 FD  PROV-FILE
+032000     RECORDING MODE IS F
+032100     LABEL RECORDS ARE STANDARD
+032200     BLOCK CONTAINS 0 RECORDS.
+032300 01  PROV-REC.
+032400     05  PROV-PART1                 PIC X(80).
+032500     05  PROV-PART2                 PIC X(80).
+032600     05  PROV-PART3                 PIC X(80).
+032700
+032800 FD  CBSAX-FILE
+032900     RECORDING MODE IS F
+033000     LABEL RECORDS ARE STANDARD
+033100     BLOCK CONTAINS 0 RECORDS.
+033200***************************************************************
+033300*    THIS RECORD IS SUPPLIED BY CMS AND CONTAINS              *
+033400*    THE WAGE INDEX FOR THE STATES (RURAL) AND CBSA'S (URBAN).*
+033500***************************************************************
+033600 01  CBSAX-REC.
+033700     05  X-CBSA-X.
+033800         10  M-BLANK                PIC X(03).
+033900         10  M-STATE                PIC 9(02).
+034000     05  X-CBSA REDEFINES X-CBSA-X  PIC 9(05).
+034100     05  FILLER                     PIC X(01).
+034200     05  XE-DATE-C.
+034300         10  XE-C-CC                PIC 9(02).
+034400         10  XE-C-YY                PIC 9(02).
+034500         10  XE-C-MM                PIC 9(02).
+034600         10  XE-C-DD                PIC 9(02).
+034700     05  FILLER                     PIC X(01).
+034800     05  X-WAGE-INDEX1-C            PIC S9(02)V9(04).
+034900     05  FILLER                     PIC X(01).
+035000     05  X-WAGE-INDEX2-C            PIC S9(02)V9(04).
+035100     05  FILLER                     PIC X(01).
+035200     05  X-WAGE-INDEX3-C            PIC S9(02)V9(04).
+035300     05  FILLER                     PIC X(01).
+035400     05  X-STATE-CBSA-NAME          PIC X(39).
+035500     05  FILLER                     PIC X(05).
+035600
+035700 FD  IPPS-CBSAX-FILE
+035800     RECORDING MODE IS F
+035900     LABEL RECORDS ARE STANDARD
+036000     BLOCK CONTAINS 0 RECORDS.
+036100***************************************************************
+036200*    THIS RECORD IS SUPPLIED BY CMS AND CONTAINS THE IPPS     *
+036300*    WAGE INDEX FOR THE STATES (RURAL) AND CBSA'S (URBAN).    *
+036400***************************************************************
+036500 01  F-IPPS-CBSA-REC.
+036600     05  F-CBSA.
+036700         10  F-CBSA-BLANK                PIC X(03).
+036800         10  F-CBSA-STATE                PIC 9(02).
+036900     05  F-CBSA9  REDEFINES F-CBSA       PIC 9(05).
+037000     05  F-CBSA-SIZE             PIC X(01).
+037100     05  F-CBSA-EFF-DATE.
+037200         10  F-CBSA-CC           PIC 9(02).
+037300         10  F-CBSA-YY           PIC 9(02).
+037400         10  F-CBSA-MM           PIC 9(02).
+037500         10  F-CBSA-DD           PIC 9(02).
+037600     05  FILLER                  PIC X(01).
+037700     05  F-CBSA-WAGE-INDX1       PIC S9(02)V9(04).
+037800     05  FILLER                  PIC X(01).
+037900     05  F-CBSA-WAGE-INDX2       PIC S9(02)V9(04).
+038000     05  FILLER                  PIC X(01).
+038100     05  F-CBSA-WAGE-INDX3       PIC S9(02)V9(04).
+038200     05  FILLER                  PIC X(01).
+038300     05  F-CBSA-STATE-NAME       PIC X(43).
+038400     05  FILLER                  PIC X(01).
+038500
+038600 FD  MSAX-FILE
+038700     RECORDING MODE IS F
+038800     LABEL RECORDS ARE STANDARD
+038900     BLOCK CONTAINS 0 RECORDS.
+039000***************************************************************
+039100*    THIS RECORD IS SUPPLIED BY CMS AND CONTAINS              *
+039200*    THE WAGE INDEX FOR THE STATES (RURAL) AND MSA'S (URBAN). *
+039300***************************************************************
+039400 01  MSAX-REC.
+039500     05  X-MSA-X.
+039600         10  M-BLANK                PIC X(02).
+039700         10  M-STATE                PIC 9(02).
+039800     05  X-MSA REDEFINES X-MSA-X    PIC 9(04).
+039900     05  FILLER                     PIC X(01).
+040000     05  XE-DATE-M.
+040100         10  XE-M-CC                PIC 9(02).
+040200         10  XE-M-YY                PIC 9(02).
+040300         10  XE-M-MM                PIC 9(02).
+040400         10  XE-M-DD                PIC 9(02).
+040500     05  FILLER                     PIC X(01).
+040600     05  X-WAGE-INDEX1-M            PIC S9(02)V9(04).
+040700     05  FILLER                     PIC X(01).
+040800     05  X-WAGE-INDEX2-M            PIC S9(02)V9(04).
+040900     05  FILLER                     PIC X(01).
+041000     05  X-WAGE-INDEX3-M            PIC S9(02)V9(04).
+041100     05  FILLER                     PIC X(01).
+041200     05  X-STATE-MSA-NAME           PIC X(44).
+041300     05  FILLER                     PIC X(01).
+041400
+041500 WORKING-STORAGE SECTION.
+041600 77  W-STORAGE-REF                  PIC X(48) VALUE
+041700     'L T O P N _ _ _ - W O R K I N G   S T O R A G E'.
+041800 01  OPN-VERSION                    PIC X(05) VALUE '021.2'.
+041900 01  LTDRV212                       PIC X(08) VALUE 'LTDRV212'.
+042000 01  TABLES-LOADED-SW               PIC 9(01) VALUE 0.
+042100 01  EOF-SW                         PIC 9(01) VALUE 0.
+042200
+042300*****************************************************
+042400* PROVIDER RECORD THAT CAN BE PASSED IN FROM THE    *
+042500* USER                                              *
+042600*****************************************************
+042700 01  W-PROV-NEW-HOLD.
+042800     02  W-PROV-NEWREC-HOLD1.
+042900         05  W-P-NEW-NPI10.
+043000             10  W-P-NEW-NPI8             PIC X(08).
+043100             10  W-P-NEW-NPI-FILLER       PIC X(02).
+043200         05  W-P-NEW-PROVIDER-OSCAR-NO.
+043300             10  W-P-NEW-STATE            PIC 9(02).
+043400             10  W-P-NEW-STATE-X REDEFINES
+043500                 W-P-NEW-STATE            PIC X(02).
+043600             10  FILLER                   PIC X(04).
+043700         05  W-P-NEW-DATE-DATA.
+043800             10  W-P-NEW-EFF-DATE.
+043900                 15  W-P-NEW-EFF-DT-CC    PIC 9(02).
+044000                 15  W-P-NEW-EFF-DT-YY    PIC 9(02).
+044100                 15  W-P-NEW-EFF-DT-MM    PIC 9(02).
+044200                 15  W-P-NEW-EFF-DT-DD    PIC 9(02).
+044300             10  W-P-NEW-FY-BEGIN-DATE.
+044400                 15  W-P-NEW-FY-BEG-DT-CC PIC 9(02).
+044500                 15  W-P-NEW-FY-BEG-DT-YY PIC 9(02).
+044600                 15  W-P-NEW-FY-BEG-DT-MM PIC 9(02).
+044700                 15  W-P-NEW-FY-BEG-DT-DD PIC 9(02).
+044800             10  W-P-NEW-REPORT-DATE.
+044900                 15  W-P-NEW-REPORT-DT-CC PIC 9(02).
+045000                 15  W-P-NEW-REPORT-DT-YY PIC 9(02).
+045100                 15  W-P-NEW-REPORT-DT-MM PIC 9(02).
+045200                 15  W-P-NEW-REPORT-DT-DD PIC 9(02).
+045300             10  W-P-NEW-TERMINATION-DATE.
+045400                 15  W-P-NEW-TERM-DT-CC   PIC 9(02).
+045500                 15  W-P-NEW-TERM-DT-YY   PIC 9(02).
+045600                 15  W-P-NEW-TERM-DT-MM   PIC 9(02).
+045700                 15  W-P-NEW-TERM-DT-DD   PIC 9(02).
+045800         05  W-P-NEW-WAIVER-CODE          PIC X(01).
+045900             88  W-P-NEW-WAIVER-STATE       VALUE 'Y'.
+046000         05  W-P-NEW-INTER-NO             PIC X(05).
+046100         05  W-P-NEW-PROVIDER-TYPE        PIC X(02).
+046200         05  W-P-NEW-CURRENT-CENSUS-DIV   PIC X(01).
+046300         05  W-P-NEW-MSA-DATA.
+046400             10  W-P-NEW-CHG-CODE-INDEX    PIC X.
+046500             10  W-P-NEW-GEO-LOC-MSA        PIC X(04) JUST RIGHT.
+046600             10  W-P-NEW-WAGE-INDEX-LOC-MSA PIC X(04) JUST RIGHT.
+046700             10  W-P-NEW-STAND-AMT-LOC-MSA  PIC X(04) JUST RIGHT.
+046800             10  W-P-NEW-STAND-AMT-LOC-MSA9
+046900       REDEFINES W-P-NEW-STAND-AMT-LOC-MSA.
+047000                 15  W-P-NEW-RURAL-1ST.
+047100                     20  W-P-NEW-STAND-RURAL  PIC XX.
+047200                 15  W-P-NEW-RURAL-2ND        PIC XX.
+047300         05  W-P-NEW-SOL-COM-DEP-HOSP-YR PIC XX.
+047400         05  W-P-NEW-LUGAR               PIC X.
+047500         05  W-P-NEW-TEMP-RELIEF-IND     PIC X.
+047600         05  W-P-NEW-FED-PPS-BLEND-IND   PIC X.
+047700         05  FILLER                      PIC X(05).
+047800     02  W-PROV-NEWREC-HOLD2.
+047900         05  W-P-NEW-VARIABLES.
+048000             10  W-P-NEW-FAC-SPEC-RATE     PIC  X(07).
+048100             10  W-P-NEW-COLA              PIC  X(04).
+048200             10  W-P-NEW-INTERN-RATIO      PIC  X(05).
+048300             10  W-P-NEW-BED-SIZE          PIC  X(05).
+048400             10  W-P-NEW-CCR               PIC  X(04).
+048500             10  W-P-NEW-CMI               PIC  X(05).
+048600             10  W-P-NEW-SSI-RATIO         PIC  X(04).
+048700             10  W-P-NEW-MEDICAID-RATIO    PIC  X(04).
+048800             10  W-P-NEW-PPS-BLEND-YR-IND  PIC  X(01).
+048900             10  W-P-NEW-PRUP-UPDTE-FACTOR PIC  9(01)V9(05).
+049000             10  W-P-NEW-DSH-PERCENT       PIC  V9(04).
+049100             10  W-P-NEW-FYE-DATE.
+049200                 15  W-P-NEW-FYE-CC        PIC 99.
+049300                 15  W-P-NEW-FYE-YY        PIC 99.
+049400                 15  W-P-NEW-FYE-MM        PIC 99.
+049500                 15  W-P-NEW-FYE-DD        PIC 99.
+049600         05  W-P-NEW-SPECIAL-PAY-IND       PIC X(01).
+049700         05  W-P-NEW-HOSP-QUAL-IND         PIC X(01).
+049800         05  W-P-NEW-GEO-LOC-CBSAX         PIC X(05).
+049900         05  W-P-NEW-GEO-LOC-CBSA9 REDEFINES
+050000                         W-P-NEW-GEO-LOC-CBSAX PIC 9(05).
+050100         05  W-P-NEW-GEO-LOC-CBSA-AST REDEFINES
+050200                         W-P-NEW-GEO-LOC-CBSA9.
+050300             10 W-P-NEW-GEO-LOC-CBSA-1ST   PIC X.
+050400             10 W-P-NEW-GEO-LOC-CBSA-2ND   PIC X.
+050500             10 W-P-NEW-GEO-LOC-CBSA-3RD   PIC X.
+050600             10 W-P-NEW-GEO-LOC-CBSA-4TH   PIC X.
+050700             10 W-P-NEW-GEO-LOC-CBSA-5TH   PIC X.
+050800         05  FILLER                        PIC X(10).
+050900         05  W-P-NEW-SPECIAL-WAGE-INDEX    PIC 9(02)V9(04).
+051000     02  W-PROV-NEWREC-HOLD3.
+051100         05  W-P-NEW-PASS-AMT-DATA.
+051200             10  W-P-NEW-PASS-AMT-CAPITAL    PIC X(06).
+051300             10  W-P-NEW-PASS-AMT-DIR-MED-ED PIC X(06).
+051400             10  W-P-NEW-PASS-AMT-ORGAN-ACQ  PIC X(06).
+051500             10  W-P-NEW-PASS-AMT-PLUS-MISC  PIC X(06).
+051600         05  W-P-NEW-CAPI-DATA.
+051700             15  W-P-NEW-CAPI-PPS-PAY-CODE   PIC X.
+051800             15  W-P-NEW-CAPI-HOSP-SPEC-RATE PIC X(6).
+051900             15  W-P-NEW-CAPI-OLD-HARM-RATE  PIC X(6).
+052000             15  W-P-NEW-CAPI-NEW-HARM-RATIO PIC X(5).
+052100             15  W-P-NEW-CAPI-CSTCHG-RATIO   PIC X(04).
+052200             15  W-P-NEW-CAPI-NEW-HOSP       PIC X.
+052300             15  W-P-NEW-CAPI-IME            PIC X(05).
+052400             15  W-P-NEW-CAPI-EXCEPTIONS     PIC X(6).
+052500             15  W-P-VAL-BASED-PURCH-SCORE   PIC X(4).
+052600*            15  W-P-LTCH-DPP-ADJ            PIC S9(09)V99.
+052700         05  W-P-SUPP-WI-IND                 PIC X.
+052800         05  W-P-SUPP-WI                     PIC 9(02)V9(04).
+052900         05  FILLER                          PIC X(11).
+053000
+053100
+053200***************************************************************
+053300* FILE STATUS VARIABLES                                       *
+053400***************************************************************
+053500 01  PROV-STAT.
+053600     02  PROV-STAT1          PIC X.
+053700     02  PROV-STAT2          PIC X.
+053800
+053900 01  MSAX-STAT.
+054000     02  MSAX-STAT1          PIC X.
+054100     02  MSAX-STAT2          PIC X.
+054200
+054300 01  CBSAX-STAT.
+054400     02  CBSAX-STAT1         PIC X.
+054500     02  CBSAX-STAT2         PIC X.
+054600
+054700 01  IPPS-CBSAX-STAT.
+054800     02  IPPS-CBSAX-STAT1    PIC X.
+054900     02  IPPS-CBSAX-STAT2    PIC X.
+055000
+055100***************************************************************
+055200* CBSA WAGE INDEX TABLE                                       *
+055300***************************************************************
+055400 01  CBSA-WI-TABLE.
+055500     05  C-CBSA-DATA  OCCURS 0 TO 10000 TIMES
+055600                      DEPENDING ON CBSA-CNT
+055700                      ASCENDING KEY IS CBSAX-CBSA
+055800                      INDEXED BY CU1 CU2.
+055900         10  CBSAX-CBSA         PIC X(05).
+056000         10  CBSAX-EFF-DATE     PIC X(08).
+056100         10  CBSAX-WAGE-INDEX1  PIC S9(02)V9(04).
+056200         10  CBSAX-WAGE-INDEX2  PIC S9(02)V9(04).
+056300         10  CBSAX-WAGE-INDEX3  PIC S9(02)V9(04).
+056400
+056500***************************************************************
+056600* IPPS CBSA WAGE INDEX TABLE                                  *
+056700***************************************************************
+056800 01  IPPS-CBSA-WI-TABLE.
+056900     05  T-CBSA-DATA  OCCURS 0 TO 10000 TIMES
+057000                      DEPENDING ON IPPS-CBSA-CNT
+057100                      ASCENDING KEY IS T-CBSA
+057200                      INDEXED BY MA1 MA2 MA3.
+057300         10  T-CBSA             PIC X(5).
+057400         10  T-CBSA-SIZE        PIC X(01).
+057500         10  T-CBSA-EFF-DATE    PIC X(08).
+057600         10  T-CBSA-WAGE-INDX1  PIC S9(02)V9(04).
+057700         10  T-CBSA-WAGE-INDX2  PIC S9(02)V9(04).
+057800         10  T-CBSA-WAGE-INDX3  PIC S9(02)V9(04).
+057900
+058000***************************************************************
+058100* MSA WAGE INDEX TABLE                                        *
+058200***************************************************************
+058300 01  MSA-WI-TABLE.
+058400     05  M-MSA-DATA   OCCURS 0 TO 4000 TIMES
+058500                      DEPENDING ON MSA-CNT
+058600                      ASCENDING KEY IS MSAX-MSA
+058700                      INDEXED BY MU1 MU2.
+058800         10  MSAX-MSA          PIC X(4).
+058900         10  MSAX-EFF-DATE     PIC X(08).
+059000         10  MSAX-WAGE-INDEX1  PIC S9(02)V9(04).
+059100         10  MSAX-WAGE-INDEX2  PIC S9(02)V9(04).
+059200         10  MSAX-WAGE-INDEX3  PIC S9(02)V9(04).
+059300
+059400***************************************************************
+059500* RECORD COUNT VARIABLES                                      *
+059600***************************************************************
+059700 01  WORK-COUNTERS.
+059800     05  CBSA-CNT              PIC 9(5) VALUE ZERO.
+059900     05  MSA-CNT               PIC 9(5) VALUE ZERO.
+060000     05  PROV-CNT              PIC 9(5) VALUE ZERO.
+060100     05  IPPS-CBSA-CNT         PIC 9(5) VALUE ZERO.
+060200
+060300***************************************************************
+060400*    THE PROVIDER SPECIFIC INFORMATION TABLE IS INITIALLY     *
+060500*    SET TO OCCUR 2400 TIMES. THIS NUMBER SHOULD BE ADJUSTED  *
+060600*    BY THE USER TO REFLECT THE NUMBER OF PROVIDER RECORDS    *
+060700*    PLUS EXPANSION. EACH ENTRY COSTS 240 BYTES OF MEMORY.    *
+060800*    THIS FILE MUST BE IN PROVIDER NUMBER, EFFECTIVE-DATE     *
+060900*    SEQUENCE.                                                *
+061000***************************************************************
+061100 01  PROV-TABLE.
+061200     05  PROV-ENTRIES       OCCURS 0 TO 2400 TIMES
+061300                            DEPENDING ON PROV-CNT
+061400                            ASCENDING KEY IS PROV-NO
+061500                            INDEXED BY PX1.
+061600         10  PROV-DATA1.
+061700             15  PROV-NPI10.
+061800                 20  PROV-NPI8       PIC X(08).
+061900                 20  PROV-NPI-FILLER PIC X(02).
+062000             15  PROV-NO             PIC X(06).
+062100             15  PROV-EFF-DATE       PIC X(08).
+062200             15  FILLER              PIC X(56).
+062300
+062400 01  PROV-DATA-2.
+062500     05  PROV-ENTRIES2      OCCURS 0 TO 2400 TIMES
+062600                            DEPENDING ON PROV-CNT
+062700                            INDEXED BY PD2.
+062800         10  PROV-DATA2              PIC X(80).
+062900
+063000 01  PROV-DATA-3.
+063100     05  PROV-ENTRIES3      OCCURS 0 TO 2400 TIMES
+063200                            DEPENDING ON PROV-CNT
+063300                            INDEXED BY PD3.
+063400         10  PROV-DATA3              PIC X(80).
+063500
+063600
+063700**************************************************************
+063800*      THIS IS THE PROV-RECORD THAT WILL BE PASSED TO        *
+063900*      THE LTDRV___ PROGRAM                                  *
+064000**************************************************************
+064100 01  PROV-NEW-HOLD.
+064200     02  PROV-NEWREC-HOLD1.
+064300         05  P-NEW-NPI10.
+064400             10  P-NEW-NPI8             PIC X(08).
+064500             10  P-NEW-NPI-FILLER       PIC X(02).
+064600         05  P-NEW-PROVIDER-NO.
+064700             10  P-NEW-STATE            PIC 9(02).
+064800             10  P-NEW-STATE-X REDEFINES
+064900                 P-NEW-STATE            PIC X(02).
+065000             10  FILLER                 PIC X(04).
+065100         05  P-NEW-DATE-DATA.
+065200             10  P-NEW-EFF-DATE.
+065300                 15  P-NEW-EFF-DT-CC    PIC 9(02).
+065400                 15  P-NEW-EFF-DT-YY    PIC 9(02).
+065500                 15  P-NEW-EFF-DT-MM    PIC 9(02).
+065600                 15  P-NEW-EFF-DT-DD    PIC 9(02).
+065700             10  P-NEW-FY-BEGIN-DATE.
+065800                 15  P-NEW-FY-BEG-DT-CC PIC 9(02).
+065900                 15  P-NEW-FY-BEG-DT-YY PIC 9(02).
+066000                 15  P-NEW-FY-BEG-DT-MM PIC 9(02).
+066100                 15  P-NEW-FY-BEG-DT-DD PIC 9(02).
+066200             10  P-NEW-REPORT-DATE.
+066300                 15  P-NEW-REPORT-DT-CC PIC 9(02).
+066400                 15  P-NEW-REPORT-DT-YY PIC 9(02).
+066500                 15  P-NEW-REPORT-DT-MM PIC 9(02).
+066600                 15  P-NEW-REPORT-DT-DD PIC 9(02).
+066700             10  P-NEW-TERMINATION-DATE.
+066800                 15  P-NEW-TERM-DT-CC   PIC 9(02).
+066900                 15  P-NEW-TERM-DT-YY   PIC 9(02).
+067000                 15  P-NEW-TERM-DT-MM   PIC 9(02).
+067100                 15  P-NEW-TERM-DT-DD   PIC 9(02).
+067200         05  P-NEW-WAIVER-CODE          PIC X(01).
+067300             88  P-NEW-WAIVER-STATE       VALUE 'Y'.
+067400         05  P-NEW-INTER-NO             PIC 9(05).
+067500         05  P-NEW-PROVIDER-TYPE        PIC X(02).
+067600         05  P-NEW-CURRENT-CENSUS-DIV   PIC 9(01).
+067700         05  P-NEW-CURRENT-DIV   REDEFINES
+067800                    P-NEW-CURRENT-CENSUS-DIV   PIC 9(01).
+067900         05  P-NEW-MSA-DATA.
+068000             10  P-NEW-CHG-CODE-INDEX       PIC X.
+068100             10  P-NEW-GEO-LOC-MSAX         PIC X(04) JUST RIGHT.
+068200             10  P-NEW-GEO-LOC-MSA9   REDEFINES
+068300                             P-NEW-GEO-LOC-MSAX  PIC 9(04).
+068400             10  P-NEW-GEO-LOC-MSA-AST REDEFINES
+068500                             P-NEW-GEO-LOC-MSA9.
+068600                 15  P-NEW-GEO-MSA-1ST    PIC X.
+068700                 15  P-NEW-GEO-MSA-2ND    PIC X.
+068800                 15  P-NEW-GEO-MSA-3RD    PIC X.
+068900                 15  P-NEW-GEO-MSA-4TH    PIC X.
+069000             10  P-NEW-WAGE-INDEX-LOC-MSA   PIC X(04) JUST RIGHT.
+069100             10  P-NEW-STAND-AMT-LOC-MSA    PIC X(04) JUST RIGHT.
+069200             10  P-NEW-STAND-AMT-LOC-MSA9
+069300                   REDEFINES P-NEW-STAND-AMT-LOC-MSA.
+069400                 15  P-NEW-RURAL-1ST.
+069500                     20  P-NEW-STAND-RURAL  PIC XX.
+069600                         88  P-NEW-STD-RURAL-CHECK VALUE '  '.
+069700                 15  P-NEW-RURAL-2ND        PIC XX.
+069800         05  P-NEW-SOL-COM-DEP-HOSP-YR PIC XX.
+069900                 88  P-NEW-SCH-YRBLANK    VALUE   '  '.
+070000                 88  P-NEW-SCH-YR82       VALUE   '82'.
+070100                 88  P-NEW-SCH-YR87       VALUE   '87'.
+070200         05  P-NEW-LUGAR                    PIC X.
+070300         05  P-NEW-TEMP-RELIEF-IND          PIC X.
+070400         05  P-NEW-FED-PPS-BLEND-IND        PIC X.
+070500         05  FILLER                         PIC X(05).
+070600     02  PROV-NEWREC-HOLD2.
+070700         05  P-NEW-VARIABLES.
+070800             10  P-NEW-FAC-SPEC-RATE     PIC  9(05)V9(02).
+070900             10  P-NEW-COLA              PIC  9(01)V9(03).
+071000             10  P-NEW-INTERN-RATIO      PIC  9(01)V9(04).
+071100             10  P-NEW-BED-SIZE          PIC  9(05).
+071200             10  P-NEW-CCR               PIC  9(01)V9(03).
+071300             10  P-NEW-CMI               PIC  9(01)V9(04).
+071400             10  P-NEW-SSI-RATIO         PIC  V9(04).
+071500             10  P-NEW-MEDICAID-RATIO    PIC  V9(04).
+071600             10  P-NEW-PPS-BLEND-YR-IND  PIC  X(01).
+071700             10  P-NEW-PRUP-UPDTE-FACTOR PIC  9(01)V9(05).
+071800             10  P-NEW-DSH-PERCENT       PIC  V9(04).
+071900             10  P-NEW-FYE-DATE.
+072000                 15  P-NEW-FYE-CC        PIC 99.
+072100                 15  P-NEW-FYE-YY        PIC 99.
+072200                 15  P-NEW-FYE-MM        PIC 99.
+072300                 15  P-NEW-FYE-DD        PIC 99.
+072400         05  P-NEW-SPECIAL-PAY-IND         PIC X(01).
+072500         05  FILLER                        PIC X(01).
+072600         05  P-NEW-GEO-LOC-CBSAX           PIC X(05) JUST RIGHT.
+072700         05  P-NEW-GEO-LOC-CBSA9 REDEFINES
+072800                       P-NEW-GEO-LOC-CBSAX PIC 9(05).
+072900         05  P-NEW-GEO-LOC-CBSA-AST REDEFINES
+073000                       P-NEW-GEO-LOC-CBSA9.
+073100             10 P-NEW-GEO-LOC-CBSA-1ST     PIC X.
+073200             10 P-NEW-GEO-LOC-CBSA-2ND     PIC X.
+073300             10 P-NEW-GEO-LOC-CBSA-3RD     PIC X.
+073400             10 P-NEW-GEO-LOC-CBSA-4TH     PIC X.
+073500             10 P-NEW-GEO-LOC-CBSA-STH     PIC X.
+073600         05  FILLER                        PIC X(10).
+073700         05  P-NEW-SPECIAL-WAGE-INDEX      PIC 9(02)V9(04).
+073800     02  PROV-NEWREC-HOLD3.
+073900         05  P-NEW-PASS-AMT-DATA.
+074000             10  P-NEW-PASS-AMT-CAPITAL    PIC 9(04)V99.
+074100             10  P-NEW-PASS-AMT-DIR-MED-ED PIC 9(04)V99.
+074200             10  P-NEW-PASS-AMT-ORGAN-ACQ  PIC 9(04)V99.
+074300             10  P-NEW-PASS-AMT-PLUS-MISC  PIC 9(04)V99.
+074400         05  P-NEW-CAPI-DATA.
+074500             15  P-NEW-CAPI-PPS-PAY-CODE   PIC X.
+074600             15  P-NEW-CAPI-HOSP-SPEC-RATE PIC 9(04)V99.
+074700             15  P-NEW-CAPI-OLD-HARM-RATE  PIC 9(04)V99.
+074800             15  P-NEW-CAPI-NEW-HARM-RATIO PIC 9(01)V9999.
+074900             15  P-NEW-CAPI-CSTCHG-RATIO   PIC 9V999.
+075000             15  P-NEW-CAPI-NEW-HOSP       PIC X.
+075100             15  P-NEW-CAPI-IME            PIC 9V9999.
+075200             15  P-NEW-CAPI-EXCEPTIONS     PIC 9(04)V99.
+075300             15  P-VAL-BASED-PURCH-SCORE   PIC 9V999.
+075400         05  P-SUPP-WI-IND                 PIC X.
+075500         05  P-SUPP-WI                     PIC 9(02)V9(04).
+075600         05  FILLER                        PIC X(11).
+075700
+075800
+075900***************************************************************
+076000 LINKAGE SECTION.
+076100***************************************************************
+076200
+076300***************************************************************
+076400*      THIS IS THE BILL-RECORD THAT IS PASSED TO THIS PROGRAM *
+076500*      AND WILL BE PASSED TO PROGRAM LTDRV___                 *
+076600***************************************************************
+076700 01  BILL-NEW-DATA.
+076800     05  B-NPI10.
+076900         10  B-NPI8                   PIC X(08).
+077000         10  B-NPI-FILLER             PIC X(02).
+077100     05  B-PROVIDER-NO                PIC X(06).
+077200     05  B-PATIENT-STATUS             PIC X(02).
+077300     05  B-DRG-CODE                   PIC X(03).
+077400     05  B-LOS                        PIC 9(03).
+077500     05  B-COV-DAYS                   PIC 9(03).
+077600     05  B-LTR-DAYS                   PIC 9(02).
+077700     05  B-CST-RPT-DAYS               PIC 9(03).
+077800     05  B-DISCHARGE-DATE.
+077900         10  B-DISCHG-CC              PIC 9(02).
+078000         10  B-DISCHG-YY              PIC 9(02).
+078100         10  B-DISCHG-MM              PIC 9(02).
+078200         10  B-DISCHG-DD              PIC 9(02).
+078300     05  B-COV-CHARGES                PIC 9(07)V9(02).
+078400     05  B-SPEC-PAY-IND               PIC X(01).
+078500     05  B-REVIEW-CODE                PIC 9(02).
+078600     05  B-DIAGNOSIS-CODE-TABLE.
+078700         10  B-DIAGNOSIS-CODE         PIC X(07) OCCURS 25 TIMES
+078800                                      INDEXED BY IDX-DIAG.
+078900     05  B-PROCEDURE-CODE-TABLE.
+079000         10 B-PROCEDURE-CODE          PIC X(07) OCCURS 25 TIMES
+079100                                      INDEXED BY IDX-PROC.
+079200     05  B-LTCH-DPP-INDICATOR-SW      PIC X.
+079300         88 B-LTCH-DPP-ADJUSTMENT     VALUE 'Y'.
+079400     05  FILLER                       PIC X(19).
+079500
+079600**************************************************************
+079700*      THIS IS THE PPS DATA THAT IS PASSED TO THIS PROGRAM   *
+079800*      AND WILL BE PASSED TO PROGRAM LTDRV___                *
+079900**************************************************************
+080000 01  PPS-DATA-ALL.
+080100     05  PPS-RTC                      PIC X(02).
+080200     05  PPS-CHRG-THRESHOLD           PIC 9(07)V9(02).
+080300     05  PPS-DATA.
+080400         10  PPS-MSA                  PIC X(04).
+080500         10  PPS-WAGE-INDEX           PIC 9(02)V9(04).
+080600         10  PPS-AVG-LOS              PIC 9(02)V9(01).
+080700         10  PPS-RELATIVE-WGT         PIC 9(01)V9(04).
+080800         10  PPS-OUTLIER-PAY-AMT      PIC 9(07)V9(02).
+080900         10  PPS-LOS                  PIC 9(03).
+081000         10  PPS-DRG-ADJ-PAY-AMT      PIC 9(07)V9(02).
+081100         10  PPS-FED-PAY-AMT          PIC 9(07)V9(02).
+081200         10  PPS-FINAL-PAY-AMT        PIC 9(07)V9(02).
+081300         10  PPS-FAC-COSTS            PIC 9(07)V9(02).
+081400         10  PPS-NEW-FAC-SPEC-RATE    PIC 9(07)V9(02).
+081500         10  PPS-OUTLIER-THRESHOLD    PIC 9(07)V9(02).
+081600         10  PPS-SUBM-DRG-CODE        PIC X(03).
+081700         10  PPS-CALC-VERS-CD         PIC X(05).
+081800         10  PPS-REG-DAYS-USED        PIC 9(03).
+081900         10  PPS-LTR-DAYS-USED        PIC 9(03).
+082000         10  PPS-BLEND-YEAR           PIC 9(01).
+082100         10  PPS-COLA                 PIC 9(01)V9(03).
+082200         10  FILLER                   PIC X(04).
+082300    05  PPS-OTHER-DATA.
+082400         10  PPS-NAT-LABOR-PCT        PIC 9(01)V9(05).
+082500         10  PPS-NAT-NONLABOR-PCT     PIC 9(01)V9(05).
+082600         10  PPS-STD-FED-RATE         PIC 9(05)V9(02).
+082700         10  PPS-BDGT-NEUT-RATE       PIC 9(01)V9(03).
+082800         10  PPS-IPTHRESH             PIC 9(03)V9(01).
+082900         10  PPS-LTCH-DPP-ADJ-AMT     PIC S9(09)V99.
+083000         10  FILLER                   PIC X(05).
+083100    05  PPS-PC-DATA.
+083200         10  PPS-COT-IND              PIC X(01).
+083300         10  FILLER                   PIC X(20).
+083400
+083500 01  PPS-CBSA                         PIC X(05).
+083600
+083700 01  PPS-PAYMENT-DATA.
+083800     05  PPS-SITE-NEUTRAL-COST-PMT    PIC 9(07)V99.
+083900     05  PPS-SITE-NEUTRAL-IPPS-PMT    PIC 9(07)V99.
+084000     05  PPS-STANDARD-FULL-PMT        PIC 9(07)V99.
+084100     05  PPS-STANDARD-SSO-PMT         PIC 9(07)V99.
+084200
+084300*****************************************************************
+084400*            THESE ARE THE VERSIONS OF THE LTDRV___             *
+084500*           PROGRAMS THAT WILL BE PASSED BACK----               *
+084600*          ASSOCIATED WITH THE BILL BEING PROCESSED             *
+084700*****************************************************************
+084800 01  PRICER-OPT-VERS-SW.
+084900     05  PRICER-OPTION-SW               PIC X(01).
+085000         88  ALL-TABLES-PASSED          VALUE 'A'.
+085100         88  PROV-RECORD-PASSED         VALUE 'P'.
+085200     05  PPS-VERSIONS.
+085300         10  PPDRV-VERSION              PIC X(05).
+085400
+085500**************************************************************
+085600*      PROVIDER SPECIFIC RECORD                              *
+085700**************************************************************
+085800 01  PROV-RECORD-FROM-USER.
+085900     05  PROV-REC1                  PIC X(80).
+086000     05  PROV-REC2                  PIC X(80).
+086100     05  PROV-REC3                  PIC X(80).
+086200
+086300*****************************************************************
+086400*      CORE-BASED STATISTICAL AREA RECORD FROM USER (CBSA)      *
+086500*****************************************************************
+086600 01  CBSAX-TABLE-FROM-USER.
+086700     05  FILLER                     PIC X(32000).
+086800     05  FILLER                     PIC X(30000).
+086900     05  FILLER                     PIC X(30000).
+087000
+087100*****************************************************************
+087200*      IPPS CORE-BASED STATISTICAL AREA RECORD FROM USER (CBSA) *
+087300*****************************************************************
+087400 01  IPPS-CBSAX-TABLE-FROM-USER.
+087500     05  FILLER                     PIC X(32000).
+087600     05  FILLER                     PIC X(30000).
+087700     05  FILLER                     PIC X(30000).
+087800
+087900*****************************************************************
+088000*      METROPOLITAN STATISTICAL AREA RECORD FROM USER (MSA)     *
+088100*****************************************************************
+088200 01  MSAX-TABLE-FROM-USER.
+088300     05  FILLER                     PIC X(32000).
+088400     05  FILLER                     PIC X(30000).
+088500     05  FILLER                     PIC X(30000).
+088600
+088700
+088800
+088900
+089000 PROCEDURE DIVISION  USING BILL-NEW-DATA
+089100                           PPS-DATA-ALL
+089200                           PPS-CBSA
+089300                           PPS-PAYMENT-DATA
+089400                           PRICER-OPT-VERS-SW
+089500                           PROV-RECORD-FROM-USER
+089600                           CBSAX-TABLE-FROM-USER
+089700                           IPPS-CBSAX-TABLE-FROM-USER
+089800                           MSAX-TABLE-FROM-USER.
+089900
+090000
+090100******************************************************************
+090200*                                                                *
+090300*    PROCESSING:                                                 *
+090400*       A. THIS MODULE WILL LOAD ALL TABLES THE FIRST TIME THIS  *
+090500*          SUBROUTINE IS CALLED.                                 *
+090600*       B. THIS MODULE WILL CALL THE LTDRV MODULE.               *
+090700*       C. THE PROVIDER TABLE AND WAGE INDEX MSA AND CBSA        *
+090800*          TABLES WILL BE PASSED TO THE LTDRV PROGRAM.           *
+090900*                                                                *
+091000******************************************************************
+091100
+091200     INITIALIZE PPS-DATA-ALL.
+091300     INITIALIZE PPS-CBSA.
+091400
+091500*----------------------------------------------------------*
+091600*  RTC = 98  --  BILL DISCHARGE DATE BEFORE 10/01/2002     *
+091700*----------------------------------------------------------*
+091800     IF B-DISCHARGE-DATE < 20021001
+091900        MOVE 98 TO PPS-RTC
+092000        GOBACK.
+092100
+092200
+092300******************************************************************
+092400 0000-TEST-PRICER-OPTION-SW.
+092500******************************************************************
+092600
+092700*-----------------------------------------------------*
+092800* DETERMINE WHICH FILES HAVE BEEN PASSED IN AND CALL  *
+092900* THE APPROPRIATE PARAGRAPH                           *
+093000*-----------------------------------------------------*
+093100     IF PRICER-OPTION-SW  = 'A'
+093200        PERFORM 1900-OPTION-SW-A THRU 1900-EXIT
+093300     ELSE
+093400       IF PRICER-OPTION-SW  = 'P'
+093500          PERFORM 2000-OPTION-SW-P THRU 2000-EXIT
+093600       ELSE
+093700          PERFORM 2100-OPTION-SW THRU 2100-EXIT
+093800       END-IF
+093900     END-IF.
+094000
+094100*-----------------------------------------------------*
+094200***  GET THE PROVIDER RECORD IF NEEDED                *
+094300*-----------------------------------------------------*
+094400     IF PROV-RECORD-PASSED OR ALL-TABLES-PASSED
+094500        MOVE 00 TO PPS-RTC
+094600     ELSE
+094700        PERFORM 1200-GET-THIS-PROVIDER THRU 1200-EXIT
+094800     END-IF.
+094900
+095000***  RTC = 59  --  PROVIDER NOT FOUND
+095100     IF PPS-RTC = 59
+095200        GOBACK.
+095300
+095400     IF P-NEW-GEO-LOC-CBSAX = SPACES
+095500        MOVE ZEROS TO P-NEW-GEO-LOC-CBSAX
+095600     END-IF.
+095700
+095800     IF P-NEW-GEO-LOC-MSAX = SPACES
+095900        MOVE ZEROS TO P-NEW-GEO-LOC-MSAX
+096000     END-IF.
+096100
+096200*-----------------------------------------------------*
+096300***  CALL LATEST LTDRVYYV PROGRAM                     *
+096400*-----------------------------------------------------*
+096500     CALL LTDRV212 USING BILL-NEW-DATA
+096600                         PPS-DATA-ALL
+096700                         PPS-CBSA
+096800                         PPS-PAYMENT-DATA
+096900                         PRICER-OPT-VERS-SW
+097000                         PROV-NEW-HOLD
+097100                         CBSA-WI-TABLE
+097200                         IPPS-CBSA-WI-TABLE
+097300                         MSA-WI-TABLE
+097400                         WORK-COUNTERS.
+097500
+097600     GOBACK.
+097700
+097800
+097900******************************************************************
+098000 1200-GET-THIS-PROVIDER.
+098100******************************************************************
+098200*    ON A PROVIDER BREAK:                                        *
+098300*        FIND THE NEW PROVIDER SPECIFIC DATA ELEMENTS            *
+098400*    NOTE: IF BILLS ARE SORTED/BATCHED BY PROVIDER, FEWER        *
+098500*             TABLE SEARCHES WILL BE NECESSARY.                  *
+098600******************************************************************
+098700*    IF B-PROVIDER-NO NOT = P-NEW-PROVIDER-NO
+098800*       SEARCH ALL PROV-ENTRIES
+098900        SET PX1 TO 1.
+099000        SEARCH PROV-ENTRIES
+099100          AT END
+099200             MOVE 59 TO PPS-RTC
+099300             GO TO 1200-EXIT
+099400          WHEN PROV-NO (PX1) = B-PROVIDER-NO
+099500             MOVE 00 TO PPS-RTC
+099600             MOVE PROV-DATA1 (PX1) TO PROV-NEWREC-HOLD1
+099700             SET PD2 TO PX1
+099800             SET PD3 TO PX1
+099900             MOVE PROV-DATA2 (PD2) TO PROV-NEWREC-HOLD2
+100000             MOVE PROV-DATA3 (PD3) TO PROV-NEWREC-HOLD3
+100100             PERFORM 1300-GET-CURR-PROV THRU 1300-EXIT
+100200               VARYING PX1 FROM PX1 BY 1
+100300                 UNTIL PROV-NO (PX1) NOT = B-PROVIDER-NO
+100400                   OR PROV-NO (PX1) = '999999'.
+100500
+100600 1200-EXIT.
+100700      EXIT.
+100800
+100900
+101000******************************************************************
+101100 1300-GET-CURR-PROV.
+101200******************************************************************
+101300     IF  B-DISCHARGE-DATE NOT < PROV-EFF-DATE (PX1)
+101400         MOVE PROV-DATA1 (PX1) TO PROV-NEWREC-HOLD1
+101500         SET PD2 TO PX1
+101600         SET PD3 TO PX1
+101700         MOVE PROV-DATA2 (PD2) TO PROV-NEWREC-HOLD2
+101800         MOVE PROV-DATA3 (PD3) TO PROV-NEWREC-HOLD3
+101900     END-IF.
+102000
+102100
+102200 1300-EXIT.
+102300      EXIT.
+102400
+102500
+102600******************************************************************
+102700 1500-LOAD-ALL-TABLES.
+102800******************************************************************
+102900*    THE FIRST TIME CALLED:                                      *
+103000*        LOAD THE PROVIDER SPECIFIC TABLE SUPPLIED BY            *
+103100*             THE INTERMEDIARY/USER.                             *
+103200*        LOAD MSA, CBSA, & IPPS CBSA TABLES SUPPLIED BY CMS      *
+103300******************************************************************
+103400     MOVE ALL '9' TO PROV-NEW-HOLD.
+103500     MOVE ALL '9' TO PROV-TABLE.
+103600     MOVE ALL '9' TO PROV-DATA-2.
+103700     MOVE ALL '9' TO PROV-DATA-3.
+103800     OPEN INPUT PROV-FILE.
+103900     MOVE 0 TO EOF-SW.
+104000     SET PX1 TO EOF-SW.
+104100
+104200*----------------------------------------------------*
+104300* LOAD THE PROVIDER TABLE                            *
+104400*----------------------------------------------------*
+104500     PERFORM 1600-READ-PROV-FILE THRU 1600-EXIT
+104600             UNTIL EOF-SW = 1.
+104700     CLOSE PROV-FILE.
+104800
+104900*----------------------------------------------------*
+105000* LOAD THE MSA TABLE                                 *
+105100*----------------------------------------------------*
+105200     MOVE HIGH-VALUES TO MSA-WI-TABLE.
+105300     PERFORM 1700-LOAD-MSAX-FILE THRU 1700-EXIT.
+105400
+105500*----------------------------------------------------*
+105600* LOAD THE CBSA TABLE                                *
+105700*----------------------------------------------------*
+105800     MOVE HIGH-VALUES TO CBSA-WI-TABLE.
+105900     PERFORM 1750-LOAD-CBSAX-FILE THRU 1750-EXIT.
+106000
+106100*----------------------------------------------------*
+106200* LOAD THE IPPS CBSA TABLE                           *
+106300*----------------------------------------------------*
+106400     MOVE HIGH-VALUES TO IPPS-CBSA-WI-TABLE.
+106500     PERFORM 1775-LOAD-IPPS-CBSAX-FILE THRU 1775-EXIT.
+106600
+106700
+106800
+106900 1500-EXIT.
+107000      EXIT.
+107100
+107200
+107300******************************************************************
+107400 1600-READ-PROV-FILE.
+107500******************************************************************
+107600     READ PROV-FILE
+107700         AT END
+107800             SET PX1 UP BY 1
+107900             MOVE ALL '9' TO PROV-DATA1 (PX1)
+108000             SET PD2 TO PX1
+108100             SET PD3 TO PX1
+108200             MOVE ALL '9' TO PROV-DATA2 (PD2)
+108300             MOVE ALL '9' TO PROV-DATA3 (PD3)
+108400             MOVE 1 TO EOF-SW
+108500*            DISPLAY 'NUMBER OF PROVIDERS   = ' PROV-CNT
+108600             .
+108700
+108800     IF  EOF-SW = 0
+108900         ADD 1 TO PROV-CNT
+109000         SET PX1 UP BY 1
+109100         MOVE PROV-PART1 TO PROV-DATA1 (PX1)
+109200         SET PD2 TO PX1
+109300         SET PD3 TO PX1
+109400         MOVE PROV-PART2 TO PROV-DATA2 (PD2)
+109500         MOVE PROV-PART3 TO PROV-DATA3 (PD3)
+109600     END-IF.
+109700
+109800 1600-EXIT.
+109900      EXIT.
+110000
+110100
+110200******************************************************************
+110300 1700-LOAD-MSAX-FILE.
+110400******************************************************************
+110500     OPEN INPUT MSAX-FILE.
+110600     MOVE 0 TO EOF-SW.
+110700     SET MU1 TO EOF-SW.
+110800
+110900     PERFORM 1800-READ-MSAX-FILE THRU 1800-EXIT
+111000                      UNTIL EOF-SW = 1.
+111100     CLOSE MSAX-FILE.
+111200
+111300 1700-EXIT.
+111400      EXIT.
+111500
+111600
+111700******************************************************************
+111800 1750-LOAD-CBSAX-FILE.
+111900******************************************************************
+112000     OPEN INPUT CBSAX-FILE.
+112100     MOVE 0 TO EOF-SW.
+112200     SET CU1 TO EOF-SW.
+112300
+112400     PERFORM 1850-READ-CBSAX-FILE THRU 1850-EXIT
+112500                      UNTIL EOF-SW = 1.
+112600     CLOSE CBSAX-FILE.
+112700
+112800 1750-EXIT.
+112900      EXIT.
+113000
+113100
+113200******************************************************************
+113300 1775-LOAD-IPPS-CBSAX-FILE.
+113400******************************************************************
+113500     OPEN INPUT IPPS-CBSAX-FILE.
+113600     MOVE 0 TO EOF-SW.
+113700     SET MA3 TO EOF-SW.
+113800
+113900     PERFORM 1875-READ-IPPS-CBSAX-FILE THRU 1875-EXIT
+114000                      UNTIL EOF-SW = 1.
+114100     CLOSE IPPS-CBSAX-FILE.
+114200
+114300 1775-EXIT.
+114400      EXIT.
+114500
+114600
+114700******************************************************************
+114800 1800-READ-MSAX-FILE.
+114900******************************************************************
+115000     READ MSAX-FILE
+115100         AT END
+115200             MOVE 1 TO EOF-SW
+115300*            DISPLAY 'NUMBER OF MSA RECORDS = ' MSA-CNT
+115400             .
+115500
+115600     IF EOF-SW = 0
+115700        ADD 1 TO MSA-CNT
+115800        SET MU1 UP BY 1
+115900        MOVE X-MSA-X         TO MSAX-MSA         (MU1)
+116000        MOVE XE-DATE-M       TO MSAX-EFF-DATE    (MU1)
+116100        MOVE X-WAGE-INDEX1-M TO MSAX-WAGE-INDEX1 (MU1)
+116200        MOVE X-WAGE-INDEX2-M TO MSAX-WAGE-INDEX2 (MU1)
+116300        MOVE X-WAGE-INDEX3-M TO MSAX-WAGE-INDEX3 (MU1)
+116400     END-IF.
+116500
+116600 1800-EXIT.
+116700      EXIT.
+116800
+116900
+117000******************************************************************
+117100 1850-READ-CBSAX-FILE.
+117200******************************************************************
+117300     READ CBSAX-FILE
+117400         AT END
+117500             MOVE 1 TO EOF-SW
+117600*            DISPLAY 'NUMBER OF CBSA RECORDS = ' CBSA-CNT
+117700             .
+117800
+117900     IF EOF-SW = 0
+118000        ADD 1 TO CBSA-CNT
+118100        SET CU1 UP BY 1
+118200        MOVE X-CBSA-X        TO CBSAX-CBSA        (CU1)
+118300        MOVE XE-DATE-C       TO CBSAX-EFF-DATE    (CU1)
+118400        MOVE X-WAGE-INDEX1-C TO CBSAX-WAGE-INDEX1 (CU1)
+118500        MOVE X-WAGE-INDEX2-C TO CBSAX-WAGE-INDEX2 (CU1)
+118600        MOVE X-WAGE-INDEX3-C TO CBSAX-WAGE-INDEX3 (CU1)
+118700     END-IF.
+118800
+118900 1850-EXIT.
+119000      EXIT.
+119100
+119200
+119300******************************************************************
+119400 1875-READ-IPPS-CBSAX-FILE.
+119500******************************************************************
+119600     READ IPPS-CBSAX-FILE
+119700         AT END
+119800             MOVE 1 TO EOF-SW
+119900*            DISPLAY 'NUMBER OF IP CBSA RECORDS = ' IPPS-CBSA-CNT
+120000             .
+120100
+120200     IF EOF-SW = 0
+120300        ADD 1 TO IPPS-CBSA-CNT
+120400        SET MA3 UP BY 1
+120500        MOVE F-CBSA            TO T-CBSA            (MA3)
+120600        MOVE F-CBSA-SIZE       TO T-CBSA-SIZE       (MA3)
+120700        MOVE F-CBSA-EFF-DATE   TO T-CBSA-EFF-DATE   (MA3)
+120800        MOVE F-CBSA-WAGE-INDX1 TO T-CBSA-WAGE-INDX1 (MA3)
+120900        MOVE F-CBSA-WAGE-INDX2 TO T-CBSA-WAGE-INDX2 (MA3)
+121000        MOVE F-CBSA-WAGE-INDX3 TO T-CBSA-WAGE-INDX3 (MA3)
+121100     END-IF.
+121200
+121300 1875-EXIT.
+121400      EXIT.
+121500
+121600
+121700******************************************************************
+121800 1900-OPTION-SW-A.
+121900******************************************************************
+122000     MOVE ALL '9' TO PROV-NEW-HOLD.
+122100     MOVE PROV-RECORD-FROM-USER TO PROV-NEW-HOLD.
+122200
+122300     IF TABLES-LOADED-SW = 0
+122400
+122500*---------------------------------------------------------------*
+122600*      MOVE THE MSA FILE FROM USER INTO MSA TABLE               *
+122700*---------------------------------------------------------------*
+122800          MOVE HIGH-VALUES                TO MSA-WI-TABLE
+122900          MOVE MSAX-TABLE-FROM-USER       TO MSA-WI-TABLE
+123000
+123100*---------------------------------------------------------------*
+123200*      MOVE THE CBSA FILE FROM USER INTO CBSA TABLE             *
+123300*---------------------------------------------------------------*
+123400          MOVE HIGH-VALUES                TO CBSA-WI-TABLE
+123500          MOVE CBSAX-TABLE-FROM-USER      TO CBSA-WI-TABLE
+123600
+123700*---------------------------------------------------------------*
+123800*      MOVE THE IPPS CBSA FILE FROM USER INTO CBSA TABLE        *
+123900*---------------------------------------------------------------*
+124000          MOVE HIGH-VALUES                TO IPPS-CBSA-WI-TABLE
+124100          MOVE IPPS-CBSAX-TABLE-FROM-USER TO IPPS-CBSA-WI-TABLE
+124200
+124300          MOVE 1 TO TABLES-LOADED-SW
+124400
+124500     END-IF.
+124600
+124700
+124800 1900-EXIT.
+124900      EXIT.
+125000
+125100
+125200******************************************************************
+125300 2000-OPTION-SW-P.
+125400******************************************************************
+125500     MOVE ALL '9' TO PROV-NEW-HOLD.
+125600     MOVE PROV-RECORD-FROM-USER TO PROV-NEW-HOLD.
+125700
+125800     IF TABLES-LOADED-SW = 0
+125900*---------------------------------------------------------*
+126000*      LOAD MSA TABLE                                     *
+126100*---------------------------------------------------------*
+126200          MOVE HIGH-VALUES TO MSA-WI-TABLE
+126300          PERFORM 1700-LOAD-MSAX-FILE THRU 1700-EXIT
+126400
+126500*---------------------------------------------------------*
+126600*      LOAD CBSA TABLE                                    *
+126700*---------------------------------------------------------*
+126800          MOVE HIGH-VALUES TO CBSA-WI-TABLE
+126900          PERFORM 1750-LOAD-CBSAX-FILE THRU 1750-EXIT
+127000
+127100*---------------------------------------------------------*
+127200*      LOAD IPPS CBSA TABLE                               *
+127300*---------------------------------------------------------*
+127400          MOVE HIGH-VALUES TO IPPS-CBSA-WI-TABLE
+127500          PERFORM 1775-LOAD-IPPS-CBSAX-FILE THRU 1775-EXIT
+127600
+127700          MOVE 1 TO TABLES-LOADED-SW
+127800
+127900     END-IF.
+128000
+128100
+128200 2000-EXIT.
+128300      EXIT.
+128400
+128500
+128600******************************************************************
+128700 2100-OPTION-SW.
+128800******************************************************************
+128900     IF  TABLES-LOADED-SW = 0
+129000         PERFORM 1500-LOAD-ALL-TABLES THRU 1500-EXIT
+129100         MOVE 1 TO TABLES-LOADED-SW
+129200     END-IF.
+129300
+129400 2100-EXIT.
+129500      EXIT.
+129600
+129700*********************  END OF PROGRAM   **************************
