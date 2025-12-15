@@ -656,7 +656,7 @@ from io import BytesIO
 import logging
 
 app = FastAPI(
-     title="CodeSpectre",
+    title="CodeSpectre",
     description="Mainframe Application Modernization powered by Generative AI"
 )
 config = load_config()
@@ -664,113 +664,122 @@ config = load_config()
 # logger for this module
 logger = logging.getLogger("mf_modernization.services")
 if not logging.getLogger().handlers:
-    # Basic config only if logging not configured elsewhere
     logging.basicConfig(level=logging.INFO)
 
-origins = ["http://localhost:8000",
+origins = [
+    "http://localhost:8000",
     "http://127.0.0.1:8000",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://localhost:5173",  # ← Add your React dev server
+    "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
-#app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
-    #allow_origins=origins,
     allow_origins=["*"],
     allow_credentials=False,
-    #allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["Content-Disposition"]  # <-- expose so browser can read it
+    expose_headers=["Content-Disposition"]
 )
 
-
+# ===========================
+# PLATFORM-SPECIFIC DIRECTORIES
+# ===========================
 
 UPLOAD_DIR = Path("uploads")
-# Directory where the contents of the zip files will be extracted
-EXTRACTED_CONTENTS_DIR = Path("C:/Extracted_dir")
-# File to persist the path of the last extracted folder
-STATE_FILE_PATH = Path("last_extracted_folder.txt")
+EXTRACTED_CONTENTS_BASE = Path("C:/Extracted_dir")
 
-# Ensure directories exist
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-EXTRACTED_CONTENTS_DIR.mkdir(parents=True, exist_ok=True)
+# Platform-specific directories
+PLATFORM_DIRS = {
+    "mainframe": {
+        "upload": UPLOAD_DIR / "mainframe",
+        "extracted": EXTRACTED_CONTENTS_BASE / "mainframe",
+        "state_file": Path("last_extracted_folder_mainframe.txt")
+    },
+    "sas": {
+        "upload": UPLOAD_DIR / "sas",
+        "extracted": EXTRACTED_CONTENTS_BASE / "sas",
+        "state_file": Path("last_extracted_folder_sas.txt")
+    }
+}
 
-# --- Pydantic Models ---
-# Forward declaration for recursive model
+# Ensure all directories exist
+for platform_config in PLATFORM_DIRS.values():
+    platform_config["upload"].mkdir(parents=True, exist_ok=True)
+    platform_config["extracted"].mkdir(parents=True, exist_ok=True)
+
+# ===========================
+# PYDANTIC MODELS
+# ===========================
+
 class FileSystemEntry(BaseModel):
     name: str
     type: Literal["file", "directory"]
-    # For directories, this will contain a list of child FileSystemEntry objects
     children: Optional[List["FileSystemEntry"]] = None
 
-# Update the forward ref for FileSystemEntry
 FileSystemEntry.update_forward_refs()
 
 class UploadResponse(BaseModel):
     message: str
     extracted_path: Optional[str] = None
     uploaded_filename: str
-
-# --- Pydantic Models ---
-# Forward declaration for recursive model
-class FileSystemEntry(BaseModel):
-    name: str
-    type: Literal["file", "directory"]
-    # For directories, this will contain a list of child FileSystemEntry objects
-    children: Optional[List["FileSystemEntry"]] = None
-
-# Update the forward ref for FileSystemEntry
-FileSystemEntry.update_forward_refs()
+    platform: str
 
 class ContentsResponse(BaseModel):
     viewing_path: Optional[str]
-    # This will now be a list of the top-level FileSystemEntry objects (the root of the tree)
     contents_tree: List[FileSystemEntry]
-    
+    platform: str
+
+# ===========================
+# HELPER FUNCTIONS
+# ===========================
+
+# ✅ Add this helper (one time)
+def _validate_platform(platform: str) -> str:
+    valid_platforms = list(config["platforms"].keys())
+    if platform not in valid_platforms:
+        raise HTTPException(400, f"Invalid platform: {platform}")
+    return platform
 
 
-# --- Helper functions for state persistence ---
-def _save_last_extracted_path(path: Path):
-    """Saves the path of the last extracted folder to a file."""
+def _save_last_extracted_path(path: Path, platform: str):
+    """Saves the path of the last extracted folder to a platform-specific file."""
     try:
-        with open(STATE_FILE_PATH, "w") as f:
+        state_file = PLATFORM_DIRS[platform]["state_file"]
+        with open(state_file, "w") as f:
             f.write(str(path))
+        logger.info(f"Saved {platform} extracted path: {path}")
     except Exception as e:
-        print(f"Error saving state to {STATE_FILE_PATH}: {e}")
+        logger.error(f"Error saving state for {platform}: {e}")
 
-def _load_last_extracted_path() -> Optional[Path]:
-    """Loads the path of the last extracted folder from a file."""
-    if not STATE_FILE_PATH.is_file():
+def _load_last_extracted_path(platform: str) -> Optional[Path]:
+    """Loads the path of the last extracted folder from a platform-specific file."""
+    state_file = PLATFORM_DIRS[platform]["state_file"]
+    if not state_file.is_file():
         return None
     try:
-        with open(STATE_FILE_PATH, "r") as f:
+        with open(state_file, "r") as f:
             path_str = f.read().strip()
             if path_str:
                 return Path(path_str)
             return None
     except Exception as e:
-        print(f"Error loading state from {STATE_FILE_PATH}: {e}")
+        logger.error(f"Error loading state for {platform}: {e}")
         return None
 
-# --- Recursive Helper Function to Build Directory Tree ---
 def _build_directory_tree(base_path: Path) -> List[FileSystemEntry]:
-    """
-    Recursively builds a list of FileSystemEntry objects representing
-    the directory structure starting from base_path.
-    """
+    """Recursively builds directory tree structure"""
     tree: List[FileSystemEntry] = []
     
     if not base_path.is_dir():
-        # If the base_path itself is a file, return it as a single entry
         if base_path.is_file():
             return [FileSystemEntry(name=base_path.name, type="file")]
-        return [] # Path does not exist or is not a file/directory
+        return []
 
     try:
-        for item_name in sorted(os.listdir(base_path)): # Sort for consistent output
+        for item_name in sorted(os.listdir(base_path)):
             item_path = base_path / item_name
             if item_path.is_dir():
                 children = _build_directory_tree(item_path)
@@ -778,113 +787,152 @@ def _build_directory_tree(base_path: Path) -> List[FileSystemEntry]:
             elif item_path.is_file():
                 tree.append(FileSystemEntry(name=item_name, type="file"))
     except Exception as e:
-        print(f"Error building directory tree for {base_path}: {e}")
+        logger.error(f"Error building directory tree for {base_path}: {e}")
         pass
 
     return tree
 
+# ===========================
+# API ENDPOINTS
+# ===========================
 
-
-#### API 1 Upload the Zipped Folder
-
-
-@app.post("/upload_folder_contents/", response_model=UploadResponse, summary="Upload a zipped folder")
-async def upload_folder_contents(folder: UploadFile = File(...)):
+@app.post("/upload_folder_contents/", response_model=UploadResponse, summary="Upload a zipped folder for specific platform")
+async def upload_folder_contents(
+    folder: UploadFile = File(...),
+    platform: str = Form(...)
+):
+    """Upload and extract ZIP folder for mainframe or SAS platform"""
+    
+    # Validate platform
+    platform = _validate_platform(platform)
+    
     file = folder
     if not file.filename.lower().endswith(".zip"):
-        raise HTTPException(status_code=400, detail="Only .zip files are allowed for folder uploads.")
+        raise HTTPException(
+            status_code=400,
+            detail="Only .zip files are allowed for folder uploads."
+        )
 
-    # Create a unique filename for the uploaded zip
+    # Get platform-specific directories
+    upload_dir = PLATFORM_DIRS[platform]["upload"]
+    extracted_base = PLATFORM_DIRS[platform]["extracted"]
+
     uploaded_zip_filename = f"{file.filename}"
-    uploaded_zip_path = UPLOAD_DIR / uploaded_zip_filename
+    uploaded_zip_path = upload_dir / uploaded_zip_filename
 
-    # Create a unique directory for extraction based on the original folder name (if possible)
     extracted_folder_name = f"{Path(file.filename).stem}"
-    extracted_full_path = EXTRACTED_CONTENTS_DIR / extracted_folder_name
+    extracted_full_path = extracted_base / extracted_folder_name
 
     try:
         # 1. Save the uploaded zip file
         with open(uploaded_zip_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
+        
+        logger.info(f"[{platform.upper()}] Saved ZIP to: {uploaded_zip_path}")
 
-        # 2. Extract the contents
+        # 2. Clear previous extraction and extract new
+        if extracted_full_path.exists():
+            shutil.rmtree(extracted_full_path)
+        
+        extracted_full_path.mkdir(parents=True, exist_ok=True)
+        
         with zipfile.ZipFile(uploaded_zip_path, 'r') as zip_ref:
-            # Create the extraction directory
-            extracted_full_path.mkdir(parents=True, exist_ok=True)
             zip_ref.extractall(extracted_full_path)
         
-        # 3. Persist the path of the newly extracted folder
-        _save_last_extracted_path(extracted_full_path)
+        logger.info(f"[{platform.upper()}] Extracted to: {extracted_full_path}")
+        
+        # 3. Persist the path
+        _save_last_extracted_path(extracted_full_path, platform)
 
         return UploadResponse(
-            message=f"Folder '{file.filename}' uploaded successfully.",
+            message=f"{platform.upper()} folder '{file.filename}' uploaded successfully.",
             extracted_path=str(extracted_full_path),
-            uploaded_filename=uploaded_zip_filename
+            uploaded_filename=uploaded_zip_filename,
+            platform=platform
         )
+    
     except zipfile.BadZipFile:
-        # Clean up corrupted zip file
         if uploaded_zip_path.exists():
             uploaded_zip_path.unlink()
         raise HTTPException(status_code=400, detail="Uploaded file is not a valid zip archive.")
+    
     except Exception as e:
-        # Clean up if extraction fails
         if uploaded_zip_path.exists():
             uploaded_zip_path.unlink()
         if extracted_full_path.exists():
             shutil.rmtree(extracted_full_path)
         raise HTTPException(status_code=500, detail=f"Failed to process upload: {e}")
+    
     finally:
-        # Optional: Clean up the uploaded zip file after extraction
+        # Clean up uploaded zip
         if uploaded_zip_path.exists():
             uploaded_zip_path.unlink()
 
-
-
+@app.get("/list_extracted_folder/", response_model=ContentsResponse, summary="List extracted folder contents for specific platform")
+async def list_extracted_folder(platform: str):
+    """List contents of the last uploaded and extracted folder for specific platform"""
     
-@app.get("/list_extracted_folder/", response_model=ContentsResponse, summary="List contents of the last uploaded and extracted folder as a tree structure")
-async def list_extracted_folder():
-
-    # Load the path from the state file
-    _current_extracted_folder = _load_last_extracted_path()
+    # Validate platform
+    platform = _validate_platform(platform)
+    
+    # Load the platform-specific path
+    _current_extracted_folder = _load_last_extracted_path(platform)
 
     if _current_extracted_folder is None:
-        raise HTTPException(status_code=400, detail="No folder has been uploaded and extracted yet. Please use /upload_folder_contents first.")
+        raise HTTPException(
+            status_code=400,
+            detail=f"No {platform} folder has been uploaded yet. Please upload first."
+        )
 
-    # Re-validate the path just in case it was deleted or changed type after being set
+    # Validate path exists
     if not _current_extracted_folder.exists():
-        # If it no longer exists, clear the state file
-        if STATE_FILE_PATH.is_file():
-            STATE_FILE_PATH.unlink()
-        raise HTTPException(status_code=404, detail=f"The previously extracted folder no longer exists: {_current_extracted_folder}")
+        state_file = PLATFORM_DIRS[platform]["state_file"]
+        if state_file.is_file():
+            state_file.unlink()
+        raise HTTPException(
+            status_code=404,
+            detail=f"The previously extracted {platform} folder no longer exists: {_current_extracted_folder}"
+        )
+    
     if not _current_extracted_folder.is_dir():
-        # If it's no longer a directory, clear the state file
-        if STATE_FILE_PATH.is_file():
-            STATE_FILE_PATH.unlink()
-        raise HTTPException(status_code=400, detail=f"The previously extracted path is not a directory: {_current_extracted_folder}")
+        state_file = PLATFORM_DIRS[platform]["state_file"]
+        if state_file.is_file():
+            state_file.unlink()
+        raise HTTPException(
+            status_code=400,
+            detail=f"The previously extracted {platform} path is not a directory: {_current_extracted_folder}"
+        )
 
-
+    # Determine root to list
     top_level_contents = list(_current_extracted_folder.iterdir())
     if len(top_level_contents) == 1 and top_level_contents[0].is_dir():
-        # If there's only one item and it's a directory, assume that's the actual root of the content
         root_to_list = top_level_contents[0]
     else:
-        # Otherwise, the extracted_full_path itself is the root of the content
         root_to_list = _current_extracted_folder
 
     contents_tree = _build_directory_tree(root_to_list)
 
-    return ContentsResponse(viewing_path=str(_current_extracted_folder), contents_tree=contents_tree)
+    return ContentsResponse(
+        viewing_path=str(_current_extracted_folder),
+        contents_tree=contents_tree,
+        platform=platform
+    )
 
- 
-### API 3 to view logical units file
- 
 @app.post("/logical-units/")
-async def get_logical_unit(app_name: Annotated[str,Form()] = "LTCHPPSPricerMFApp2021",
-                           config_file : UploadFile = File(...)) -> Dict[str,Any]:
+async def get_logical_unit(
+    app_name: Annotated[str, Form()] = "LTCHPPSPricerMFApp2021",
+    config_file: UploadFile = File(...),
+    platform: str = Form(...)
+) -> Dict[str, Any]:
+    """Get logical units from config file for specific platform"""
+    
+    # Validate platform
+    platform = _validate_platform(platform)
     
     global current_logical_unit_content
-    if not config_file.filename.endswith((".yml",".yaml")):
-        raise HTTPException(status_code=400, detail = "Only yaml files are allowed..")
+    
+    if not config_file.filename.endswith((".yml", ".yaml")):
+        raise HTTPException(status_code=400, detail="Only yaml files are allowed.")
 
     try:
         contents = await config_file.read()
@@ -893,48 +941,76 @@ async def get_logical_unit(app_name: Annotated[str,Form()] = "LTCHPPSPricerMFApp
         
         current_logical_unit_content = parsed_yaml
         
+        logger.info(f"[{platform.upper()}] Loaded logical units from: {config_file.filename}")
+        
         if isinstance(parsed_yaml, list):
-            programs_list= programs_list_logical_unit(parsed_yaml)
+            programs_list = programs_list_logical_unit(parsed_yaml)
             return {
                 "Application_name": app_name,
-                "filename" : config_file.filename,
+                "platform": platform,
+                "filename": config_file.filename,
                 "file_content": parsed_yaml,
-                "programs_list" : programs_list if programs_list else []
-                }
+                "programs_list": programs_list if programs_list else []
+            }
+        
         return {
             "Application_name": app_name,
-            "filename" : config_file.filename,
+            "platform": platform,
+            "filename": config_file.filename,
             "file_content": parsed_yaml
-            }
-    
-    
-    except yaml.YAMLError as e:
-        raise HTTPException(status_code=422, detail=f" Error parsing YAML file: {e}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error occured..{e}")
-
-
-@app.post("/source-file/")
-async def view_source_code(fileName :str = Form(...)):
-    fileName = fileName.split('-',1)[1] if '-' in fileName else fileName
-    fileName = fileName.replace(" ","")
-    BASE_DIR_DEFAULT=config['source_path']['base_dir_default'] + "\\" +"source_code" +  "\\" + fileName
-    path1 = BASE_DIR_DEFAULT.replace("/","\\")
-    path = path1
-  
-
-    try:
-        with open(path,'r') as file:
-            contents=file.readlines()
-        return {
-            "filename" : fileName,
-            "contents" : contents
         }
     
+    except yaml.YAMLError as e:
+        raise HTTPException(status_code=422, detail=f"Error parsing YAML file: {e}")
     except Exception as e:
-        return JSONResponse(
+        raise HTTPException(status_code=500, detail=f"Unexpected error occurred: {e}")
+
+@app.post("/source-file/")
+async def view_source_code(
+    fileName: str = Form(...),
+    platform: Optional[str] = Form(None)
+):
+    """View source code file, optionally filtered by platform"""
+    
+    # Clean filename
+    fileName = fileName.split('-', 1)[1] if '-' in fileName else fileName
+    fileName = fileName.replace(" ", "")
+    
+    # ✅ Use dynamic source directory if platform provided
+    if platform:
+        platform = _validate_platform(platform)
+        source_dir = Path(config["get_source_dir"](platform))
+    else:
+        # Fallback to default
+        source_dir = Path(config['source_path']['base_dir_default']) / "source_code"
+    
+    file_path = source_dir / fileName
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+            contents = file.readlines()
+        
+        response = {
+            "filename": fileName,
+            "contents": contents
+        }
+        
+        if platform:
+            response["platform"] = platform
+        
+        return response
+    
+    except FileNotFoundError:
+        raise HTTPException(
             status_code=404,
-            content={"status":"error","message": str(e)})
+            content={"status": "error", "message": f"File {fileName} not found"}
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            content={"status": "error", "message": str(e)}
+        )
+
     
 
 
@@ -968,39 +1044,70 @@ async def view_source_code(fileName :str = Form(...)):
 @app.post("/functspec-from-md-files/")
 async def funcspecs_from_md_files(
     specification: str = Form(...),
-    filetype: str = Form("md")    # can be "pdf" or "md"
+    filetype: str = Form("md"),    # can be "pdf" or "md"
+    platform: str = Form(...)
 ):
-    OUTPUT_DIRECTORY = Path("C:\\Extracted_dir\\MFApplication\\LTCHPPSPricerMFApp2021\\SampleOutputs")
-    if not OUTPUT_DIRECTORY.is_dir():
+    """
+    Retrieve functional specification in PDF or markdown format
+    for a specific platform (mainframe, sas, or java)
+    """
+    # ✅ Validate platform
+    platform = _validate_platform(platform)
+    
+    # ✅ Use dynamic config helper instead of hardcoded dict
+    output_dir = Path(config["get_output_dir"](platform))
+    
+    if not output_dir.is_dir():
+        logger.error(f"[{platform.upper()}] Output directory not found: {output_dir}")
         raise HTTPException(
-            status_code=500, detail="Output directory not found on server."
+            status_code=500, 
+            detail=f"{platform.upper()} output directory not found on server."
         )
+    
     # Normalize filename
     filename_base = specification.replace(".pdf", "").replace(".md", "")
-    filename = filename_base + (".pdf" if filetype.lower() == "pdf" else ".md")
-    file_path = OUTPUT_DIRECTORY / filename
+    
+    if filetype.lower() == "pdf":
+        filename = f"{filename_base}.pdf"
+        
+        # ✅ Use dynamic PDF directory helper
+        pdf_dir = Path(config["get_pdf_dir"](platform))
+        file_path = pdf_dir / filename
+        
+        # Fallback to root output directory if pdf not in pdfs subdirectory
+        if not file_path.is_file():
+            file_path = output_dir / filename
+    else:
+        filename = f"{filename_base}.md"
+        file_path = output_dir / filename
 
+    logger.info(f"[{platform.upper()}] Looking for file: {file_path}")
 
     if not file_path.is_file():
-        raise HTTPException(status_code=404, detail=f"File [{filename}] not found.")
+        logger.error(f"[{platform.upper()}] File not found: {file_path}")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"File [{filename}] not found for {platform.upper()} platform."
+        )
 
     if filetype.lower() == "pdf":
+        logger.info(f"[{platform.upper()}] Serving PDF: {filename}")
         return FileResponse(
             path=file_path,
             media_type="application/pdf",
             filename=filename,
-            headers={"Content-Disposition": f"attachment; filename={filename}"},
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
     else:
+        logger.info(f"[{platform.upper()}] Serving markdown: {filename}")
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
-        print(f"Serving markdown from: {file_path}")
+        print(f"[{platform.upper()}] Serving markdown from: {file_path}")
         return Response(
             content=content,
             media_type="text/markdown"
-            # For download as file, add headers (optional):
-            # headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
+
 
 @app.post("/logical_units_lists/")
 async def logical_units_lists(file: UploadFile = File(...)):
@@ -1038,24 +1145,39 @@ async def logical_units_lists(file: UploadFile = File(...)):
 ### API 5 Generate the functional specifications of given logical unit.. 
  
 @app.post("/generate-func-spec/")
-async def generate_functional_spec(app_name: Annotated[str,Form()] = "LTCHPPSPricerMFApp2021",config_file : UploadFile = File(...) ):   
+async def generate_functional_spec(
+    app_name: Annotated[str, Form()] = "LTCHPPSPricerMFApp2021",
+    config_file: UploadFile = File(...),
+    platform: str = Form(...)  # Default to mainframe for backward compatibility
+):
+    """Generate functional specifications for specific platform"""
+    
+    # Validate platform
+    platform = _validate_platform(platform)
+    
     application_name = app_name
-    if not config_file.filename.endswith((".yml",".yaml")):
-        raise HTTPException(status_code=400, detail = "Only yaml files are allowed..")
+    
+    if not config_file.filename.endswith((".yml", ".yaml")):
+        raise HTTPException(status_code=400, detail="Only yaml files are allowed.")
+    
     try:
         contents = await config_file.read()
         file_content_str = contents.decode('utf-8')
-        parsed_yaml = yaml.safe_load(file_content_str)  
+        parsed_yaml = yaml.safe_load(file_content_str)
+        
+        logger.info(f"[{platform.upper()}] Starting functional spec generation")
+    
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error occured..{e}") 
+        raise HTTPException(status_code=500, detail=f"Unexpected error occurred: {e}")
     
     if parsed_yaml is None:
         raise HTTPException(status_code=400, detail="Cannot find logical unit configurations")
-    results = func_spec(application_name,parsed_yaml)
+    
+    # Pass platform to func_spec
+    results = func_spec(application_name, parsed_yaml, platform)
 
     pdf_path = Path(results)  
-    logger.info(f"Generated PDF path: {pdf_path}")
-    print(f"Generated PDF path: {pdf_path}")
+    logger.info(f"[{platform.upper()}] Generated PDF path: {pdf_path}")
 
     if not pdf_path.exists():
         raise HTTPException(status_code=500, detail="PDF generation failed.")
@@ -1064,7 +1186,8 @@ async def generate_functional_spec(app_name: Annotated[str,Form()] = "LTCHPPSPri
         path=pdf_path,
         media_type="application/pdf",
         filename=pdf_path.name
-    )  
+    )
+
     # return {
     #     "Application_name" : application_name,
     #     "file_name" : config_file.filename,
@@ -1121,30 +1244,42 @@ def extract_paragraphs_for_used_files(
 
 @app.post("/paragraph_comparison/")
 def paragraph_comparison(
-    md_data: List[List[str]] = Body(..., embed=True)
+    md_data: List[List[str]] = Body(..., embed=True),
+    platform: str = Body("mainframe")  # ✅ ADD platform with default
 ):
+    """Compare markdown paragraphs with source code (Mainframe only)"""
     try:
-        src_dir = r"C:\Users\YendetiLalith\Documents\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\source_code" # <-- update to match your project source folder
-
-        # Validate incoming md_data shape. Expect list of lists where first element is filename
+        # ✅ Validate platform
+        platform = _validate_platform(platform)
+        
+        # ✅ Only allow mainframe
+        if platform != "mainframe":
+            raise HTTPException(
+                status_code=400,
+                detail="Paragraph comparison is only available for mainframe platform"
+            )
+        
+        # ✅ Use dynamic source directory
+        src_dir = config["get_source_dir"](platform)
+        
+        # Validate incoming md_data shape
         if not isinstance(md_data, list):
-            raise ValueError("md_data must be a list of lists, e.g. [[filename, ...], ...]")
-
+            raise ValueError("md_data must be a list of lists")
+        
         filenames = sorted({
             item[0] for item in md_data
             if isinstance(item, (list, tuple)) and len(item) > 0 and isinstance(item[0], str)
         })
-
+        
         if not filenames:
-            raise ValueError("No filenames could be extracted from md_data. Ensure payload is [[filename, ...], ...]")
-
+            raise ValueError("No filenames could be extracted from md_data")
+        
         cobol_data = build_cobol_2d_array(src_dir, filenames)
         result = compare_md_cobol_2d(md_data, cobol_data)
         return result
+        
     except Exception as e:
-        # Log full traceback for debugging and return a clear error message
         logger.exception("Error in paragraph_comparison endpoint")
-        # Return HTTPException so FastAPI sends a JSON error with status 500 and detail
         raise HTTPException(status_code=500, detail=str(e))
     
 # Add this to your backend main file
@@ -1260,82 +1395,127 @@ def paragraph_comparison(
 # New: Read-only endpoint to return existing validation report without re-running validation
 class ValidationReportResponse(BaseModel):
     record_id: str
-    validation_markdown: str
+    # validation_markdown: str
+    validation_report: str
     file_path: str
+    platform: str
+    status: str
 
 @app.get("/validation-report/", response_model=ValidationReportResponse)
-async def get_validation_report(record_id: str, job_id: Optional[str] = None):
+async def get_validation_report(
+    record_id: str, 
+    platform: str,  # ✅ Required, no default
+    job_id: Optional[str] = None
+):
     """
-    Return the saved validation markdown for a given `record_id`.
-    If `job_id` is not provided, uses the persistent job run id.
-    Falls back to the latest matching report if the exact file is not found.
+    Return saved validation markdown for a given record_id and platform.
+    
+    Example: GET /validation-report/?record_id=L10&platform=sas
     """
     try:
-        base_dir = Path(config['source_path']['base_dir_default'])
+        # ✅ Validate platform (no hardcoded defaults)
+        platform = _validate_platform(platform)
+        
+        logger.info(f"[{platform.upper()}] Fetching validation for: {record_id}")
+        
+        # ✅ Use dynamic platform-specific output directory
+        output_dir = Path(config["get_output_dir"](platform))
+        logger.info(f"[{platform.upper()}] Searching in: {output_dir}")
+        
         if job_id is None:
             job_id = get_job_run_id_persistent()
-        output_dir = base_dir / "output" / "sas_specifications"
-        # candidate = output_dir / f"{job_id}_{record_id}_validation.md"
+        
+        # Try standard filename: {record_id}_validation.md
         candidate = output_dir / f"{record_id}_validation.md"
-        # validation_path = str(Path(config['source_path']['base_dir_default']) / "output" / "sas_specifications" / f"{job_id}_validation.md")
-
+        
         if not candidate.exists():
-            matches = sorted(output_dir.glob(f"*_{record_id}_validation.md"), key=lambda p: p.stat().st_mtime)
+            logger.warning(f"[{platform.upper()}] Standard file not found, searching pattern...")
+            
+            # Fallback: Try job_id prefix pattern
+            matches = sorted(
+                output_dir.glob(f"*_{record_id}_validation.md"), 
+                key=lambda p: p.stat().st_mtime
+            )
+            
             if not matches:
-                raise HTTPException(status_code=404, detail=f"Validation report not found for record_id={record_id}")
+                logger.error(f"[{platform.upper()}] No validation report for {record_id}")
+                raise HTTPException(
+                    status_code=404, 
+                    detail=f"Validation report not found for '{record_id}' in '{platform}'. Searched: {output_dir}"
+                )
+            
             candidate = matches[-1]
+            logger.info(f"[{platform.upper()}] Found fallback: {candidate.name}")
+        
         content = candidate.read_text(encoding="utf-8")
+        logger.info(f"[{platform.upper()}] Loaded: {len(content)} bytes")
         
         return {
+            "status": "success",
             "record_id": record_id,
-            "validation_markdown": content,
+            "platform": platform,
+            "validation_report": content,  # ✅ Renamed from validation_markdown
             "file_path": str(candidate)
         }
         
-        # return ValidationReportResponse(
-        #     record_id=record_id,
-        #     validation_markdown=content,
-        #     file_path=str(candidate),
-        # )
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"[VALIDATION] Error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to load validation report: {str(e)}")
-
 
 #### API 6 consolidated functional spec generation.....
 
 @app.get("/get-func-spec-md/")
-async def get_func_spec_md(filename: str):
-    # Example filename: "L8_FunctionalSpecification.md"
-    # Assuming files saved in: ./output/generated_output_for_reference/
-    # md_file_path = Path(config['source_path']['base_dir_default']) / "output" / "generated_output_for_reference" / filename
-    md_file_path = Path(config['source_path']['base_dir_default']) / "output" / "sas_specifications" / filename
+async def get_func_spec_md(
+    filename: str,
+    platform: str  # ✅ ADD platform parameter
+):
+    """Get functional specification markdown for specific platform"""
+    
+    # ✅ Validate platform
+    platform = _validate_platform(platform)
+    
+    # ✅ Use dynamic output directory
+    output_dir = Path(config["get_output_dir"](platform))
+    md_file_path = output_dir / filename
+    
     if not md_file_path.exists():
         raise HTTPException(
             status_code=404,
-            detail=f"Markdown file '{filename}' not found."
+            detail=f"Markdown file '{filename}' not found for {platform} platform."
         )
+    
     with open(md_file_path, "r", encoding="utf-8") as f:
         content = f.read()
-    # Response as plain text or text/markdown
+    
     return Response(content=content, media_type="text/markdown")
 
 @app.post("/consolidate-functional-spec/")
 async def consolidated_functional_spec(
     app_name: Annotated[str, Form()] = "LTCHPPSPricerMFApp2021",
-    config_file: UploadFile = File(...)
+    config_file: UploadFile = File(...),
+    platform: str = Form(...)  # Required
 ):
+    """Consolidate functional specifications for specific platform"""
+    
+    # Validate platform
+    platform = _validate_platform(platform)
+    
     application_name = app_name
+    
     if not config_file.filename.endswith((".yml", ".yaml")):
-        raise HTTPException(status_code=400, detail="Only yaml files are allowed..")
+        raise HTTPException(status_code=400, detail="Only yaml files are allowed.")
 
     try:
         contents = await config_file.read()
         file_content_str = contents.decode('utf-8')
-        parsed_yaml = yaml.safe_load(file_content_str)  
+        parsed_yaml = yaml.safe_load(file_content_str)
+        
+        logger.info(f"[{platform.upper()}] Starting consolidation")
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error occurred.. {e}") 
+        raise HTTPException(status_code=500, detail=f"Unexpected error occurred: {e}") 
 
     if isinstance(parsed_yaml, list):
         return JSONResponse(
@@ -1346,11 +1526,12 @@ async def consolidated_functional_spec(
             }
         )
 
-    # 🔹 This should return the path to the generated PDF file
-    results = consolidated_func_spec(application_name, parsed_yaml)
+    # Pass platform to consolidated_func_spec
+    results = consolidated_func_spec(application_name, parsed_yaml, platform)
 
     # Ensure results is a path string or Path object
     pdf_path = Path(results)  
+    logger.info(f"[{platform.upper()}] Consolidated PDF path: {pdf_path}")
 
     if not pdf_path.exists():
         raise HTTPException(status_code=500, detail="PDF generation failed.")
@@ -1359,7 +1540,8 @@ async def consolidated_functional_spec(
         path=pdf_path,
         media_type="application/pdf",
         filename=pdf_path.name
-    )  
+    )
+
 
   # return {
     #     "Application_name" : application_name,

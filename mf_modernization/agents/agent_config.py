@@ -14,6 +14,17 @@ def load_config():
             "base_url": os.getenv("OPENAI_BASE_URL"),
             "model": "gpt-4o-mini"
         },
+        # "gemma": {
+        #     "api_key": os.getenv("GEMMA_API_KEY"),
+        #     "base_url": os.getenv("GEMMA_BASE_URL"),
+        #     "model": "gemma12b"
+        # },
+        "gemma12b": {
+            "api_key": None,
+            "base_url": "http://10.144.25.48:8087",
+            "model": "gemma12b",
+            "endpoint": "/message/gemma12b"
+        },
         "ollama": {
             "api_key": os.getenv("OLLAMA_API_KEY"),
             "base_url": os.getenv("OLLAMA_BASE_URL"),

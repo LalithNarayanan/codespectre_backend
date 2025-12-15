@@ -45,30 +45,8 @@
   context_1: additional_context.md
   context_2: The following programs LTCAL032, LTCAL042, LTDRG031 are considered for conversion
   context_3: SampleCSV.csv
-  action: completed
-  remarks: 8th level
-
-- id: L9
-  programs: [01_transaction_data_import, 02_data_quality_cleaning, 03_feature_engineering, 04_rule_based_detection, 05_ml_scoring_model, 06_case_management_output]
-  programs_type: [data_pipeline, data_pipeline, data_pipeline, data_pipeline, data_pipeline, data_pipeline]
-  context_1: additional_context.md
-  # context_1: additional_context_sas.md
-  context_2: The following programs 01_transaction_data_import, 02_data_quality_cleaning, 03_feature_engineering, 04_rule_based_detection, 05_ml_scoring_model, 06_case_management_output are considered for conversion
-  # context_2: fraud_detection_business_rules.md
-  context_3: SampleCSV.csv
-  # context_3: transaction_source_mapping.csv
   action: process
-  remarks: 9th level
-  # remarks: Complete fraud detection and AML transaction monitoring pipeline - All programs work together as integrated system
-
-- id: L10
-  programs: [SASPOC, DUPDATE, DREAD]
-  programs_type: [ data_pipeline, data_pipeline, data_pipeline]
-  context_1: additional_context.md
-  context_2: The following programs SASCODE, DUPDATE, DREAD are considered for conversion
-  context_3: SampleCSV.csv
-  action: completed
-  remarks: 10th level
+  remarks: 8th level
 
 - id: L11
   programs: [PYSK]

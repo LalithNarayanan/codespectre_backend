@@ -58794,3 +58794,403 @@ Enusre all the merged contents are grouped under the section {section}
 Instruction: 
   Don't exclude any details or program.
 ",,Functional Specs...,functional_consolidation,consolidated_functional_specificaitons.md,
+11122025_1,2025-12-11 11:44:41,gemini-2.5-flash-lite,7.988526821136475,8.772986888885498,extract_program_overview,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+Overview of the Program
+List of all the business functions addressed by the Program
+List of all the datasets it creates and consumes, along with the data flow.
+
+Instruction:
+Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2: ```{context_2}```
+Context_3: ```{context_3}```
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_1_L10_extract_program_overview.md,
+11122025_2,2025-12-11 11:47:28,gemini-2.5-flash-lite,7.2536866664886475,7.478983163833618,extract_program_overview,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+Overview of the Program
+List of all the business functions addressed by the Program
+List of all the datasets it creates and consumes, along with the data flow.
+
+Instruction:
+Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2: ```{context_2}```
+Context_3: ```{context_3}```
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_2_L10_extract_program_overview.md,
+11122025_2,2025-12-11 11:50:41,gemini-2.5-flash-lite,192.5622363090515,192.5834448337555,extract_datastep_dataset_analysis,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+All the datasets created and consumed, along with the description
+All input sources (INFILE, SET, MERGE, JOIN) with details
+All output datasets (temporary vs permanent)
+Key variable usage and transformations
+RETAIN statements and variable initialization
+LIBNAME and FILENAME assignments
+
+Instruction:
+Don't exclude any programs.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_2_L10_extract_datastep_dataset_analysis.md,
+11122025_2,2025-12-11 11:50:51,gemini-2.5-flash-lite,10.507824182510376,10.55930209159851,extract_datastep_businesslogic,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+List of DATA macros and steps in the order of how they are executed (per each file as usual, within each file, every macro/step), along with the description explaining its purpose (IMPORTANT)
+Business Rules implemented in DATA steps (IMPORTANT)
+IF/ELSE conditional logic breakdown
+DO loop processing logic
+Key calculations and transformations
+Data validation logic
+
+Instruction:
+Don't exclude any programs. For each rule/logic/step, include relevant information.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_2_L10_extract_datastep_businesslogic.md,
+11122025_2,2025-12-11 11:51:04,gemini-2.5-flash-lite,12.806482553482056,12.823673486709595,extract_procstep_statistical_processing,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+List of all PROC steps (PRINT, MEANS, FREQ, SQL, LOGISTIC, etc.) with descriptions
+Statistical analysis methods used
+Predictive modeling logic (if any)
+Macro variable definitions and usage
+Report generation and formatting logic
+Business application of each PROC
+
+Instruction:
+Don't exclude any programs. Include all PROC statements shown in the SAS code.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_2_L10_extract_procstep_statistical_processing.md,
+11122025_2,2025-12-11 11:51:09,gemini-2.5-flash-lite,4.436805963516235,4.499413728713989,extract_database_fileio,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+Identify all external database connections, file imports/exports, and I/O operations.
+List of PROC SQL queries and database operations
+LIBNAME assignments for database connections
+PROC IMPORT/EXPORT statements with file details
+FILENAME statements and file operations
+Database engine usage (ODBC, OLEDB, etc.)
+
+Instruction:
+Don't exclude any programs. Include code blocks for every SQL/IMPORT/EXPORT operation.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_2_L10_extract_database_fileio.md,
+11122025_2,2025-12-11 11:51:18,gemini-2.5-flash-lite,9.307411432266235,9.327004432678223,extract_step_execution_flow,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the SAS programs given and provide the following details:
+List of SAS programs analyzed
+Sequence in which DATA and PROC steps are executed, along with the description
+Dataset dependencies (which steps depend on outputs from prior steps)
+Macro execution order (if applicable)
+RUN/QUIT statement trigger points
+List of use cases addressed by all the programs together.
+
+Instruction:
+Don't exclude any programs. Summarize the execution sequence.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_2_L10_extract_step_execution_flow.md,
+11122025_2,2025-12-11 11:51:22,gemini-2.5-flash-lite,3.5953147411346436,3.8087806701660156,extract_errorhandling_logging,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+Error checking mechanisms (_ERROR_, FILERC, SQLRC, SYSERR)
+PUT statements for logging
+ABORT and STOP conditions
+Error handling in DATA steps
+Exception handling in PROC SQL (SQLRC, SQLXRC)
+Error output datasets or files
+
+Instruction:
+Don't exclude any programs. Include all error handling logic shown in the SAS code.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_2_L10_extract_errorhandling_logging.md,
+11122025_4,2025-12-11 12:55:23,gemini-2.5-flash-lite,10.540924072265625,10.843616485595703,extract_program_overview,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+Overview of the Program
+List of all the business functions addressed by the Program
+List of all the datasets it creates and consumes, along with the data flow.
+
+Instruction:
+Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2: ```{context_2}```
+Context_3: ```{context_3}```
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_program_overview.md,
+11122025_4,2025-12-11 12:55:33,gemini-2.5-flash-lite,10.748558521270752,10.793097496032715,extract_datastep_dataset_analysis,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+All the datasets created and consumed, along with the description
+All input sources (INFILE, SET, MERGE, JOIN) with details
+All output datasets (temporary vs permanent)
+Key variable usage and transformations
+RETAIN statements and variable initialization
+LIBNAME and FILENAME assignments
+
+Instruction:
+Don't exclude any programs.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_datastep_dataset_analysis.md,
+11122025_4,2025-12-11 12:55:47,gemini-2.5-flash-lite,13.110027551651001,13.189870595932007,extract_datastep_businesslogic,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+List of DATA macros and steps in the order of how they are executed (per each file as usual, within each file, every macro/step), along with the description explaining its purpose (IMPORTANT)
+Business Rules implemented in DATA steps (IMPORTANT)
+IF/ELSE conditional logic breakdown
+DO loop processing logic
+Key calculations and transformations
+Data validation logic
+
+Instruction:
+Don't exclude any programs. For each rule/logic/step, include relevant information.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_datastep_businesslogic.md,
+11122025_4,2025-12-11 12:55:58,gemini-2.5-flash-lite,10.785985231399536,10.922606706619263,extract_procstep_statistical_processing,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+List of all PROC steps (PRINT, MEANS, FREQ, SQL, LOGISTIC, etc.) with descriptions
+Statistical analysis methods used
+Predictive modeling logic (if any)
+Macro variable definitions and usage
+Report generation and formatting logic
+Business application of each PROC
+
+Instruction:
+Don't exclude any programs. Include all PROC statements shown in the SAS code.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_procstep_statistical_processing.md,
+11122025_4,2025-12-11 12:56:00,gemini-2.5-flash-lite,2.3480749130249023,2.4328718185424805,extract_database_fileio,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+Identify all external database connections, file imports/exports, and I/O operations.
+List of PROC SQL queries and database operations
+LIBNAME assignments for database connections
+PROC IMPORT/EXPORT statements with file details
+FILENAME statements and file operations
+Database engine usage (ODBC, OLEDB, etc.)
+
+Instruction:
+Don't exclude any programs. Include code blocks for every SQL/IMPORT/EXPORT operation.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_database_fileio.md,
+11122025_4,2025-12-11 12:56:12,gemini-2.5-flash-lite,11.377458810806274,11.442600965499878,extract_step_execution_flow,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the SAS programs given and provide the following details:
+List of SAS programs analyzed
+Sequence in which DATA and PROC steps are executed, along with the description
+Dataset dependencies (which steps depend on outputs from prior steps)
+Macro execution order (if applicable)
+RUN/QUIT statement trigger points
+List of use cases addressed by all the programs together.
+
+Instruction:
+Don't exclude any programs. Summarize the execution sequence.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_step_execution_flow.md,
+11122025_4,2025-12-11 12:56:19,gemini-2.5-flash-lite,7.010154724121094,7.028539419174194,extract_errorhandling_logging,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+Error checking mechanisms (_ERROR_, FILERC, SQLRC, SYSERR)
+PUT statements for logging
+ABORT and STOP conditions
+Error handling in DATA steps
+Exception handling in PROC SQL (SQLRC, SQLXRC)
+Error output datasets or files
+
+Instruction:
+Don't exclude any programs. Include all error handling logic shown in the SAS code.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_errorhandling_logging.md,
+11122025_4,2025-12-11 12:56:34,gemini-2.5-flash-lite,12.989054918289185,13.072579145431519,extract_program_overview,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+Overview of the Program
+List of all the business functions addressed by the Program
+List of all the datasets it creates and consumes, along with the data flow.
+
+Instruction:
+Don't exclude any programs.
+
+Context_1: ```{context_1}```
+Context_2: ```{context_2}```
+Context_3: ```{context_3}```
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_program_overview.md,
+11122025_4,2025-12-11 12:56:52,gemini-2.5-flash-lite,17.32427477836609,17.433889150619507,extract_datastep_dataset_analysis,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+All the datasets created and consumed, along with the description
+All input sources (INFILE, SET, MERGE, JOIN) with details
+All output datasets (temporary vs permanent)
+Key variable usage and transformations
+RETAIN statements and variable initialization
+LIBNAME and FILENAME assignments
+
+Instruction:
+Don't exclude any programs.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_datastep_dataset_analysis.md,
+11122025_4,2025-12-11 12:57:00,gemini-2.5-flash-lite,8.534823179244995,8.577534437179565,extract_datastep_businesslogic,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+List of DATA macros and steps in the order of how they are executed (per each file as usual, within each file, every macro/step), along with the description explaining its purpose (IMPORTANT)
+Business Rules implemented in DATA steps (IMPORTANT)
+IF/ELSE conditional logic breakdown
+DO loop processing logic
+Key calculations and transformations
+Data validation logic
+
+Instruction:
+Don't exclude any programs. For each rule/logic/step, include relevant information.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_datastep_businesslogic.md,
+11122025_4,2025-12-11 12:57:14,gemini-2.5-flash-lite,13.291213989257812,13.363230228424072,extract_procstep_statistical_processing,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+List of all PROC steps (PRINT, MEANS, FREQ, SQL, LOGISTIC, etc.) with descriptions
+Statistical analysis methods used
+Predictive modeling logic (if any)
+Macro variable definitions and usage
+Report generation and formatting logic
+Business application of each PROC
+
+Instruction:
+Don't exclude any programs. Include all PROC statements shown in the SAS code.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_procstep_statistical_processing.md,
+11122025_4,2025-12-11 12:57:21,gemini-2.5-flash-lite,7.232811212539673,7.314761638641357,extract_database_fileio,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+Identify all external database connections, file imports/exports, and I/O operations.
+List of PROC SQL queries and database operations
+LIBNAME assignments for database connections
+PROC IMPORT/EXPORT statements with file details
+FILENAME statements and file operations
+Database engine usage (ODBC, OLEDB, etc.)
+
+Instruction:
+Don't exclude any programs. Include code blocks for every SQL/IMPORT/EXPORT operation.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_database_fileio.md,
+11122025_4,2025-12-11 12:57:39,gemini-2.5-flash-lite,18.46114683151245,18.511512517929077,extract_step_execution_flow,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the SAS programs given and provide the following details:
+List of SAS programs analyzed
+Sequence in which DATA and PROC steps are executed, along with the description
+Dataset dependencies (which steps depend on outputs from prior steps)
+Macro execution order (if applicable)
+RUN/QUIT statement trigger points
+List of use cases addressed by all the programs together.
+
+Instruction:
+Don't exclude any programs. Summarize the execution sequence.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_step_execution_flow.md,
+11122025_4,2025-12-11 12:57:49,gemini-2.5-flash-lite,9.032261610031128,9.064021110534668,extract_errorhandling_logging,"For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
+    Follow same and best practice(s) in markdown formatting.
+    Dont include tables, nor code snippets unless specifically requested.
+
+Analyze all the given SAS programs and provide the following detail for each of the Programs:
+Error checking mechanisms (_ERROR_, FILERC, SQLRC, SYSERR)
+PUT statements for logging
+ABORT and STOP conditions
+Error handling in DATA steps
+Exception handling in PROC SQL (SQLRC, SQLXRC)
+Error output datasets or files
+
+Instruction:
+Don't exclude any programs. Include all error handling logic shown in the SAS code.
+
+SAS Program:
+-------------------------------------------
+```{code}```",L10,"['SASPOC', 'DUPDATE', 'DREAD']",func_spec,.\output\11122025_4_L10_extract_errorhandling_logging.md,

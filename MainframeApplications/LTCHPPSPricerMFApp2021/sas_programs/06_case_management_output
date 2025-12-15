@@ -1,0 +1,253 @@
+/*******************************************************************************
+* Program: 06_case_management_output.sas
+* Purpose: Generate prioritized case management queue and reports
+* Author: Generated Example
+* Date: 2025-12-01
+*******************************************************************************/
+
+%let input_lib = WORK;
+%let output_lib = WORK;
+%let report_path = /output/reports;
+
+/* MACRO 1: Create investigation queue */
+%macro CREATE_INVESTIGATION_QUEUE(inds=, outds=, priority_threshold=50);
+
+    DATA &outds;
+        SET &inds;
+
+        /* Calculate final priority score */
+        priority_score = combined_score;
+
+        /* Add urgency factors */
+        if amount > 10000 then priority_score = priority_score + 10;
+        if is_international = 1 AND amount > 5000 then priority_score = priority_score + 5;
+        if txn_count_7d > 15 then priority_score = priority_score + 5;
+
+        /* Cap at 100 */
+        if priority_score > 100 then priority_score = 100;
+
+        /* Assign case priority */
+        length case_priority $10;
+        if priority_score >= 80 then case_priority = 'URGENT';
+        else if priority_score >= 60 then case_priority = 'HIGH';
+        else if priority_score >= 40 then case_priority = 'MEDIUM';
+        else case_priority = 'LOW';
+
+        /* Filter for investigation queue */
+        if priority_score >= &priority_threshold;
+
+        /* Generate case ID */
+        length case_id $20;
+        case_id = CATS('CASE_', PUT(_N_, Z8.));
+
+        /* Create investigation reason */
+        length investigation_reason $500;
+        investigation_reason = CATX(' | ',
+            'ML Score: ' || PUT(ml_fraud_score, 5.1),
+            'Rule Score: ' || PUT(rule_score, 3.),
+            'Rules: ' || rule_triggered
+        );
+
+        /* Assign to investigator (round-robin simulation) */
+        investigator_id = MOD(_N_, 10) + 1;  /* 10 investigators */
+
+        /* Set case status */
+        case_status = 'PENDING_REVIEW';
+
+        /* Add timestamp */
+        case_created_datetime = DATETIME();
+        FORMAT case_created_datetime DATETIME20.;
+
+    RUN;
+
+    /* Sort by priority */
+    PROC SORT DATA=&outds;
+        BY DESCENDING priority_score case_priority transaction_date_sas;
+    RUN;
+
+    /* Log queue statistics */
+    PROC SQL NOPRINT;
+        SELECT COUNT(*) INTO :queue_count FROM &outds;
+        SELECT COUNT(DISTINCT customer_id) INTO :unique_customers FROM &outds;
+    QUIT;
+
+    %PUT NOTE: Created investigation queue with &queue_count cases;
+    %PUT NOTE: Affecting &unique_customers unique customers;
+
+%mend CREATE_INVESTIGATION_QUEUE;
+
+/* MACRO 2: Generate daily summary report */
+%macro GENERATE_DAILY_SUMMARY(inds=);
+
+    /* Overall statistics */
+    TITLE 'Daily Fraud Detection Summary';
+    TITLE2 "Report Date: &SYSDATE9";
+
+    PROC SQL;
+        CREATE TABLE daily_summary AS
+        SELECT 
+            COUNT(*) AS total_transactions,
+            SUM(ml_alert) AS ml_alerts,
+            SUM(is_suspicious) AS rule_alerts,
+            SUM(CASE WHEN ml_alert=1 OR is_suspicious=1 THEN 1 ELSE 0 END) AS total_alerts,
+            SUM(amount) AS total_amount FORMAT=DOLLAR20.2,
+            SUM(CASE WHEN ml_alert=1 OR is_suspicious=1 THEN amount ELSE 0 END) 
+                AS flagged_amount FORMAT=DOLLAR20.2,
+            CALCULATED total_alerts / CALCULATED total_transactions * 100 
+                AS alert_rate FORMAT=5.2
+        FROM &inds;
+    QUIT;
+
+    PROC PRINT DATA=daily_summary NOOBS;
+        TITLE 'Overall Statistics';
+    RUN;
+
+    /* Alerts by priority */
+    PROC FREQ DATA=&inds;
+        TABLES case_priority / NOCUM;
+        TITLE 'Cases by Priority Level';
+    RUN;
+
+    /* Top customers by alert count */
+    PROC SQL OUTOBS=20;
+        CREATE TABLE top_customers AS
+        SELECT 
+            customer_id,
+            COUNT(*) AS alert_count,
+            SUM(amount) AS total_flagged_amount FORMAT=DOLLAR15.2,
+            AVG(combined_score) AS avg_score FORMAT=5.1,
+            MAX(case_priority) AS highest_priority
+        FROM &inds
+        WHERE ml_alert = 1 OR is_suspicious = 1
+        GROUP BY customer_id
+        ORDER BY alert_count DESC, total_flagged_amount DESC;
+    QUIT;
+
+    PROC PRINT DATA=top_customers NOOBS;
+        TITLE 'Top 20 Customers by Alert Count';
+    RUN;
+
+    /* Trend by hour */
+    PROC SQL;
+        CREATE TABLE hourly_trend AS
+        SELECT 
+            txn_hour,
+            COUNT(*) AS transaction_count,
+            SUM(CASE WHEN ml_alert=1 OR is_suspicious=1 THEN 1 ELSE 0 END) AS alert_count,
+            CALCULATED alert_count / CALCULATED transaction_count * 100 
+                AS alert_rate FORMAT=5.2
+        FROM &inds
+        GROUP BY txn_hour
+        ORDER BY txn_hour;
+    QUIT;
+
+    PROC PRINT DATA=hourly_trend NOOBS;
+        TITLE 'Hourly Alert Trend';
+    RUN;
+
+%mend GENERATE_DAILY_SUMMARY;
+
+/* MACRO 3: Export investigation queue */
+%macro EXPORT_INVESTIGATION_QUEUE(inds=, filepath=);
+
+    /* Select key fields for investigators */
+    DATA export_data;
+        SET &inds;
+        KEEP case_id transaction_id customer_id transaction_date_sas transaction_time
+             amount merchant_name_clean country_code_clean
+             priority_score case_priority ml_fraud_score rule_score
+             investigation_reason case_status investigator_id
+             case_created_datetime;
+    RUN;
+
+    /* Export to CSV */
+    PROC EXPORT 
+        DATA=export_data
+        OUTFILE="&filepath/investigation_queue_&SYSDATE9..csv"
+        DBMS=CSV
+        REPLACE;
+    RUN;
+
+    %PUT NOTE: Exported investigation queue to &filepath;
+
+%mend EXPORT_INVESTIGATION_QUEUE;
+
+/* MACRO 4: Generate SAR report data */
+%macro GENERATE_SAR_DATA(inds=, outds=, sar_threshold=80);
+
+    /* Filter high-priority cases for SAR filing */
+    DATA &outds;
+        SET &inds;
+        WHERE priority_score >= &sar_threshold;
+
+        /* Add SAR-specific fields */
+        length sar_type $50;
+        sar_type = 'Suspicious Transaction - Fraud Indicators';
+
+        /* Create narrative */
+        length sar_narrative $1000;
+        sar_narrative = CATX('. ',
+            'Transaction flagged by automated fraud detection system',
+            'ML Model Score: ' || PUT(ml_fraud_score, 5.1) || '/100',
+            'Rule-Based Score: ' || PUT(rule_score, 3.) || '/100',
+            'Triggered Rules: ' || rule_triggered,
+            'Transaction Amount: $' || PUT(amount, COMMA12.2),
+            'Customer Transaction Count (7d): ' || PUT(txn_count_7d, 3.)
+        );
+
+        /* SAR filing requirement */
+        requires_sar = 1;
+        sar_deadline_date = INTNX('DAY', case_created_datetime, 30);
+        FORMAT sar_deadline_date DATE9.;
+
+    RUN;
+
+    /* Sort by deadline */
+    PROC SORT DATA=&outds;
+        BY sar_deadline_date DESCENDING priority_score;
+    RUN;
+
+    /* Count SAR cases */
+    PROC SQL NOPRINT;
+        SELECT COUNT(*) INTO :sar_count FROM &outds;
+    QUIT;
+
+    %PUT NOTE: Generated &sar_count SAR report cases;
+
+%mend GENERATE_SAR_DATA;
+
+/* Execute case management workflow */
+%CREATE_INVESTIGATION_QUEUE(
+    inds=&input_lib..transactions_combined_score,
+    outds=&output_lib..investigation_queue,
+    priority_threshold=50
+);
+
+%GENERATE_DAILY_SUMMARY(
+    inds=&output_lib..investigation_queue
+);
+
+%EXPORT_INVESTIGATION_QUEUE(
+    inds=&output_lib..investigation_queue,
+    filepath=&report_path
+);
+
+%GENERATE_SAR_DATA(
+    inds=&output_lib..investigation_queue,
+    outds=&output_lib..sar_cases,
+    sar_threshold=80
+);
+
+/* Final output - Investigation Queue */
+PROC PRINT DATA=&output_lib..investigation_queue(OBS=50);
+    VAR case_id transaction_id customer_id amount priority_score case_priority
+        ml_fraud_score rule_score case_status investigator_id;
+    TITLE 'Investigation Queue - Top 50 Cases';
+    TITLE2 'Ready for Investigator Assignment';
+RUN;
+
+/* SAR Cases requiring filing */
+PROC PRINT DATA=&output_lib..sar_cases(OBS=20);
+    VAR case_id customer_id amount priority_score sar_deadline_date;
+    TITLE 'SAR Cases Requiring Filing';
+RUN;

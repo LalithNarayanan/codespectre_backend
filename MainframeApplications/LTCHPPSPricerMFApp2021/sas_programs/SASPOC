@@ -1,0 +1,59 @@
+/*******************************************************************************
+** PROGRAM:       Program_Name.sas
+** AUTHOR:        [Your Name]
+** CREATED:       [Date created]
+**
+** DESCRIPTION:   
+** This program performs [brief, high-level function of the program]. 
+**
+** FUNCTION:
+** [Detailed description of the program's logic and goal. 
+** e.g., "Reads raw data from the 'sasuser.raw_data' table, cleans missing 
+** values, calculates BMI, and saves the final output to 'work.final_output'."]
+**
+** INPUT:
+** - Library: sasuser 
+** - Table:   raw_data (contains patient_id, height_cm, weight_kg, date_visit)
+** - Parameters: &start_date, &end_date (macro variables for filtering)
+**
+** OUTPUT:
+** - Library: work
+** - Table:   final_output (contains patient_id, bmi, date_visit, status)
+** - Log messages: Includes data quality checks for out-of-range values.
+**
+** HISTORY:
+** DATE         AUTHOR        DESCRIPTION OF CHANGE
+** -------------------------------------------------------------------------
+** 2025-11-26   [Your Name]   Initial version created with basic data cleaning.
+** 2025-12-01   [Collaborator] Added BMI calculation and 'status' variable logic.
+** 2025-12-15   [Your Name]   Optimized for large datasets using specific data step techniques.
+*******************************************************************************/
+
+ %let SYSPARM1 = %UPCASE(%SCAN(&SYSPARM,1,"_"))
+ %let SYSPARM2 = %UPCASE(%SCAN(&SYSPARM,2,"_"))
+ %let gdate = &sysdate9.;
+ % let PROGRAM = SASPOC;
+ %let PROJECT = POC;
+ %let FREQ = D;
+ 
+ %include "MYLIB.&SYSPARM1..META(&FREQ.INI)"
+
+ %INITIALIZE;
+
+ %let PREVYEAR = %eval(%substr(&DATE,7,4)-1);
+ %let YEAR =%substr(&DATE,7,4);
+
+ options mprint mlogic symbolgen;
+
+ %macro call;
+
+   %ALLOCALIB(inputlib);
+  
+   %DREAD(OUT_DAT = POCOUT);
+ 
+   %DUPDATE(prev_ds=OUTPUTP.customer_data, new_ds=OUTPUT.customer_data, out_ds=FINAL.customer_data);
+  
+   %DALLOCLIB(inputlib);
+%mend;
+
+%call;

@@ -1,0 +1,176 @@
+/*******************************************************************************
+* Program: 04_rule_based_detection.sas
+* Purpose: Apply rule-based fraud detection logic
+* Author: Generated Example
+* Date: 2025-12-01
+*******************************************************************************/
+
+%let input_lib = WORK;
+%let output_lib = WORK;
+
+/* MACRO 1: Define fraud detection rules */
+%macro APPLY_FRAUD_RULES(inds=, outds=);
+
+    DATA &outds;
+        SET &inds;
+
+        /* Initialize rule flags and scores */
+        length rule_triggered $200;
+        rule_triggered = '';
+        rule_score = 0;
+
+        /* RULE 1: High velocity (>10 transactions in 7 days) */
+        if txn_count_7d > 10 then do;
+            rule_triggered = CATX(', ', rule_triggered, 'HIGH_VELOCITY');
+            rule_score = rule_score + 25;
+        end;
+
+        /* RULE 2: Large amount deviation (>3 standard deviations) */
+        if ABS(amount_zscore) > 3 then do;
+            rule_triggered = CATX(', ', rule_triggered, 'AMOUNT_DEVIATION');
+            rule_score = rule_score + 30;
+        end;
+
+        /* RULE 3: High amount (>$5000) */
+        if amount > 5000 then do;
+            rule_triggered = CATX(', ', rule_triggered, 'HIGH_AMOUNT');
+            rule_score = rule_score + 20;
+        end;
+
+        /* RULE 4: Unusual hour transaction */
+        if is_unusual_hour = 1 then do;
+            rule_triggered = CATX(', ', rule_triggered, 'UNUSUAL_HOUR');
+            rule_score = rule_score + 15;
+        end;
+
+        /* RULE 5: International transaction */
+        if is_international = 1 then do;
+            rule_triggered = CATX(', ', rule_triggered, 'INTERNATIONAL');
+            rule_score = rule_score + 10;
+        end;
+
+        /* RULE 6: Rare country */
+        if is_rare_country = 1 then do;
+            rule_triggered = CATX(', ', rule_triggered, 'RARE_COUNTRY');
+            rule_score = rule_score + 15;
+        end;
+
+        /* RULE 7: Multiple transactions in short time */
+        if days_since_last_txn < 0.042 then do;  /* Less than 1 hour */
+            rule_triggered = CATX(', ', rule_triggered, 'RAPID_SUCCESSION');
+            rule_score = rule_score + 25;
+        end;
+
+        /* RULE 8: Round amount (potentially suspicious) */
+        if MOD(amount, 100) = 0 AND amount >= 1000 then do;
+            rule_triggered = CATX(', ', rule_triggered, 'ROUND_AMOUNT');
+            rule_score = rule_score + 10;
+        end;
+
+        /* Calculate final rule-based risk level */
+        length rule_risk_level $10;
+        if rule_score >= 75 then rule_risk_level = 'CRITICAL';
+        else if rule_score >= 50 then rule_risk_level = 'HIGH';
+        else if rule_score >= 25 then rule_risk_level = 'MEDIUM';
+        else rule_risk_level = 'LOW';
+
+        /* Flag for investigation */
+        is_suspicious = (rule_score >= 50);
+
+    RUN;
+
+    %PUT NOTE: Applied fraud detection rules;
+
+%mend APPLY_FRAUD_RULES;
+
+/* MACRO 2: Generate rule-based alerts */
+%macro GENERATE_RULE_ALERTS(inds=, outds=, threshold=50);
+
+    /* Filter suspicious transactions */
+    DATA &outds;
+        SET &inds;
+        WHERE rule_score >= &threshold;
+    RUN;
+
+    /* Sort by risk score */
+    PROC SORT DATA=&outds;
+        BY DESCENDING rule_score transaction_date_sas;
+    RUN;
+
+    /* Count alerts by risk level */
+    PROC FREQ DATA=&outds;
+        TABLES rule_risk_level / NOCUM;
+        TITLE "Rule-Based Alerts by Risk Level (Score >= &threshold)";
+    RUN;
+
+    /* Log alert counts */
+    PROC SQL NOPRINT;
+        SELECT COUNT(*) INTO :alert_count FROM &outds;
+        SELECT COUNT(*) INTO :total_count FROM &inds;
+    QUIT;
+
+    %let alert_rate = %SYSEVALF((&alert_count / &total_count) * 100);
+    %PUT NOTE: Generated &alert_count alerts (&alert_rate% of transactions);
+
+%mend GENERATE_RULE_ALERTS;
+
+/* MACRO 3: Create rule summary report */
+%macro RULE_SUMMARY_REPORT(inds=);
+
+    /* Count by rule */
+    PROC SQL;
+        CREATE TABLE rule_summary AS
+        SELECT 
+            'HIGH_VELOCITY' AS rule_name,
+            SUM(CASE WHEN INDEX(rule_triggered, 'HIGH_VELOCITY') > 0 THEN 1 ELSE 0 END) AS trigger_count
+        FROM &inds
+        UNION ALL
+        SELECT 
+            'AMOUNT_DEVIATION' AS rule_name,
+            SUM(CASE WHEN INDEX(rule_triggered, 'AMOUNT_DEVIATION') > 0 THEN 1 ELSE 0 END)
+        FROM &inds
+        UNION ALL
+        SELECT 
+            'HIGH_AMOUNT' AS rule_name,
+            SUM(CASE WHEN INDEX(rule_triggered, 'HIGH_AMOUNT') > 0 THEN 1 ELSE 0 END)
+        FROM &inds
+        UNION ALL
+        SELECT 
+            'UNUSUAL_HOUR' AS rule_name,
+            SUM(CASE WHEN INDEX(rule_triggered, 'UNUSUAL_HOUR') > 0 THEN 1 ELSE 0 END)
+        FROM &inds
+        UNION ALL
+        SELECT 
+            'INTERNATIONAL' AS rule_name,
+            SUM(CASE WHEN INDEX(rule_triggered, 'INTERNATIONAL') > 0 THEN 1 ELSE 0 END)
+        FROM &inds;
+    QUIT;
+
+    /* Display summary */
+    PROC PRINT DATA=rule_summary;
+        TITLE 'Fraud Rule Trigger Summary';
+    RUN;
+
+%mend RULE_SUMMARY_REPORT;
+
+/* Execute rule-based detection */
+%APPLY_FRAUD_RULES(
+    inds=&input_lib..transactions_engineered,
+    outds=&output_lib..transactions_with_rules
+);
+
+%GENERATE_RULE_ALERTS(
+    inds=&output_lib..transactions_with_rules,
+    outds=&output_lib..rule_based_alerts,
+    threshold=50
+);
+
+%RULE_SUMMARY_REPORT(
+    inds=&output_lib..transactions_with_rules
+);
+
+/* Display top alerts */
+PROC PRINT DATA=&output_lib..rule_based_alerts(OBS=20);
+    VAR transaction_id customer_id amount rule_score rule_risk_level rule_triggered;
+    TITLE 'Top 20 Rule-Based Fraud Alerts';
+RUN;

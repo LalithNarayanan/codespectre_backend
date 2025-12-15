@@ -1,0 +1,181 @@
+/*******************************************************************************
+* Program: 05_ml_scoring_model.sas
+* Purpose: Apply ML model for fraud probability scoring
+* Author: Generated Example
+* Date: 2025-12-01
+*******************************************************************************/
+
+%let input_lib = WORK;
+%let output_lib = WORK;
+
+/* MACRO 1: Prepare data for ML scoring */
+%macro PREPARE_ML_DATA(inds=, outds=);
+
+    DATA &outds;
+        SET &inds;
+
+        /* Create binary flags for categorical variables */
+        is_high_amount = (amount > 1000);
+        is_very_high_amount = (amount > 5000);
+
+        /* Normalize continuous variables (simple min-max scaling) */
+        /* In production, use actual min/max from training data */
+        amount_normalized = amount / 10000;  /* Assuming max ~$10k */
+        txn_count_normalized = txn_count_7d / 20;  /* Assuming max ~20 */
+
+        /* Handle missing values */
+        if missing(amount_zscore) then amount_zscore = 0;
+        if missing(days_since_last_txn) then days_since_last_txn = 999;
+
+        /* Create interaction features */
+        amount_x_velocity = amount_normalized * txn_count_normalized;
+        amount_x_deviation = amount_normalized * ABS(amount_zscore);
+
+    RUN;
+
+    %PUT NOTE: Prepared data for ML scoring;
+
+%mend PREPARE_ML_DATA;
+
+/* MACRO 2: Calculate ML fraud score (simulated logistic regression) */
+%macro CALCULATE_ML_SCORE(inds=, outds=);
+
+    DATA &outds;
+        SET &inds;
+
+        /* Simulated logistic regression coefficients */
+        /* In production, these would come from a trained model */
+
+        /* Calculate logit score */
+        logit_score = 
+            -2.5                                    /* Intercept */
+            + 0.8 * amount_normalized               /* Amount effect */
+            + 0.6 * txn_count_normalized            /* Velocity effect */
+            + 0.4 * ABS(amount_zscore)              /* Deviation effect */
+            + 0.5 * is_unusual_hour                 /* Time effect */
+            + 0.3 * is_international                /* Location effect */
+            + 0.7 * amount_x_velocity               /* Interaction 1 */
+            + 0.5 * amount_x_deviation              /* Interaction 2 */
+            - 0.2 * customer_txn_count / 100;       /* Customer history */
+
+        /* Convert logit to probability using sigmoid function */
+        ml_fraud_probability = 1 / (1 + EXP(-logit_score));
+
+        /* Convert probability to score (0-100) */
+        ml_fraud_score = ml_fraud_probability * 100;
+
+        /* Assign ML risk band */
+        length ml_risk_band $10;
+        if ml_fraud_score >= 80 then ml_risk_band = 'CRITICAL';
+        else if ml_fraud_score >= 60 then ml_risk_band = 'HIGH';
+        else if ml_fraud_score >= 40 then ml_risk_band = 'MEDIUM';
+        else if ml_fraud_score >= 20 then ml_risk_band = 'LOW';
+        else ml_risk_band = 'VERY_LOW';
+
+        /* Create ML alert flag */
+        ml_alert = (ml_fraud_score >= 60);
+
+        FORMAT ml_fraud_probability PERCENT8.2;
+
+    RUN;
+
+    %PUT NOTE: Calculated ML fraud scores;
+
+%mend CALCULATE_ML_SCORE;
+
+/* MACRO 3: Generate ML performance metrics */
+%macro ML_PERFORMANCE_METRICS(inds=);
+
+    /* Distribution of scores */
+    PROC MEANS DATA=&inds N MEAN STD MIN P25 MEDIAN P75 MAX;
+        VAR ml_fraud_score ml_fraud_probability;
+        TITLE 'ML Fraud Score Distribution';
+    RUN;
+
+    /* Distribution by risk band */
+    PROC FREQ DATA=&inds;
+        TABLES ml_risk_band / NOCUM;
+        TITLE 'ML Risk Band Distribution';
+    RUN;
+
+    /* Alert rate */
+    PROC FREQ DATA=&inds;
+        TABLES ml_alert / NOCUM;
+        TITLE 'ML Alert Rate';
+    RUN;
+
+%mend ML_PERFORMANCE_METRICS;
+
+/* MACRO 4: Compare ML vs Rule-based */
+%macro COMPARE_MODELS(inds=, outds=);
+
+    DATA &outds;
+        SET &inds;
+
+        /* Categorize agreement */
+        length model_agreement $30;
+
+        if ml_alert = 1 AND is_suspicious = 1 then 
+            model_agreement = 'BOTH_ALERT';
+        else if ml_alert = 1 AND is_suspicious = 0 then 
+            model_agreement = 'ML_ONLY';
+        else if ml_alert = 0 AND is_suspicious = 1 then 
+            model_agreement = 'RULE_ONLY';
+        else 
+            model_agreement = 'BOTH_CLEAR';
+
+        /* Calculate combined score */
+        combined_score = (ml_fraud_score * 0.6) + (rule_score * 0.4);
+
+        /* Combined risk level */
+        length combined_risk_level $10;
+        if combined_score >= 75 then combined_risk_level = 'CRITICAL';
+        else if combined_score >= 50 then combined_risk_level = 'HIGH';
+        else if combined_score >= 25 then combined_risk_level = 'MEDIUM';
+        else combined_risk_level = 'LOW';
+
+    RUN;
+
+    /* Model agreement summary */
+    PROC FREQ DATA=&outds;
+        TABLES model_agreement / NOCUM;
+        TITLE 'Model Agreement Analysis';
+    RUN;
+
+    /* Correlation between scores */
+    PROC CORR DATA=&outds NOSIMPLE;
+        VAR ml_fraud_score rule_score;
+        TITLE 'Correlation: ML Score vs Rule Score';
+    RUN;
+
+    %PUT NOTE: Generated model comparison;
+
+%mend COMPARE_MODELS;
+
+/* Execute ML scoring pipeline */
+%PREPARE_ML_DATA(
+    inds=&input_lib..transactions_with_rules,
+    outds=&output_lib..ml_data_prepared
+);
+
+%CALCULATE_ML_SCORE(
+    inds=&output_lib..ml_data_prepared,
+    outds=&output_lib..transactions_ml_scored
+);
+
+%ML_PERFORMANCE_METRICS(
+    inds=&output_lib..transactions_ml_scored
+);
+
+%COMPARE_MODELS(
+    inds=&output_lib..transactions_ml_scored,
+    outds=&output_lib..transactions_combined_score
+);
+
+/* Display top ML alerts */
+PROC PRINT DATA=&output_lib..transactions_ml_scored(OBS=20);
+    WHERE ml_alert = 1;
+    VAR transaction_id customer_id amount ml_fraud_score ml_fraud_probability 
+        ml_risk_band rule_score;
+    TITLE 'Top 20 ML-Based Fraud Alerts';
+RUN;

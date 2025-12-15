@@ -8,7 +8,7 @@ from  .mermaid_diagram_generator_agent import MermaidDiagramGeneratorAgent
 
 class ReverseEngineeringAgentManager:
     def __init__(self, max_retries=2, verbose=True):
-        llm_provider="google"
+        llm_provider="gemma12b"
         self.agents = {
             "generate_functional_spec": FunctionalSpecGeneratorAgent(provider=llm_provider, model="default", max_retries=max_retries, verbose=verbose),
             "oo_designer": ObjectOrientedDesignerAgent(provider=llm_provider, model="default", max_retries=max_retries, verbose=verbose),
