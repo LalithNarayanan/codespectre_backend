@@ -38,6 +38,12 @@ def load_config():
             "base_dir_default": r"C:\Users\YendetiLalith\Documents\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021",
             "proj_name_default": "LTCHPPSPricerMFApp2021",
             "fs_consolidation_config_default": r"C:\Users\YendetiLalith\Documents\CodeSpectre\MainframeApplications\LTCHPPSPricerMFApp2021\config\functional_specification_consolidation_config.yaml"
+            # "base_dir_parent": r"C:\Users\2786986\Documents\codespectre_backend\MainframeApplications",
+            # "base_dir": "",
+            # "base_dir_default": r"C:\Users\2786986\Documents\codeSpectre_backend\MainframeApplications\LTCHPPSPricerMFApp2021",
+            # "proj_name_default": "LTCHPPSPricerMFApp2021",
+            # "fs_consolidation_config_default": r"C:\Users\2786986\Documents\codeSpectre_backend\MainframeApplications\LTCHPPSPricerMFApp2021\config\functional_specification_consolidation_config.yaml"
+
         },
         
         # ✅ Platform-specific configurations
