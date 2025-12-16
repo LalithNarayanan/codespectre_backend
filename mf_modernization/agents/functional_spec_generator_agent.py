@@ -1,6 +1,7 @@
 # agents/functional_spec_generator_agent.py
 
 from .agent_base import AgentBase
+from .simple_chunker import SimpleChunker  # ✅ ADD THIS IMPORT
 from loguru import logger
 from utils.yaml_load import load_yaml_file, load_topics
 from utils.file_util import save_to_file, write_job_data_to_csv
@@ -8,11 +9,13 @@ from config import load_config
 from pathlib import Path
 import time
 
+
 UNIVERSAL_MARKDOWN_PROMPT = """
 For all sections, format your answer exclusively using markdown syntax. Use appropriate markdown elements such as headings, subheadings, bullet points, numbered lists, code blocks, and tables to enhance readability and organization of the content.
 Follow same and best practice(s) in markdown formatting.
 Don't include tables, nor code snippets unless specifically requested.
 """
+
 
 PLATFORM_PROMPT_TEMPLATES = {
     "mainframe": {
@@ -29,9 +32,19 @@ PLATFORM_PROMPT_TEMPLATES = {
     }
 }
 
+
 class FunctionalSpecGeneratorAgent(AgentBase):
-    def __init__(self, provider="ollama", model="llama3.2", max_retries=3, verbose=True):
+    def __init__(self, provider="ollama", model="llama3.2", max_retries=3, verbose=True, chunker=None):  # ✅ ADDED chunker parameter
         super().__init__(name="FunctionalSpecGeneratorAgent", provider=provider, model=model, max_retries=max_retries, verbose=verbose)
+        
+        # ✅ ADD CHUNKER LOGIC
+        if chunker:
+            self.chunker = chunker
+        else:
+            # Create default chunker if not provided
+            max_tokens = 5000 if provider == "gemma12b" else 100000
+            self.chunker = SimpleChunker(max_tokens=max_tokens)
+        
         self.functional_specification: str = None
         self.code: str = None
         self.job_id: str = None
@@ -44,6 +57,7 @@ class FunctionalSpecGeneratorAgent(AgentBase):
         self.platform: str = None
         self.program_type: str = None
         self.config = load_config()
+
 
     def execute(self, job_id, record_id, base_dir, code, contexts, programs, 
                 platform="mainframe", program_type=None, orchestrate="sequential"):
@@ -70,9 +84,15 @@ class FunctionalSpecGeneratorAgent(AgentBase):
         self.platform = platform.lower()
         self.program_type = program_type
         
+        # ✅ ADD CHUNKING CHECK HERE
+        chunks = self.chunker.chunk_code(self.code)
+        logger.info(f"[{self.platform.upper()}] Code split into {len(chunks)} chunk(s)")
+        for chunk in chunks:
+            logger.info(f"  Chunk {chunk['chunk_id']}: {chunk['tokens']:,} tokens")
+        
         # Setup placeholders
         self.placeholders = self.contexts.copy()
-        self.placeholders['code'] = self.code
+        self.placeholders['code'] = self.code  # Will be updated per chunk if needed
         logger.info(f"[{self.platform.upper()}] Placeholders: {list(self.placeholders.keys())}")
         
         # Determine template keys
@@ -82,9 +102,88 @@ class FunctionalSpecGeneratorAgent(AgentBase):
                 keys_with_values.append(key)
         self.template_key = keys_with_values
         
-        # Generate specification
-        summary = self.create_functional_specification(orchestrate)
+        # ✅ HANDLE SINGLE VS MULTIPLE CHUNKS
+        if len(chunks) == 1:
+            # No chunking needed - existing logic
+            summary = self.create_functional_specification(orchestrate)
+        else:
+            # Multiple chunks - process and merge
+            summary = self.create_functional_specification_chunked(chunks, orchestrate)
+        
         return summary
+
+
+    # ✅ ADD NEW METHOD FOR CHUNKED PROCESSING
+    def create_functional_specification_chunked(self, chunks, orchestrate):
+        """Process multiple chunks and merge results"""
+        logger.info(f"[{self.platform.upper()}] Processing {len(chunks)} chunks separately")
+        
+        all_chunk_specs = []
+        
+        for chunk in chunks:
+            logger.info(f"[{self.platform.upper()}] 📝 Processing chunk {chunk['chunk_id']}")
+            
+            # Update code placeholder for this chunk
+            self.code = chunk['content']
+            self.placeholders['code'] = chunk['content']
+            
+            # Process this chunk using existing logic
+            chunk_spec = self.create_functional_specification(orchestrate)
+            
+            all_chunk_specs.append({
+                'chunk_id': chunk['chunk_id'],
+                'tokens': chunk['tokens'],
+                'specification': chunk_spec
+            })
+        
+        # Merge all chunk specifications
+        logger.info(f"[{self.platform.upper()}] 📝 Merging {len(chunks)} chunk specifications...")
+        merged_spec = self._merge_chunk_specifications(all_chunk_specs)
+        
+        return merged_spec
+
+
+    # ✅ ADD MERGE METHOD
+    def _merge_chunk_specifications(self, chunk_specs):
+        """Merge specifications from multiple chunks using LLM"""
+        
+        merge_prompt = f"""
+You have received functional specifications from {len(chunk_specs)} code chunks.
+Your task is to merge them into ONE complete, coherent functional specification.
+
+Instructions:
+1. Combine all sections (overview, inputs, processing logic, outputs, etc.)
+2. Remove duplicate information
+3. Ensure consistency across all sections
+4. Maintain all important details
+5. Format as a unified markdown document
+
+Chunk Specifications:
+"""
+        
+        for chunk_info in chunk_specs:
+            merge_prompt += f"\n\n## Chunk {chunk_info['chunk_id']} ({chunk_info['tokens']} tokens)\n"
+            merge_prompt += chunk_info['specification']
+        
+        merge_prompt += "\n\nGenerate the final merged functional specification:"
+        
+        messages = [
+            {"role": "system", "content": "You are a technical documentation expert specializing in merging and consolidating specifications."},
+            {"role": "user", "content": merge_prompt}
+        ]
+        
+        logger.info(f"[{self.platform.upper()}] Calling LLM to merge specifications...")
+        response = self.call_model(messages, max_tokens=32000)
+        
+        # Save merged specification
+        output_dir = Path(self.config['get_output_dir'](self.platform))
+        merged_file = output_dir / "intermediary" / self.record_id / f"{self.job_id}_{self.record_id}_MERGED.md"
+        merged_file.parent.mkdir(parents=True, exist_ok=True)
+        save_to_file(str(merged_file), response.content)
+        logger.info(f"[{self.platform.upper()}] Saved merged specification: {merged_file}")
+        
+        return response.content
+
 
     def are_representations_equal(self, str_repr, list_repr):
         list_from_string = str_repr.split(',')
@@ -134,6 +233,7 @@ class FunctionalSpecGeneratorAgent(AgentBase):
             logger.error(f"Prompt '{section_name}' not found in {prompt_file}")
             return None
 
+
     def extract_prompt_and_execute(self, topic):
         """Extract prompt and execute LLM call for topic"""
         logger.info(f"\n[{self.platform.upper()}] Processing topic: {topic}")
@@ -154,14 +254,20 @@ class FunctionalSpecGeneratorAgent(AgentBase):
             logger.warning(f"Could not replace placeholder '{e}' in message")
             formatted_user_message = user_message
         
+        input_size = len(formatted_user_message)
+        logger.warning(f"📊 Input: {input_size:,} chars (~{input_size//4:,} tokens)")
+
         messages = [
             {"role": "system", "content": system_message},
             {"role": "user", "content": formatted_user_message}
         ]
         llm_start_time = time.time()
-        response = self.call_model(messages, max_tokens=650000)
+        response = self.call_model(messages, max_tokens=5000)
         response_content = response.content
         
+        output_size = len(response_content)  # ✅ FIXED TYPO: was "outout_size"
+        logger.warning(f"📊 Output: {output_size:,} chars (~{output_size//4:,} tokens)")
+
         end_time = time.time()
         overall_processing_time = end_time - start_time
         llm_processing_time = end_time - llm_start_time
@@ -207,7 +313,6 @@ class FunctionalSpecGeneratorAgent(AgentBase):
             all_topics = load_yaml_file(f"..\\prompts_template\\{topics_file}")
             logger.info(f"[{self.platform.upper()}] Loading topics from: {topics_file}")
             
-            # ✅ IMPROVED: Use passed program_type with intelligent fallback
             if self.program_type:
                 logger.info(f"[{self.platform.upper()}] Using provided program_type: {self.program_type}")
                 topics = all_topics.get(self.program_type, [])
@@ -215,7 +320,6 @@ class FunctionalSpecGeneratorAgent(AgentBase):
                 logger.warning(f"[{self.platform.upper()}] No program_type provided, attempting auto-detection")
                 topics = self._auto_detect_topics(all_topics)
             
-            # ✅ FALLBACK: If still no topics found
             if not topics:
                 logger.warning(f"[{self.platform.upper()}] No topics found for program_type: {self.program_type}")
                 logger.info(f"[{self.platform.upper()}] Trying fallback lookup...")
