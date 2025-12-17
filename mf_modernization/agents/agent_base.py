@@ -1,143 +1,219 @@
 # agents/agent_base.py
 
-import requests
-from requests.exceptions import Timeout, ConnectionError
+from openai import OpenAI
+from abc import ABC, abstractmethod
 from loguru import logger
-import time
+import os
+from dotenv import load_dotenv
+from .agent_config import load_config
+import json 
+import requests
 
-class AgentBase:
-    def __init__(self, name, provider="ollama", model="llama3.2", max_retries=2, verbose=True):
+# ✨ NEW: LangChain imports
+from langchain_community.llms import Ollama
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+# Load environment variables
+load_dotenv()
+
+config = load_config()
+
+class LLMResponse:
+    def __init__(self, content):
+        self.content = content
+
+class AgentBase(ABC):
+    def __init__(self, name, provider, model="default", max_retries=2, verbose=True):
         self.name = name
         self.provider = provider
-        self.model = model
         self.max_retries = max_retries
         self.verbose = verbose
-    
-    def call_model(self, messages, temperature=0.7, max_tokens=4000):
-        """Call LLM with correct payload format for Gemma server"""
         
-        # ✅ Convert messages to single prompt string
-        prompt = self._messages_to_prompt(messages)
-        
-        # ✅ VERIFY: Build payload exactly like your working invoke_llm()
-        if self.provider == "gemma12b" or self.provider == "gemma":
-            payload = {
-                "user_message": prompt,
-                "sender_id": "",
-                "prompt": []
-            }
-            url = "http://10.144.25.48:8087/message/gemma12b"
+        # ✅ Route to appropriate client based on provider
+        if provider == "gemma12b":
+            # Old custom Gemma12b server
+            self.client = None
+            self.client_type = "custom"
+            self.model = config[provider].get('model', 'gemma12b')
+            
+        elif provider in ["gemma3:12b", "ollama"]:
+            # ✨ NEW: LangChain Ollama client
+            base_url = config[provider]['base_url']
+            model_name = config[provider]['model'] if model == "default" else model
+            
+            self.client = Ollama(
+                model=model_name,
+                base_url=base_url
+            )
+            self.client_type = "langchain_ollama"
+            self.model = model_name
+            
         else:
-            # For other providers
-            payload = {
-                "messages": messages,
-                "temperature": temperature,
-                "max_tokens": max_tokens
-            }
-            url = f"http://someotherserver/{self.provider}"
+            # OpenAI SDK for Google, OpenAI, etc.
+            self.client = OpenAI(
+                base_url=config[provider]['base_url'], 
+                api_key=config[provider]['api_key']
+            )
+            self.client_type = "openai_sdk"
+            if model == "default": 
+                self.model = config[provider]['model']
+            else:
+                self.model = model
         
-        # ✅ DEBUG: Print EXACT payload being sent
-        logger.info(f"[{self.name}] 🔧 Calling {self.provider}")
-        logger.info(f"  URL: {url}")
-        logger.info(f"  Prompt length: {len(prompt)} chars")
-        logger.info(f"  Payload keys: {list(payload.keys())}")  # ✅ VERIFY THIS
-        logger.info(f"  Payload: {str(payload)[:200]}")  # ✅ PRINT ACTUAL PAYLOAD
+        logger.info(f"[{self.name}] Initialized: provider={provider}, model={self.model}, client={self.client_type}")
+    
+    @abstractmethod
+    def execute(self, *args, **kwargs):
+        pass
+
+    def call_model(self, messages, temperature=0.7, max_tokens=150):
+        logger.debug(f"[{self.name}] Calling Model: {self.model}")
         
-        for attempt in range(1, self.max_retries + 1):
+        # ✅ Route based on client type
+        if self.client_type == "custom":
+            return self._call_gemma12b_server(messages, temperature, max_tokens)
+        elif self.client_type == "langchain_ollama":
+            return self._call_langchain_ollama(messages, temperature, max_tokens)
+        elif self.client_type == "openai_sdk":
+            return self._call_openai_compatible(messages, temperature, max_tokens)
+        else:
+            raise Exception(f"Unknown client type: {self.client_type}")
+    
+    def _call_openai_compatible(self, messages, temperature=0.7, max_tokens=150):
+        """Call any OpenAI-compatible API (Google Gemini, OpenAI, etc.)"""
+        retries = 0
+        while retries < self.max_retries:
             try:
-                logger.info(f"[{self.name}] 📤 Attempt {attempt}/{self.max_retries}")
+                if self.verbose:
+                    logger.info(f"[{self.name}] 🔧 Sending to {self.provider} [{self.model}]")
                 
-                start_time = time.time()
-                
-                # ✅ Make the request
-                response = requests.post(
-                    url,
-                    json=payload,  # ✅ Sending correct format
-                    timeout=1000
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
                 )
                 
-                elapsed = time.time() - start_time
+                logger.debug(f"[{self.name}] Raw response: {response.model_dump_json(indent=2)}")
                 
-                logger.info(f"[{self.name}] 📥 Response in {elapsed:.2f}s")
-                logger.info(f"  Status: {response.status_code}")
+                reply = response.choices[0].message
                 
-                if response.status_code == 200:
-                    result = response.json()
-                    
-                    # ✅ Your server returns {"content": "..."}
-                    if 'content' in result:
-                        content = result['content']
-                        logger.info(f"  ✅ Got content: {len(content)} chars")
-                        return type('obj', (object,), {'content': content})()
-                    else:
-                        logger.error(f"  ❌ No 'content' field. Response: {result}")
-                        raise Exception("No 'content' in response")
-                else:
-                    logger.error(f"  ❌ Status {response.status_code}")
-                    logger.error(f"  Body: {response.text[:500]}")
-                    
-                    if attempt < self.max_retries:
-                        time.sleep(5)
-                        continue
-                    raise Exception(f"Server error {response.status_code}")
+                if self.verbose:
+                    logger.info(f"[{self.name}] ✅ Received: {len(reply.content)} chars\n")
                 
-            except Timeout:
-                logger.error(f"[{self.name}] ⏱️ Request timeout after 1000s")
-                logger.error(f"  Server is processing but taking too long")
-                if attempt < self.max_retries:
-                    logger.info(f"  Retrying in 10s...")
-                    time.sleep(10)
-                else:
-                    raise Exception(f"[{self.name}] Timeout after {self.max_retries} attempts")
-            
-            except ConnectionError as e:
-                logger.error(f"[{self.name}] 🔌 CONNECTION FAILED")
-                logger.error(f"  Error: {str(e)[:200]}")
-                logger.error(f"  This means:")
-                logger.error(f"    - Server at {url} is DOWN or UNREACHABLE")
-                logger.error(f"    - Network connectivity issue")
-                logger.error(f"    - Firewall blocking connection")
+                return reply
                 
-                if attempt < self.max_retries:
-                    logger.info(f"  Waiting 10s and retrying...")
-                    time.sleep(10)
-                else:
-                    logger.error(f"  ❌ CRITICAL: Cannot connect to LLM server!")
-                    logger.error(f"  ❌ Please check:")
-                    logger.error(f"     1. Is Gemma server running on 10.144.25.48:8087?")
-                    logger.error(f"     2. Can you ping 10.144.25.48?")
-                    logger.error(f"     3. Try: curl http://10.144.25.48:8087/message/gemma12b")
-                    raise Exception(f"[{self.name}] Cannot connect to server at {url}")
-            
             except Exception as e:
-                logger.error(f"[{self.name}] ❌ Error: {str(e)[:200]}")
-                if attempt < self.max_retries:
-                    time.sleep(5)
-                else:
-                    raise Exception(f"[{self.name}] Failed: {str(e)[:200]}")
+                retries += 1
+                logger.error(f"[{self.name}] Error: {e}. Retry {retries}/{self.max_retries}")
+                if retries >= self.max_retries:
+                    raise Exception(f"[{self.name}] Failed after {self.max_retries} retries: {e}")
         
         raise Exception(f"[{self.name}] Failed after {self.max_retries} retries")
     
-    def _messages_to_prompt(self, messages):
-        """
-        Convert messages array to single prompt string.
+    def _call_langchain_ollama(self, messages, temperature=0.7, max_tokens=150):
+        """✨ NEW: Call Ollama via LangChain (gemma3, ollama providers)"""
+        retries = 0
+        while retries < self.max_retries:
+            try:
+                if self.verbose:
+                    logger.info(f"[{self.name}] 🔧 Sending to {self.provider} via LangChain [{self.model}]")
+                
+                # Convert messages to LangChain format
+                system_prompt = ""
+                user_prompt = ""
+                
+                for msg in messages:
+                    role = msg.get('role', 'user')
+                    content = msg.get('content', '')
+                    
+                    if role == 'system':
+                        system_prompt = content
+                    elif role == 'user':
+                        user_prompt += content + "\n"
+                
+                # Build LangChain prompt template
+                if system_prompt:
+                    prompt_template = ChatPromptTemplate.from_messages([
+                        ('system', system_prompt),
+                        ('human', '{prompt}')
+                    ])
+                else:
+                    prompt_template = ChatPromptTemplate.from_messages([
+                        ('human', '{prompt}')
+                    ])
+                
+                # Create chain: prompt -> llm -> parser
+                chain = prompt_template | self.client | StrOutputParser()
+                
+                # Invoke the chain
+                response_text = chain.invoke({'prompt': user_prompt.strip()})
+                
+                if self.verbose:
+                    logger.info(f"[{self.name}] ✅ Received: {len(response_text)} chars\n")
+                
+                # Return in same format as other methods
+                return LLMResponse(content=response_text)
+                
+            except Exception as e:
+                retries += 1
+                logger.error(f"[{self.name}] Error: {e}. Retry {retries}/{self.max_retries}")
+                if retries >= self.max_retries:
+                    raise Exception(f"[{self.name}] Failed after {self.max_retries} retries: {e}")
         
-        Matches your original invoke_llm() format.
-        """
+        raise Exception(f"[{self.name}] Failed after {self.max_retries} retries")
+    
+    def _call_gemma12b_server(self, messages, temperature=0.7, max_tokens=150):
+        """Call your OLD custom Gemma12b server (different API format)"""
+        # Convert messages to single prompt
         prompt_parts = []
-        
         for msg in messages:
-            role = msg.get('role', 'user')
-            content = msg.get('content', '')
-            
-            if role == 'system':
-                # System message first
-                prompt_parts.insert(0, content)
+            if msg.get('role') == 'system':
+                prompt_parts.insert(0, msg.get('content', ''))
             else:
-                # User message
-                prompt_parts.append(content)
+                prompt_parts.append(msg.get('content', ''))
+        prompt = "\n\n".join(prompt_parts)
         
-        # Join with double newline
-        final_prompt = "\n\n".join(prompt_parts)
+        # Build request
+        base_url = config[self.provider].get('base_url', 'http://10.144.25.48:8087')
+        endpoint = config[self.provider].get('endpoint', '/message/gemma12b')
+        url = f"{base_url}{endpoint}"
         
-        return final_prompt
+        payload = {
+            "user_message": prompt,
+            "sender_id": "",
+            "prompt": []
+        }
+        
+        retries = 0
+        while retries < self.max_retries:
+            try:
+                if self.verbose:
+                    logger.info(f"[{self.name}] 🔧 Sending to OLD Gemma12b server")
+                
+                response = requests.post(
+                    url,
+                    json=payload,
+                    headers={"Content-Type": "application/json"},
+                    timeout=600
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    content = data.get('content', '')
+                    
+                    if self.verbose:
+                        logger.info(f"[{self.name}] ✅ Received: {len(content)} chars\n")
+                    
+                    return LLMResponse(content=content)
+                else:
+                    raise Exception(f"HTTP {response.status_code}: {response.text[:200]}")
+                
+            except Exception as e:
+                retries += 1
+                logger.error(f"[{self.name}] Error: {e}. Retry {retries}/{self.max_retries}")
+                if retries >= self.max_retries:
+                    raise Exception(f"[{self.name}] Failed: {e}")
+        
+        raise Exception(f"[{self.name}] Failed after {self.max_retries} retries")

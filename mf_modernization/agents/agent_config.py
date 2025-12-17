@@ -14,14 +14,14 @@ def load_config():
             "base_url": os.getenv("OPENAI_BASE_URL"),
             "model": "gpt-4o-mini"
         },
-        # "gemma": {
-        #     "api_key": os.getenv("GEMMA_API_KEY"),
-        #     "base_url": os.getenv("GEMMA_BASE_URL"),
-        #     "model": "gemma12b"
-        # },
+        "gemma3:12b": {
+            "api_key": None,  # Ollama doesn't need real API key
+            "base_url": "http://10.170.85.12:11434",  # Ollama with OpenAI compatibility
+            "model": "gemma3:12b"  # or "gemma3:1b" for faster
+        },
         "gemma12b": {
             "api_key": None,
-            "base_url": "http://10.144.25.48:8087",
+            "base_url": "http://10.144.25.48:8087/",
             "model": "gemma12b",
             "endpoint": "/message/gemma12b"
         },
