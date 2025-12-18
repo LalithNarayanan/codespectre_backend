@@ -1,0 +1,419 @@
+# SAS Business Rules Extraction Prompts - UPDATED WITH PIPELINE-LEVEL APPROACH
+# File: agent_fs_sas_prompts_versioned.yaml
+# Last Updated: 2025-12-18
+# Purpose: Extract functional specifications with pipeline-level + per-program hybrid approach
+
+code2functionalspec:
+
+  # Step 1: Program Overview
+  extract_program_overview:
+    versions:
+      - version: code
+        system_message: You are an expert SAS developer and analyst specializing in data pipeline architecture.
+        user_message: |
+          Analyze the given SAS programs as a COHESIVE LOGICAL UNIT (pipeline/workflow).
+
+          Provide your analysis in TWO parts:
+
+          ## Part 1: Pipeline-Level Overview
+          - **Logical Unit Name/ID**: Overall name or identifier for this group of programs
+          - **Pipeline Purpose**: What business problem does this entire pipeline solve?
+          - **Program Execution Sequence**: List programs in execution order with arrows (→)
+          - **End-to-End Data Flow**: Complete data lineage from first input to final output
+          - **Business Value**: What business outcome does this pipeline deliver?
+
+          ## Part 2: Per-Program Details
+          For EACH program file, provide:
+          - **Program Name**: Filename
+          - **Role in Pipeline**: What specific function does this program serve in the overall workflow?
+          - **Business Functions**: List key business functions this program implements
+          - **Input Datasets**: What datasets/files does this program read?
+          - **Output Datasets**: What datasets/files does this program create?
+          - **Dependencies**: Which programs must run before this one?
+
+          Format your response with clear markdown headings and bullet points.
+
+          Instruction:
+          - Analyze ALL programs together first (pipeline view)
+          - Then drill into each program individually
+          - Show relationships between programs (data flow, execution dependencies)
+          - Don't exclude any programs
+
+          SAS Programs:
+          -------------------------------------------
+          ```{code}```
+
+      - version: code,context_1,context_2
+        system_message: You are an expert SAS developer and analyst specializing in data pipeline architecture.
+        user_message: |
+          Analyze the given SAS programs as a COHESIVE LOGICAL UNIT (pipeline/workflow).
+
+          Provide your analysis in TWO parts:
+
+          ## Part 1: Pipeline-Level Overview
+          - **Logical Unit Name/ID**: Overall name or identifier for this group of programs
+          - **Pipeline Purpose**: What business problem does this entire pipeline solve?
+          - **Program Execution Sequence**: List programs in execution order with arrows (→)
+          - **End-to-End Data Flow**: Complete data lineage from first input to final output
+          - **Business Value**: What business outcome does this pipeline deliver?
+
+          ## Part 2: Per-Program Details
+          For EACH program file, provide:
+          - **Program Name**: Filename
+          - **Role in Pipeline**: What specific function does this program serve in the overall workflow?
+          - **Business Functions**: List key business functions this program implements
+          - **Input Datasets**: What datasets/files does this program read?
+          - **Output Datasets**: What datasets/files does this program create?
+          - **Dependencies**: Which programs must run before this one?
+
+          Use the following context to enhance your analysis:
+          Context_1: ```{context_1}```
+          Context_2: ```{context_2}```
+
+          Format your response with clear markdown headings and bullet points.
+
+          Instruction:
+          - Analyze ALL programs together first (pipeline view)
+          - Then drill into each program individually
+          - Show relationships between programs (data flow, execution dependencies)
+          - Don't exclude any programs
+
+          SAS Programs:
+          -------------------------------------------
+          ```{code}```
+
+      - version: code,context_1,context_2,context_3
+        system_message: You are an expert SAS developer and analyst specializing in data pipeline architecture.
+        user_message: |
+          Analyze the given SAS programs as a COHESIVE LOGICAL UNIT (pipeline/workflow).
+
+          Provide your analysis in TWO parts:
+
+          ## Part 1: Pipeline-Level Overview
+          - **Logical Unit Name/ID**: Overall name or identifier for this group of programs
+          - **Pipeline Purpose**: What business problem does this entire pipeline solve?
+          - **Program Execution Sequence**: List programs in execution order with arrows (→)
+          - **End-to-End Data Flow**: Complete data lineage from first input to final output
+          - **Business Value**: What business outcome does this pipeline deliver?
+
+          ## Part 2: Per-Program Details
+          For EACH program file, provide:
+          - **Program Name**: Filename
+          - **Role in Pipeline**: What specific function does this program serve in the overall workflow?
+          - **Business Functions**: List key business functions this program implements
+          - **Input Datasets**: What datasets/files does this program read?
+          - **Output Datasets**: What datasets/files does this program create?
+          - **Dependencies**: Which programs must run before this one?
+
+          Use the following context to enhance your analysis:
+          Context_1: ```{context_1}```
+          Context_2: ```{context_2}```
+          Context_3: ```{context_3}```
+
+          Format your response with clear markdown headings and bullet points.
+
+          Instruction:
+          - Analyze ALL programs together first (pipeline view)
+          - Then drill into each program individually
+          - Show relationships between programs (data flow, execution dependencies)
+          - Don't exclude any programs
+
+          SAS Programs:
+          -------------------------------------------
+          ```{code}```
+
+  # Step 2: DATA Step and Dataset Analysis
+  extract_datastep_dataset_analysis:
+    versions:
+      - version: code
+        system_message: You are an expert SAS developer specializing in data flow architecture.
+        user_message: |
+          Analyze datasets and data flow across ALL programs in this logical unit.
+
+          Provide your analysis in TWO parts:
+
+          ## Part 1: Pipeline-Level Data Flow
+          - **Complete Data Lineage**: Show flow from initial input to final output (use diagram notation: Input → Program1 → Intermediate → Program2 → Output)
+          - **All Datasets Summary**: List ALL datasets (temporary and permanent) created/consumed across the pipeline
+          - **External Data Sources**: List all external inputs (INFILE, database connections, imported files)
+          - **Final Output Datasets**: What are the final deliverables of this pipeline?
+          - **Intermediate Datasets**: Which datasets are used for inter-program communication?
+
+          ## Part 2: Per-Program Dataset Details
+          For EACH program, provide:
+          - **Program Name**: Filename
+          - **Input Sources**: INFILE, SET, MERGE, JOIN statements with dataset names
+          - **Output Datasets**: All datasets created (mark as temporary/permanent)
+          - **Key Variables**: Important variables used and transformed
+          - **RETAIN Statements**: Variable initialization and carry-forward logic
+          - **LIBNAME/FILENAME**: Library and file assignments
+
+          Format your response with clear markdown headings, bullet points, and data flow diagrams.
+
+          Instruction:
+          - Start with end-to-end data flow (all programs together)
+          - Then detail each program's specific dataset operations
+          - Show how datasets flow between programs
+          - Don't exclude any programs or datasets
+
+          SAS Programs:
+          -------------------------------------------
+          ```{code}```
+
+  # Step 3: DATA Step Business Logic
+  extract_datastep_businesslogic:
+    versions:
+      - version: code
+        system_message: You are a SAS transformation expert and business analyst.
+        user_message: |
+          Analyze business logic and transformations across ALL programs in this logical unit.
+
+          Provide your analysis in TWO parts:
+
+          ## Part 1: Pipeline-Level Business Logic
+          - **Overall Business Purpose**: What business process does this pipeline implement?
+          - **Key Business Rules**: High-level business rules enforced across the pipeline
+          - **Transformation Stages**: Describe the pipeline stages (e.g., Stage 1: Ingestion, Stage 2: Cleansing, Stage 3: Calculation)
+          - **Business Validation**: What business validations are performed?
+          - **Business Outcome**: What business decision or action results from this pipeline?
+
+          ## Part 2: Per-Program Business Logic Details
+          For EACH program, provide:
+          - **Program Name**: Filename
+          - **Business Purpose**: What specific business function does this program serve?
+          - **Execution Order**: List DATA macros/steps in execution order with descriptions
+          - **Business Rules**: Specific business rules implemented (IMPORTANT)
+          - **Conditional Logic**: IF/ELSE logic breakdown with business meaning
+          - **DO Loops**: Loop processing logic and business rationale
+          - **Key Calculations**: Formulas and transformations with business context
+          - **Data Validation**: Validation rules and business constraints
+
+          Format your response with clear markdown headings and bullet points.
+
+          Instruction:
+          - Start with overall business story (what problem being solved)
+          - Then detail each program's specific business logic
+          - Connect individual rules to overall business objective
+          - For each rule/logic/step, include relevant business context
+          - Don't exclude any programs
+
+          SAS Programs:
+          -------------------------------------------
+          ```{code}```
+
+  # Step 4: PROC Step and Statistical Processing
+  extract_procstep_statistical_processing:
+    versions:
+      - version: code
+        system_message: You are a SAS analytics specialist and data scientist.
+        user_message: |
+          Analyze PROC steps and analytical operations across ALL programs in this logical unit.
+
+          Provide your analysis in TWO parts:
+
+          ## Part 1: Pipeline-Level Analytical Processing
+          - **Overall Analytical Purpose**: What analytical or reporting objective does this pipeline serve?
+          - **Analytical Workflow**: Describe the sequence of analytical operations
+          - **Key Metrics/Statistics**: What business metrics or statistics are computed?
+          - **Report Outputs**: What reports or analytical outputs are generated?
+          - **Business Application**: How are the analytical results used in business decisions?
+
+          ## Part 2: Per-Program PROC Step Details
+          For EACH program, provide:
+          - **Program Name**: Filename
+          - **PROC Steps List**: All PROC statements (PRINT, MEANS, FREQ, SQL, LOGISTIC, etc.) with descriptions
+          - **Statistical Methods**: Statistical analysis methods used and their purpose
+          - **Predictive Modeling**: Any predictive modeling logic (if applicable)
+          - **Macro Variables**: Macro variable definitions and usage
+          - **Report Formatting**: Report generation and formatting logic
+          - **Business Context**: Business application of each PROC step
+
+          Format your response with clear markdown headings and bullet points.
+
+          Instruction:
+          - Start with overall analytical objectives
+          - Then detail each program's specific PROC operations
+          - Include all PROC statements shown in the code
+          - Connect analytical operations to business value
+          - Don't exclude any programs
+
+          SAS Programs:
+          -------------------------------------------
+          ```{code}```
+
+  # Step 5: Database Connectivity and File I/O
+  extract_database_fileio:
+    versions:
+      - version: code
+        system_message: You are an expert SAS ETL and connectivity specialist.
+        user_message: |
+          Analyze external data connections and I/O operations across ALL programs in this logical unit.
+
+          Provide your analysis in TWO parts:
+
+          ## Part 1: Pipeline-Level I/O Architecture
+          - **External Data Sources**: List all external systems/databases/files accessed
+          - **Data Ingestion Strategy**: How is data brought into the pipeline?
+          - **Data Export Strategy**: How is data published/exported from the pipeline?
+          - **Connection Patterns**: Database engines and connection methods used
+          - **I/O Dependencies**: External systems this pipeline depends on
+
+          ## Part 2: Per-Program I/O Details
+          For EACH program, provide:
+          - **Program Name**: Filename
+          - **Database Operations**: PROC SQL queries and database operations with code blocks
+          - **LIBNAME Assignments**: Database connection libraries
+          - **PROC IMPORT/EXPORT**: File import/export operations with details
+          - **FILENAME Statements**: File operations and references
+          - **Database Engines**: Connection engines used (ODBC, OLEDB, etc.)
+          - **Connection Details**: Connection strings, schemas, tables accessed
+
+          Format your response with clear markdown headings, bullet points, and code blocks.
+
+          Instruction:
+          - Start with overall I/O architecture (what external systems involved)
+          - Then detail each program's specific I/O operations
+          - Include code blocks for every SQL/IMPORT/EXPORT operation
+          - Show data flow in/out of the pipeline
+          - Don't exclude any programs
+
+          SAS Programs:
+          -------------------------------------------
+          ```{code}```
+
+  # Step 6: Step Execution Flow and Dependencies
+  extract_step_execution_flow:
+    versions:
+      - version: code
+        system_message: You are a SAS program flow expert and orchestration specialist.
+        user_message: |
+          Analyze execution flow, dependencies, and orchestration across ALL programs in this logical unit.
+
+          Provide comprehensive analysis:
+
+          ## Part 1: Pipeline Execution Architecture
+          - **Programs List**: All SAS programs in this logical unit
+          - **Execution Sequence**: Complete program execution order with arrows (Program1 → Program2 → Program3)
+          - **Dependency Graph**: Which programs depend on outputs from which other programs
+          - **Parallel Opportunities**: Which programs could potentially run in parallel (no dependencies)?
+          - **Critical Path**: What is the longest dependency chain?
+
+          ## Part 2: Per-Program Execution Details
+          For EACH program, provide:
+          - **Program Name**: Filename
+          - **Internal Step Sequence**: Order of DATA and PROC steps within this program
+          - **Dataset Dependencies**: Which datasets must exist before this program runs?
+          - **Macro Execution**: Macro invocation order (if applicable)
+          - **RUN/QUIT Triggers**: Where execution boundaries occur
+          - **Prerequisites**: What must complete before this program starts?
+
+          ## Part 3: End-to-End Use Cases
+          - **Business Use Cases**: List all business use cases addressed by this complete pipeline
+          - **Workflow Summary**: High-level description of complete workflow
+
+          Format your response with clear markdown headings, diagrams, and bullet points.
+
+          Instruction:
+          - Focus on pipeline-level orchestration first
+          - Show complete execution dependency graph
+          - Then detail individual program execution flows
+          - Summarize business use cases served
+          - Don't exclude any programs
+
+          SAS Programs:
+          -------------------------------------------
+          ```{code}```
+
+  # Step 7: Error Handling and Logging
+  extract_errorhandling_logging:
+    versions:
+      - version: code
+        system_message: You are an expert in SAS error handling, logging, and operational robustness.
+        user_message: |
+          Analyze error handling and logging mechanisms across ALL programs in this logical unit.
+
+          Provide your analysis in TWO parts:
+
+          ## Part 1: Pipeline-Level Error Strategy
+          - **Overall Error Strategy**: How does this pipeline handle failures?
+          - **Error Propagation**: How do errors in one program affect downstream programs?
+          - **Recovery Mechanisms**: What recovery or retry logic exists?
+          - **Logging Architecture**: Where and how are logs centralized?
+          - **Operational Monitoring**: What operational metrics are tracked?
+          - **Failure Scenarios**: What are critical failure points in the pipeline?
+
+          ## Part 2: Per-Program Error Handling Details
+          For EACH program, provide:
+          - **Program Name**: Filename
+          - **Error Checking**: Error detection mechanisms (_ERROR_, FILERC, SQLRC, SYSERR)
+          - **Logging Statements**: PUT statements and log messages
+          - **Abort Conditions**: ABORT and STOP conditions with triggers
+          - **DATA Step Error Handling**: Error handling in DATA steps
+          - **PROC SQL Error Handling**: Exception handling (SQLRC, SQLXRC)
+          - **Error Output**: Error datasets or files created
+          - **Error Codes**: Specific error codes used
+
+          Format your response with clear markdown headings and bullet points.
+
+          Instruction:
+          - Start with pipeline-level error strategy
+          - Then detail each program's specific error handling
+          - Include all error handling logic from the code
+          - Show how errors are logged and tracked
+          - Don't exclude any programs
+
+          SAS Programs:
+          -------------------------------------------
+          ```{code}```
+
+  # Merge functional specifications
+  merge_functional_specs:
+    versions:
+      - version: functional_specs,section
+        system_message: You are a top tier business analyst specializing in data pipeline documentation.
+        user_message: |
+          The {section} section was extracted from multiple functional specifications file.
+          The consolidated content is as follows:
+          {functional_specs}
+
+          Please merge all the contents logically while preserving the two-part structure:
+          - Part 1: Pipeline-Level information (combine and deduplicate)
+          - Part 2: Per-Program Details (ensure all programs included)
+
+          Ensure that no original information is omitted in the enhanced version.
+          Ensure all the merged contents are grouped under the section {section}
+
+          Instruction:
+          Don't exclude any details or program.
+
+      - version: functional_specs,section,context_1
+        system_message: You are a top tier business analyst specializing in data pipeline documentation.
+        user_message: |
+          You are given the following business logic
+          ``` {functional_specs} ```
+          extracted from the SAS Programs
+
+          Combine the section {context_1} across functional specs logically while maintaining:
+          - Pipeline-level overview (merge and deduplicate)
+          - Per-program details (preserve all programs)
+
+          Instruction:
+          Don't exclude any details or program, don't abstract the information.
+
+      - version: functional_specs,context_1,context_2
+        system_message: You are a top tier business analyst specializing in data pipeline documentation.
+        user_message: |
+          You are given the following business logic
+          ``` {functional_specs} ```
+          extracted from the SAS Programs
+
+          {context_1}. But logic extracted is at high level and
+          it needs to be enhanced with more details.
+          Use the given "mapping spec" document to enhance the business logic:
+          ```{context_2} ```
+
+          Maintain the two-part structure:
+          - Part 1: Pipeline-Level (enhance with mapping spec context)
+          - Part 2: Per-Program (enhance each program's details)
+
+          Instruction: Don't exclude any details or program

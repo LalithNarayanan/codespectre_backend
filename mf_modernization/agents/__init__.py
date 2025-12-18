@@ -9,7 +9,7 @@ from  .mermaid_diagram_generator_agent import MermaidDiagramGeneratorAgent
 
 class ReverseEngineeringAgentManager:
     def __init__(self, max_retries=2, verbose=True):
-        llm_provider="gemma3:12b"
+        llm_provider="google"
                 # ✅ Create chunker
         max_tok = 2000 if llm_provider in ["gemma12b", "gemma3:12b"] else 100000
         # max_tok = 2000 if llm_provider == "gemma12b" else 100000

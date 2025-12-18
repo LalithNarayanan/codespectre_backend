@@ -19,11 +19,12 @@ Don't include tables, nor code snippets unless specifically requested.
 
 PLATFORM_PROMPT_TEMPLATES = {
     "mainframe": {
-        "prompts_versioned": "agent_fs_cbl_prompts_versioned.yaml",
-        "prompts_list": "agent_fs_cbl_prompts_list.yaml"
+        "prompts_versioned": "agent_fs_cbl_prompts.yaml",
+        "prompts_list": "agent_fs_prompts_list.yaml"
     },
     "sas": {
-        "prompts_versioned": "agent_fs_sas_prompts_versioned.yaml",
+        # "prompts_versioned": "agent_fs_sas_prompts_versioned.yaml",
+        "prompts_versioned": "agent_fs_sas_prompts_versioned_UPDATED.yaml",
         "prompts_list": "agent_fs_sas_prompts_list.yaml"
     },
     "java": {
